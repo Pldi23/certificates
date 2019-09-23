@@ -1,0 +1,22 @@
+From 13c2d62de1ad6565816005930efd42fb3eba4f19 Mon Sep 17 00:00:00 2001
+From: dzmitry_platonov <dzmitry_platonov@epam.com>
+Date: Sat, 21 Sep 2019 10:50:26 +0300
+Subject: [PATCH] line 11, 12 was modified
+
+---
+ 1.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/1.txt b/1.txt
+index 488c328..b11b81b 100644
+--- a/1.txt
++++ b/1.txt
+@@ -8,3 +8,5 @@ seven
+ eight
+ nine
+ ten
++modifying line eleven
++modifying line twelve
+-- 
+2.23.0
+

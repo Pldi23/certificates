@@ -1,7 +1,7 @@
-line one - changing to 31
-line two - changing to 32
-line three
-line four
+line one
+line two
+line three - step 19 changes
+line four - step 19 changes
 five
 six
 seven
