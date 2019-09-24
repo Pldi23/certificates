@@ -1,11 +1,12 @@
 package com.epam.esm.repository;
 
+import com.epam.esm.repository.specification.SqlSpecification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
- * giftcertificates
+ * gift certificates
  *
  * @author Dzmitry Platonov on 2019-09-23.
  * @version 0.0.1

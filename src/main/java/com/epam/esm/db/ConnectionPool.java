@@ -2,8 +2,8 @@ package com.epam.esm.db;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.jdbc.datasource.SmartDataSource;
 
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,7 +17,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Dzmitry Platonov on 2019-09-23.
  * @version 0.0.1
  */
-public class ConnectionPool implements DataSource {
+public class ConnectionPool implements SmartDataSource {
 
     private static final Logger log = LogManager.getLogger();
 
@@ -29,10 +29,9 @@ public class ConnectionPool implements DataSource {
 
     public ConnectionPool(DataSourceConfiguration dataSourceConfiguration) {
         this.configuration = dataSourceConfiguration;
-        init();
     }
 
-    private void init() {
+    public void init() {
         try {
             Class.forName(configuration.getDbDriver());
         } catch (ClassNotFoundException e) {
@@ -57,8 +56,9 @@ public class ConnectionPool implements DataSource {
         }
     }
 
+    @Override
     public Connection getConnection() {
-        log.trace("Connection taken");
+        log.debug("Connection taken");
         try {
             return connections.take();
         } catch (InterruptedException e) {
@@ -66,6 +66,19 @@ public class ConnectionPool implements DataSource {
             throw new RuntimeException("Interruption during getting connection");
         }
     }
+
+    @Override
+    public boolean shouldClose(Connection connection) {
+        releaseConnection(connection);
+        return false;
+    }
+
+    private void releaseConnection(Connection connection) {
+        connections.add(connection);
+        log.debug("Connection released, available connections: " + connections.size());
+    }
+
+
 
     @Override
     public Connection getConnection(String username, String password) {

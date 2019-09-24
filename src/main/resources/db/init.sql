@@ -3,9 +3,9 @@ create table certificate
     name             varchar(200),
     description      varchar(1000),
     price            numeric,
-    creationDate     timestamp,
-    modificationDate timestamp,
-    expirationDate   timestamp,
+    creationDate     date,
+    modificationDate date,
+    expirationDate   date,
 
 
     constraint certificate_pkey1 PRIMARY KEY (name),
