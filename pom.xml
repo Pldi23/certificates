@@ -7,10 +7,15 @@
     <groupId>com.epam.esm</groupId>
     <artifactId>gift-certificates</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <modules>
+        <module>datasource</module>
+        <module>service</module>
+        <module>controller</module>
+    </modules>
+    <packaging>pom</packaging>
 
     <name>gift-certificates</name>
-    <url>localhost:8080/</url>
+    <url>localhost:8082/</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,6 +28,9 @@
         <spring.framework>4.3.0.RELEASE</spring.framework>
         <h2.version>1.4.197</h2.version>
         <flyway.version>6.0.3</flyway.version>
+        <mockito.version>2.28.2</mockito.version>
+        <javax.servlet.version>4.0.1</javax.servlet.version>
+        <jackson.version>2.9.6</jackson.version>
     </properties>
 
     <dependencies>
@@ -38,36 +46,14 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.framework}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.framework}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -90,17 +76,26 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
         <finalName>gift-certificates</finalName>
         <plugins>
-
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8082/manager/text</url>
+                    <server>TomcatServer</server>
+                    <path>/gift-certificates</path>
+                    <username>tomcat</username>
+                    <password>s3cret</password>
+                    <systemProperties>
+                        <log4j.configuration>file:src/main/resources/log4j2.properties</log4j.configuration>
+                    </systemProperties>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
