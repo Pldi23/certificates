@@ -1,10 +1,9 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.repository.mapper.CertificateMapper;
+import com.epam.esm.repository.extractor.GiftCertificateExtractor;
 import com.epam.esm.repository.specification.SqlSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +51,6 @@ public class CertificateRepository implements Repository<GiftCertificate> {
 
     @Override
     public List<GiftCertificate> query(SqlSpecification specification) {
-        return jdbcTemplate.query(specification.sqlClause(), specification.prepareStatement(), new CertificateMapper());
+        return jdbcTemplate.query(specification.sqlClause(), specification.prepareStatement(), new GiftCertificateExtractor());
     }
 }

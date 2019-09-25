@@ -4,6 +4,8 @@ import com.epam.esm.AppConfig;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.specification.FindAllCertificatesSpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {AppConfig.class})
 public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
+    private static final Logger log = LogManager.getLogger();
+
     @Autowired
     private Repository<GiftCertificate> certificateRepository;
 
@@ -44,7 +48,6 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testQueryPositive() {
-        System.out.println(certificateRepository.query(new FindAllCertificatesSpecification()));
         assertEquals(3, certificateRepository.query(new FindAllCertificatesSpecification()).size());
     }
 }
