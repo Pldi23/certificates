@@ -1,6 +1,6 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.AppConfig;
+import com.epam.esm.DataSourceConfig;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.extractor.GiftCertificateExtractor;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
  * @version 0.0.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {AppConfig.class})
+@ContextConfiguration(classes = {DataSourceConfig.class})
 public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     private static final Logger log = LogManager.getLogger();
@@ -44,9 +44,9 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testAddPositive() {
-        certificateRepository.add(new GiftCertificate("flowers", "one hundred roses", new BigDecimal(50),
+        certificateRepository.add(new GiftCertificate(4,"flowers", "one hundred roses", new BigDecimal(50),
                 LocalDate.of(2019,1,1), LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), Set.of(new Tag("yellow"))));
+                LocalDate.of(2021, 1,1), Set.of(new Tag(8, "yellow"))));
         assertEquals(4, (int) jdbcTemplate.queryForObject("select count(*) from certificate", Integer.class));
     }
 
@@ -57,7 +57,7 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testRemovePositive() {
-        certificateRepository.remove(new GiftCertificate("sport car", "1 hour lamborghini ride",
+        certificateRepository.remove(new GiftCertificate(1,"sport car", "1 hour lamborghini ride",
                 new BigDecimal(250), LocalDate.of(2019,1,1),
                 LocalDate.of(2019,6,1),
                 LocalDate.of(2021, 1,1), new HashSet<>()));
@@ -67,16 +67,18 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
     @Test
     public void testUpdate() {
 
-        GiftCertificate giftCertificate = new GiftCertificate("sport car", "1 hour lamborghini ride",
+        GiftCertificate giftCertificate = new GiftCertificate(1,"sport car", "1 hour lamborghini ride",
                 new BigDecimal(300), LocalDate.of(2019,1,1),
                 LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), Set.of(new Tag("blue"), new Tag("red")));
+                LocalDate.of(2021, 1,1), Set.of(new Tag(9, "blue"), new Tag(10, "red")));
 
         certificateRepository.update(giftCertificate);
 
         GiftCertificate actual = jdbcTemplate.query(
-                "select * from certificate join certificate_tag on certificate.name = certificate_name where name = ?",
-                preparedStatement -> preparedStatement.setString(1, giftCertificate.getName()),
+                "select * from certificate join certificate_tag on certificate.id = certificate_id " +
+                        "left join tag on certificate_tag.tag_id = tag.id where certificate_id = ?"
+                        ,
+                preparedStatement -> preparedStatement.setLong(1, giftCertificate.getId()),
                 new GiftCertificateExtractor()).get(0);
 
         assertEquals(giftCertificate, actual);

@@ -1,6 +1,6 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.AppConfig;
+import com.epam.esm.DataSourceConfig;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.specification.FindAllTagSpecification;
 import org.junit.Test;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
  * @version 0.0.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {AppConfig.class})
+@ContextConfiguration(classes = {DataSourceConfig.class})
 public class TagRepositoryTest extends DatabaseSetupExtension {
 
     @Autowired
@@ -32,13 +32,13 @@ public class TagRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testAddPositive() {
-        tagRepository.add(new Tag("test"));
+        tagRepository.add(new Tag(9, "test"));
         assertEquals(8, (int) jdbcTemplate.queryForObject("select count(*) from tag", Integer.class));
     }
 
     @Test
     public void testRemovePositive() {
-        tagRepository.remove(new Tag("jump"));
+        tagRepository.remove(new Tag(7,"jump"));
         assertEquals(6, (int) jdbcTemplate.queryForObject("select count(*) from tag", Integer.class));
     }
 

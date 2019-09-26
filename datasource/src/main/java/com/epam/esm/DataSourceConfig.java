@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 @ComponentScan("com.epam.esm")
 @EnableTransactionManagement
 @PropertySource(value = { "classpath:application.properties" })
-public class AppConfig {
+public class DataSourceConfig {
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
@@ -31,20 +31,30 @@ public class AppConfig {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
+    public JdbcTemplate jdbcTemplate(ConnectionPool connectionPool ) {
+        return new JdbcTemplate(connectionPool);
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    public PlatformTransactionManager transactionManager(ConnectionPool connectionPool) {
+        return new DataSourceTransactionManager(connectionPool);
     }
 
     @Bean(initMethod = "init")
     @Lazy
-    public ConnectionPool dataSource(DataSourceConfiguration dataSourceConfiguration) {
+    public ConnectionPool connectionPool(DataSourceConfiguration dataSourceConfiguration) {
 
-        return new ConnectionPool(dataSourceConfiguration, innerDataSource(dataSourceConfiguration));
+        return new ConnectionPool(dataSourceConfiguration, dataSource(dataSourceConfiguration));
+    }
+
+    @Bean
+    public DataSource dataSource(DataSourceConfiguration dataSourceConfiguration) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(dataSourceConfiguration.getDbDriver());
+        dataSource.setUrl(dataSourceConfiguration.getJdbcUrl());
+        dataSource.setUsername(dataSourceConfiguration.getUser());
+        dataSource.setPassword(dataSourceConfiguration.getPassword());
+        return dataSource;
     }
 
     @Bean
@@ -56,15 +66,5 @@ public class AppConfig {
         dataSourceConfiguration.setPassword(env.getProperty("jdbc.password"));
         dataSourceConfiguration.setPoolSize(Integer.parseInt(env.getProperty("jdbc.poolsize")));
         return dataSourceConfiguration;
-    }
-
-    @Bean
-    public DataSource innerDataSource(DataSourceConfiguration dataSourceConfiguration) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(dataSourceConfiguration.getDbDriver());
-        dataSource.setUrl(dataSourceConfiguration.getJdbcUrl());
-        dataSource.setUsername(dataSourceConfiguration.getUser());
-        dataSource.setPassword(dataSourceConfiguration.getPassword());
-        return dataSource;
     }
 }

@@ -1,5 +1,6 @@
 create table certificate
 (
+    id               bigint not null,
     name             varchar(200),
     description      varchar(1000),
     price            numeric,
@@ -8,25 +9,26 @@ create table certificate
     expirationDate   date,
 
 
-    constraint certificate_pkey1 PRIMARY KEY (name),
-    constraint unique_name UNIQUE (name)
+    constraint certificate_pkey1 PRIMARY KEY (id),
+    constraint unique_id UNIQUE (id)
 );
 
 create table tag
 (
+    id    bigint not null,
     title varchar(200),
 
-    constraint tag_pkey1 primary key (title),
-    constraint unique_title UNIQUE (title)
+    constraint tag_pkey1 primary key (id),
+    constraint unique_id UNIQUE (id)
 );
 
 create table certificate_tag
 (
-    certificate_name varchar(200),
-    tag_title        varchar(200),
+    certificate_id integer,
+    tag_id        integer,
 
-    constraint foreign_key_certificate_name foreign key (certificate_name)
-        references certificate (name) match simple,
-    constraint foreign_key_tag_title foreign key (tag_title)
-        references tag (title) match simple
+    constraint foreign_key_certificate_id foreign key (certificate_id)
+        references certificate (id) match simple,
+    constraint foreign_key_tag_id foreign key (tag_id)
+        references tag (id) match simple
 )

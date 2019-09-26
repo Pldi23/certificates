@@ -15,13 +15,13 @@ import javax.servlet.ServletRegistration;
  * @author Dzmitry Platonov on 2019-09-25.
  * @version 0.0.1
  */
-public class WebAppInitializer implements WebApplicationInitializer {
+public class AppInitializer implements WebApplicationInitializer {
 
     private static final Logger log = LogManager.getLogger();
 
     public void onStartup(ServletContext servletContext) {
         AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
-        ctx.register(AppConfig.class);
+        ctx.register(DataSourceConfig.class, ApplicationConfig.class);
         ctx.setServletContext(servletContext);
 
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(ctx));

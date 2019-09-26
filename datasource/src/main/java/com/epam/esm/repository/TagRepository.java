@@ -2,6 +2,8 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
 import com.epam.esm.specification.SqlSpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,9 +22,12 @@ import java.util.List;
 @Transactional
 public class TagRepository implements Repository<Tag> {
 
-    private static final String SQL_INSERT = "insert into tag (title) values (?)";
-    private static final String SQL_DELETE = "delete from tag where title = ?;";
-    private static final String SQL_DELETE_LINK = "delete from certificate_tag where tag_title = ?;";
+    private static final Logger log = LogManager.getLogger();
+
+
+    private static final String SQL_INSERT = "insert into tag (id, title) values (?, ?)";
+    private static final String SQL_DELETE = "delete from tag where id = ?;";
+    private static final String SQL_DELETE_LINK = "delete from certificate_tag where tag_id = ?;";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -33,13 +38,15 @@ public class TagRepository implements Repository<Tag> {
 
     @Override
     public void add(Tag tag) {
-        jdbcTemplate.update(SQL_INSERT, tag.getTitle());
+        jdbcTemplate.update(SQL_INSERT, tag.getId(), tag.getTitle());
+        log.debug(tag + " successfully added");
     }
 
     @Override
     public void remove(Tag tag) {
-        jdbcTemplate.update(SQL_DELETE_LINK, tag.getTitle());
-        jdbcTemplate.update(SQL_DELETE, tag.getTitle());
+        jdbcTemplate.update(SQL_DELETE_LINK, tag.getId());
+        jdbcTemplate.update(SQL_DELETE, tag.getId());
+        log.debug(tag + " successfully removed");
     }
 
     @Override

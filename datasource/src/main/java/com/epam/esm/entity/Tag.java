@@ -10,14 +10,15 @@ import java.util.Set;
  * @author Dzmitry Platonov on 2019-09-23.
  * @version 0.0.1
  */
-public class Tag implements Entity{
+public class Tag extends Entity{
 
     private String title;
 
     public Tag() {
     }
 
-    public Tag(String title) {
+    public Tag(long id, String title) {
+        super(id);
         this.title = title;
     }
 

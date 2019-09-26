@@ -1,6 +1,6 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.AppConfig;
+import com.epam.esm.DataSourceConfig;
 import com.epam.esm.db.DataSourceConfiguration;
 import org.flywaydb.core.Flyway;
 import org.junit.After;
@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @version 0.0.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {AppConfig.class})
+@ContextConfiguration(classes = {DataSourceConfig.class})
 public class DatabaseSetupExtension {
 
     @Autowired

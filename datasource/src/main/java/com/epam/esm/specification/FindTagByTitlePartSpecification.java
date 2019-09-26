@@ -8,13 +8,13 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
  * @author Dzmitry Platonov on 2019-09-24.
  * @version 0.0.1
  */
-public class FindByTitlePartSpecification implements SqlSpecification {
+public class FindTagByTitlePartSpecification implements SqlSpecification {
 
     private static final String SQL_SPECIFICATION = "select * from tag where title like ?";
 
     private String stringPart;
 
-    public FindByTitlePartSpecification(String stringPart) {
+    public FindTagByTitlePartSpecification(String stringPart) {
         this.stringPart = stringPart;
     }
 

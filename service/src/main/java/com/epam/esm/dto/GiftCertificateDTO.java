@@ -1,4 +1,6 @@
-package com.epam.esm.entity;
+package com.epam.esm.dto;
+
+import com.epam.esm.entity.Tag;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,11 +10,12 @@ import java.util.Set;
 /**
  * gift certificates
  *
- * @author Dzmitry Platonov on 2019-09-23.
+ * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
-public class GiftCertificate extends Entity {
+public class GiftCertificateDTO {
 
+    private long id;
     private String name;
     private String description;
     private BigDecimal price;
@@ -22,12 +25,12 @@ public class GiftCertificate extends Entity {
 
     private Set<Tag> tags;
 
-    public GiftCertificate() {
+    public GiftCertificateDTO() {
     }
 
-    public GiftCertificate(long id, String name, String description, BigDecimal price, LocalDate creationDate,
-                           LocalDate modificationDate, LocalDate expirationDate, Set<Tag> tags) {
-        super(id);
+    public GiftCertificateDTO(long id, String name, String description, BigDecimal price, LocalDate creationDate,
+                              LocalDate modificationDate, LocalDate expirationDate, Set<Tag> tags) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -35,6 +38,14 @@ public class GiftCertificate extends Entity {
         this.modificationDate = modificationDate;
         this.expirationDate = expirationDate;
         this.tags = tags;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -97,8 +108,9 @@ public class GiftCertificate extends Entity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GiftCertificate that = (GiftCertificate) o;
-        return Objects.equals(name, that.name) &&
+        GiftCertificateDTO that = (GiftCertificateDTO) o;
+        return id == that.id &&
+                Objects.equals(name, that.name) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(price, that.price) &&
                 Objects.equals(creationDate, that.creationDate) &&
@@ -109,13 +121,14 @@ public class GiftCertificate extends Entity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, price, creationDate, modificationDate, expirationDate, tags);
+        return Objects.hash(id, name, description, price, creationDate, modificationDate, expirationDate, tags);
     }
 
     @Override
     public String toString() {
-        return "GiftCertificate{" +
-                "name='" + name + '\'' +
+        return "GiftCertificateDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", creationDate=" + creationDate +

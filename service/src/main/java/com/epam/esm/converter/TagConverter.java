@@ -5,7 +5,7 @@ import com.epam.esm.entity.Tag;
 import org.springframework.stereotype.Component;
 
 /**
- * giftcertificates
+ * gift certificates
  *
  * @author Dzmitry Platonov on 2019-09-25.
  * @version 0.0.1
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 public class TagConverter {
 
     public TagDTO convert(Tag tag) {
-        return new TagDTO(tag.getTitle());
+        return new TagDTO(tag.getId(), tag.getTitle());
     }
 
     public Tag convert(TagDTO tagDTO) {
-        return new Tag(tagDTO.getTitle());
+        return new Tag(tagDTO.getId(), tagDTO.getTitle());
     }
 }

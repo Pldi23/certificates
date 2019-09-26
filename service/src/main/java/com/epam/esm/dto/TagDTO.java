@@ -10,10 +10,23 @@ import java.util.Objects;
  */
 public class TagDTO {
 
+    private long id;
     private String title;
 
-    public TagDTO(String title) {
+    public TagDTO() {
+    }
+
+    public TagDTO(long id, String title) {
+        this.id = id;
         this.title = title;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -29,16 +42,20 @@ public class TagDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TagDTO tagDTO = (TagDTO) o;
-        return Objects.equals(title, tagDTO.title);
+        return id == tagDTO.id &&
+                Objects.equals(title, tagDTO.title);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title);
+        return Objects.hash(id, title);
     }
 
     @Override
     public String toString() {
-        return "TagDTO<" + title + '>';
+        return "TagDTO{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                '}';
     }
 }

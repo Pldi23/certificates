@@ -2,7 +2,6 @@ package com.epam.esm.repository.extractor;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.ResultSet;
@@ -17,22 +16,25 @@ import java.util.*;
  */
 public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCertificate>> {
 
+    private static final String ID_COLUMN = "id";
     private static final String NAME_COLUMN = "name";
     private static final String DESCRIPTION_COLUMN = "description";
     private static final String PRICE_COLUMN = "price";
     private static final String CREATION_DATE_COLUMN = "creationdate";
     private static final String MODIFICATION_DATE_COLUMN = "modificationdate";
     private static final String EXPIRATION_DATE_COLUMN = "expirationdate";
-    private static final String TAG_TITLE_COLUMN = "tag_title";
+    private static final String TAG_TITLE_COLUMN = "title";
+    private static final String TAG_ID_COLUMN = "tag_id";
 
     @Override
-    public List<GiftCertificate> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+    public List<GiftCertificate> extractData(ResultSet resultSet) throws SQLException {
         List<GiftCertificate> giftCertificates = new LinkedList<>();
-        Map<String, GiftCertificate> table = new LinkedHashMap<>();
+        Map<Long, GiftCertificate> table = new LinkedHashMap<>();
         while (resultSet.next()) {
-            if (!table.containsKey(resultSet.getString(NAME_COLUMN))) {
+            if (!table.containsKey(resultSet.getLong(ID_COLUMN))) {
 
                 GiftCertificate giftCertificate = new GiftCertificate();
+                giftCertificate.setId(resultSet.getLong(ID_COLUMN));
                 giftCertificate.setName(resultSet.getString(NAME_COLUMN));
                 giftCertificate.setDescription(resultSet.getString(DESCRIPTION_COLUMN));
                 giftCertificate.setPrice(resultSet.getBigDecimal(PRICE_COLUMN));
@@ -40,13 +42,14 @@ public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCer
                 giftCertificate.setModificationDate(resultSet.getDate(MODIFICATION_DATE_COLUMN).toLocalDate());
                 giftCertificate.setExpirationDate(resultSet.getDate(EXPIRATION_DATE_COLUMN).toLocalDate());
                 giftCertificate.setTags(new HashSet<>());
-                giftCertificate.getTags().add(new Tag(resultSet.getString(TAG_TITLE_COLUMN)));
-                table.put(giftCertificate.getName(), giftCertificate);
+                giftCertificate.getTags().add(new Tag(resultSet.getLong(TAG_ID_COLUMN), resultSet.getString(TAG_TITLE_COLUMN)));
+                table.put(giftCertificate.getId(), giftCertificate);
             } else {
-                table.get(resultSet.getString(NAME_COLUMN)).getTags().add(new Tag(resultSet.getString(TAG_TITLE_COLUMN)));
+                table.get(resultSet.getLong(ID_COLUMN)).getTags()
+                        .add(new Tag(resultSet.getLong(TAG_ID_COLUMN), resultSet.getString(TAG_TITLE_COLUMN)));
             }
         }
-        table.forEach((name, giftCertificate) -> giftCertificates.add(giftCertificate));
+        table.forEach((id, giftCertificate) -> giftCertificates.add(giftCertificate));
         return giftCertificates;
     }
 }
