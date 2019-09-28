@@ -46,9 +46,17 @@ public class CriteriaConverter {
 
     public LimitOffsetCriteria convertLimitOffsetCriteria(LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO) {
         Map<String, String> criteriaMap = limitOffsetCriteriaRequestDTO.getParameters();
+        int limit = 0;
+        long offset = 0;
+        if (criteriaMap.containsKey(LIMIT) && criteriaMap.get(LIMIT) != null && !criteriaMap.get(LIMIT).isBlank()) {
+            limit = Integer.parseInt(criteriaMap.get(LIMIT));
+        }
+        if (criteriaMap.containsKey(OFFSET) && criteriaMap.get(OFFSET) != null && !criteriaMap.get(OFFSET).isBlank()) {
+            offset = Long.parseLong(criteriaMap.get(OFFSET));
+        }
         return new LimitOffsetCriteria.Builder()
-                .withLimit(Integer.parseInt(criteriaMap.getOrDefault(LIMIT, "0")))
-                .withOffset(Long.parseLong(criteriaMap.getOrDefault(OFFSET, "0")))
+                .withLimit(limit)
+                .withOffset(offset)
                 .build();
     }
 

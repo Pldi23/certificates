@@ -26,7 +26,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     private static final Logger log = LogManager.getLogger();
 
-    private static final String SQL_SPECIFICATION = "select * from certificate " +
+    private static final String SQL_SPECIFICATION = "select certificate.id, name, description, price, creationdate," +
+            " modificationdate, expirationdate, certificate_id, tag_id, tag.id, title from certificate " +
             "join certificate_tag on certificate.id = certificate_id " +
             "left join tag on certificate_tag.tag_id = tag.id";
 
@@ -72,11 +73,15 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
     private static final String SQL_PRICE_IN = "price in (";
     private static final String SQL_PRICE_NOT_IN = "price not in (";
 
-    private static final String SQL_TAG_ID_BETWEEN = "tag.id between ? and ? ";
-    private static final String SQL_TAG_ID_NOT_BETWEEN = "tag.id not between ? and ? ";
-    private static final String SQL_TAG_ID_IN = "tag.id in (";
-    private static final String SQL_TAG_ID_NOT_IN = "tag.id not in (";
+    private static final String SQL_TAG_ID_BETWEEN =
+            "certificate_id in (select certificate_id from certificate_tag where tag_id between ? and ?) ";
+    private static final String SQL_TAG_ID_NOT_BETWEEN =
+            "certificate_id in (select certificate_id from certificate_tag where tag_id not between ? and ?) ";
+    private static final String SQL_TAG_ID_IN = "certificate_id in (select certificate_id from certificate_tag where tag_id in (";
+    private static final String SQL_TAG_ID_NOT_IN = "certificate_id in (select certificate_id from certificate_tag where tag_id not in (";
 
+    private static final String ID = "id";
+    private static final String CERTIFICATE_ID = "certificate.id";
     private static final String SQL_LIMIT = " limit ? ";
     private static final String SQL_OFFSET = " offset ? ";
     private static final String SQL_ORDER_BY = " order by ";
@@ -99,15 +104,15 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
     public String sql() {
         return SQL_SPECIFICATION + buildSqlWhere() +
                 List.of(
-                buildIdCriteriaSqlSearchClause(),
-                buildNameCriteriaSqlSearchClause(),
-                buildDescriptionCriteriaSqlSearchClause(),
-                buildCreationDateCriteriaSqlSearchClause(),
-                buildModificationDateCriteriaSqlSearchClause(),
-                buildExpirationDateCriteriaSqlSearchClause(),
-                buildTagIdCriteriaSqlSearchClause(),
-                buildPriceCriteriaSqlSearchClause()).stream()
-                .collect(Collectors.filtering(s -> !s.isBlank(), Collectors.joining(SQL_AND))) +
+                        buildIdCriteriaSqlSearchClause(),
+                        buildNameCriteriaSqlSearchClause(),
+                        buildDescriptionCriteriaSqlSearchClause(),
+                        buildCreationDateCriteriaSqlSearchClause(),
+                        buildModificationDateCriteriaSqlSearchClause(),
+                        buildExpirationDateCriteriaSqlSearchClause(),
+                        buildTagIdCriteriaSqlSearchClause(),
+                        buildPriceCriteriaSqlSearchClause()).stream()
+                        .collect(Collectors.filtering(s -> !s.isBlank(), Collectors.joining(SQL_AND))) +
                 buildSortSqlClause() +
                 buildLimitOffsetSqlClause();
     }
@@ -121,8 +126,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
             lastSettedField = setPreparedStatementCreationDateCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementModificationDateCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementExpirationDateCriteria(preparedStatement, lastSettedField);
-            lastSettedField = setPreparedStatementPriceCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementTagIdCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementPriceCriteria(preparedStatement, lastSettedField);
             setPreparedStatementLimitOffsetCriteria(preparedStatement, lastSettedField);
             log.debug(lastSettedField);
             log.debug(preparedStatement);
@@ -131,14 +136,12 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     private String buildSqlWhere() {
         if (searchCriteria.getIdCriteria() == null &&
-        searchCriteria.getPriceCriteria() == null && searchCriteria.getExpirationDateCriteria() == null &&
-        searchCriteria.getModificationDateCriteria() == null && searchCriteria.getCreationDateCriteria() == null &&
-        searchCriteria.getDescriptionCriteria() == null && searchCriteria.getNameCriteria() == null &&
-        searchCriteria.getTagCriteria() == null) {
-            log.debug("here");
+                searchCriteria.getPriceCriteria() == null && searchCriteria.getExpirationDateCriteria() == null &&
+                searchCriteria.getModificationDateCriteria() == null && searchCriteria.getCreationDateCriteria() == null &&
+                searchCriteria.getDescriptionCriteria() == null && searchCriteria.getNameCriteria() == null &&
+                searchCriteria.getTagCriteria() == null) {
             return "";
         } else {
-            log.debug("wgere");
             return SQL_WHERE;
         }
     }
@@ -155,14 +158,15 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     private String buildSortSqlClause() {
         StringBuilder sql = new StringBuilder();
-        if (sortCriteria != null) {
+        if (sortCriteria != null && !sortCriteria.getCriteriaList().isEmpty() &&
+                !sortCriteria.getCriteriaList().contains("")) {
             List<String> criteriaList = sortCriteria.getCriteriaList();
-            sql.append(SQL_ORDER_BY).append(criteriaList.get(0));
+            sql.append(SQL_ORDER_BY).append(criteriaList.get(0).equals(ID) ? CERTIFICATE_ID : criteriaList.get(0));
             if (!sortCriteria.isPrimaryAscending()) {
                 sql.append(SQL_DESC);
             }
             for (int i = 1; i < criteriaList.size(); i++) {
-                sql.append(criteriaList.get(i));
+                sql.append(criteriaList.get(i).equals(ID) ? CERTIFICATE_ID : criteriaList.get(i));
             }
         }
         return sql.toString();
@@ -539,8 +543,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                             .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
                     break;
                 case NOT_IN:
-                    tagIdSql = SQL_TAG_ID_NOT_IN+ searchCriteria.getTagCriteria().getTagIds().stream()
-                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
+                    tagIdSql = SQL_TAG_ID_NOT_IN + searchCriteria.getTagCriteria().getTagIds().stream()
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN + SQL_CLOSE_IN;
                     break;
                 case BETWEEN:
                     tagIdSql = SQL_TAG_ID_BETWEEN;

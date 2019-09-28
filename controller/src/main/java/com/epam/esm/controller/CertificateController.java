@@ -90,4 +90,9 @@ public class CertificateController {
         }
         return responseEntity;
     }
+
+    @GetMapping(value = "/func", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getByFunction(@RequestParam("desc") String desc, @RequestParam("name") String name) {
+        return ResponseEntity.ok(certificateService.getByFunction(desc, name));
+    }
 }

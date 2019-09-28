@@ -36,8 +36,8 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
     private static final Logger log = LogManager.getLogger();
 
     @Autowired
-    @Qualifier("CertificateRepository")
-    private Repository<GiftCertificate> certificateRepository;
+//    @Qualifier("CertificateRepository")
+    private AbstractCertificateRepository certificateRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;

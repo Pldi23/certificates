@@ -6,12 +6,18 @@ import com.epam.esm.specification.SqlSpecification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * gift certificates
@@ -21,7 +27,7 @@ import java.util.List;
  */
 @Component(value = "CertificateRepository")
 @Transactional
-public class CertificateRepository implements Repository<GiftCertificate> {
+public class CertificateRepository implements AbstractCertificateRepository {
 
     private static final Logger log = LogManager.getLogger();
 
@@ -96,5 +102,23 @@ public class CertificateRepository implements Repository<GiftCertificate> {
     @Override
     public List<GiftCertificate> query(SqlSpecification specification) {
         return jdbcTemplate.query(specification.sql(), specification.setStatement(), new GiftCertificateExtractor());
+    }
+
+    public List<GiftCertificate> getCertificatesByNameOrDescription(String description, String name) {
+        log.debug("desc " + description);
+        log.debug("name " + name);
+        SimpleJdbcCall jdbcCall = new
+                SimpleJdbcCall(jdbcTemplate.getDataSource())
+                .withFunctionName("get_certificate_by_name_description")
+                .returningResultSet("giftCertificates", BeanPropertyRowMapper.newInstance(GiftCertificate.class));
+
+        SqlParameterSource in = new MapSqlParameterSource()
+                .addValue("part_of_description", description)
+                .addValue("part_of_name", name);
+
+        Map<String, Object> out = jdbcCall.execute(in);
+
+        out.forEach((k,v) -> log.debug("key : " + k + " value : " + v));
+        return (List<GiftCertificate>) out.get("giftCertificates");
     }
 }

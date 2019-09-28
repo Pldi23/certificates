@@ -4,6 +4,7 @@ import com.epam.esm.converter.CertificateConverter;
 import com.epam.esm.converter.CriteriaConverter;
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindAllCertificatesSpecification;
 import com.epam.esm.specification.FindCertificateByIdSpecification;
@@ -27,13 +28,13 @@ import java.util.stream.Collectors;
 public class CertificateService {
 
     @Qualifier(value = "CertificateRepository")
-    private Repository<GiftCertificate> certificateRepository;
+    private AbstractCertificateRepository certificateRepository;
 
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
 
     @Autowired
-    public CertificateService(Repository<GiftCertificate> certificateRepository,
+    public CertificateService(AbstractCertificateRepository certificateRepository,
                               CertificateConverter certificateConverter,
                               CriteriaConverter criteriaConverter) {
         this.certificateRepository = certificateRepository;
@@ -97,6 +98,12 @@ public class CertificateService {
                         criteriaConverter.convertSearchCriteria(searchCriteriaDTO),
                         criteriaConverter.convertSortCriteria(sortCriteriaDTO),
                         criteriaConverter.convertLimitOffsetCriteria(limitOffsetCriteriaRequestDTO))).stream()
+                .map(giftCertificate -> certificateConverter.convert(giftCertificate))
+                .collect(Collectors.toList());
+    }
+
+    public List<GiftCertificateDTO> getByFunction(String desc, String name) {
+        return certificateRepository.getCertificatesByNameOrDescription(desc, name).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
