@@ -8,7 +8,7 @@ import java.util.List;
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
-public class NameCriteria {
+public class NameCriteria implements Criteria {
 
     private TextSearchType searchType;
     private List<String> criteriaList;

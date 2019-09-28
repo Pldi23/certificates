@@ -5,17 +5,17 @@ import java.util.List;
 /**
  * giftcertificates
  *
- * @author Dzmitry Platonov on 2019-09-26.
+ * @author Dzmitry Platonov on 2019-09-27.
  * @version 0.0.1
  */
-public class IdCriteria implements Criteria {
+public class TagCriteria implements Criteria {
 
     private ParameterSearchType parameterSearchType;
-    private List<Long> criteriaList;
+    private List<Long> tagIds;
 
-    public IdCriteria(ParameterSearchType parameterSearchType, List<Long> criteriaList) {
+    public TagCriteria(ParameterSearchType parameterSearchType, List<Long> tagIds) {
         this.parameterSearchType = parameterSearchType;
-        this.criteriaList = criteriaList;
+        this.tagIds = tagIds;
     }
 
     public ParameterSearchType getParameterSearchType() {
@@ -26,13 +26,11 @@ public class IdCriteria implements Criteria {
         this.parameterSearchType = parameterSearchType;
     }
 
-    public List<Long> getCriteriaList() {
-        return criteriaList;
+    public List<Long> getTagIds() {
+        return tagIds;
     }
 
-    public void setCriteriaList(List<Long> criteriaList) {
-        this.criteriaList = criteriaList;
+    public void setTagIds(List<Long> tagIds) {
+        this.tagIds = tagIds;
     }
-
-
 }

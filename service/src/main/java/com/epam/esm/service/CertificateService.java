@@ -2,10 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.converter.CertificateConverter;
 import com.epam.esm.converter.CriteriaConverter;
-import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.dto.MessageDTO;
-import com.epam.esm.dto.SearchCriteriaDTO;
-import com.epam.esm.dto.SortCriteriaDTO;
+import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindAllCertificatesSpecification;
@@ -17,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -59,45 +55,48 @@ public class CertificateService {
 
     public MessageDTO save(GiftCertificateDTO giftCertificateDTO) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
-        String message;
+        MessageDTO messageDTO;
         if (certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
             certificateRepository.add(giftCertificate);
-            message = "successfully added";
+            messageDTO = new MessageDTO("successfully added", 201);
         } else {
-            message = "already exists";
+            messageDTO = new MessageDTO("already exists", 200);
         }
-        return new MessageDTO(message);
+        return messageDTO;
     }
 
     public MessageDTO update(GiftCertificateDTO giftCertificateDTO) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
-        String message;
+        MessageDTO messageDTO;
         if (!certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
             certificateRepository.update(giftCertificate);
-            message = "successfully updated";
+            messageDTO = new MessageDTO("successfully updated", 200);
         } else {
-            message = "gift certificate id: " + giftCertificateDTO.getId() + " no found";
+            messageDTO = new MessageDTO("gift certificate id: " + giftCertificateDTO.getId() + " no found", 204);
         }
-        return new MessageDTO(message);
+        return messageDTO;
     }
 
     public MessageDTO delete(long id) {
         List<GiftCertificate> certificates = certificateRepository.query(new FindCertificateByIdSpecification(id));
-        String message;
+        MessageDTO messageDTO;
         if (!certificates.isEmpty()) {
             certificateRepository.remove(certificates.get(0));
-            message = "successfully removed";
+            messageDTO = new MessageDTO("successfully removed", 204);
         } else {
-            message = "certificate with id: " + id + " not found";
+            messageDTO = new MessageDTO("certificate with id: " + id + " not found", 200);
         }
-        return new MessageDTO(message);
+        return messageDTO;
     }
 
-    public List<GiftCertificateDTO> findByCriteria(SearchCriteriaDTO searchCriteriaDTO, SortCriteriaDTO sortCriteriaDTO) {
+    public List<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO,
+                                                   SortCriteriaRequestDTO sortCriteriaDTO,
+                                                   LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO) {
         return certificateRepository.query(
                 new FindCertificatesByCriteriaSpecification(
                         criteriaConverter.convertSearchCriteria(searchCriteriaDTO),
-                        criteriaConverter.convertSortCriteria(sortCriteriaDTO))).stream()
+                        criteriaConverter.convertSortCriteria(sortCriteriaDTO),
+                        criteriaConverter.convertLimitOffsetCriteria(limitOffsetCriteriaRequestDTO))).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }

@@ -1,15 +1,23 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.dto.MessageDTO;
+import com.epam.esm.controller.parser.DtoParser;
+import com.epam.esm.controller.validator.RequestParametersValidator;
+import com.epam.esm.dto.*;
 import com.epam.esm.service.CertificateService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.DataBinder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * gift certificates
@@ -20,51 +28,66 @@ import java.util.Map;
 @RestController
 @EnableWebMvc
 @RequestMapping("certificates")
+@Validated
 public class CertificateController {
 
     private CertificateService certificateService;
+    private DtoParser dtoParser;
+    private RequestParametersValidator validator;
 
-    @Autowired
-    public CertificateController(CertificateService certificateService) {
+
+    public CertificateController(CertificateService certificateService, DtoParser dtoParser, RequestParametersValidator validator) {
         this.certificateService = certificateService;
+        this.dtoParser = dtoParser;
+        this.validator = validator;
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GiftCertificateDTO> findAll() {
-        return certificateService.findAll();
+    public ResponseEntity findAll() {
+        return ResponseEntity.ok().body(certificateService.findAll());
     }
 
     @GetMapping(value = "/{id}")
-    public List<GiftCertificateDTO> findOneById(@PathVariable("id") long id) {
-        return certificateService.findOneById(id);
+    public ResponseEntity findOneById(@PathVariable("id") @Min(value = 0, message = "certificate id should be greater than 0") long id) {
+        return ResponseEntity.ok().body(certificateService.findOneById(id));
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public MessageDTO add(@RequestBody GiftCertificateDTO giftCertificateDTO) {
-        return certificateService.save(giftCertificateDTO);
+    public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
+        MessageDTO messageDTO = certificateService.save(giftCertificateDTO);
+        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO.getMessage());
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public MessageDTO update(@RequestBody GiftCertificateDTO giftCertificateDTO) {
-        return certificateService.update(giftCertificateDTO);
+    public ResponseEntity update(@RequestBody GiftCertificateDTO giftCertificateDTO) {
+        MessageDTO messageDTO = certificateService.update(giftCertificateDTO);
+        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO.getMessage());
     }
 
     @DeleteMapping(value = "/{id}")
-    public MessageDTO delete(@PathVariable("id") long id) {
-        return certificateService.delete(id);
+    public ResponseEntity delete(@PathVariable("id") long id) {
+        MessageDTO messageDTO = certificateService.delete(id);
+        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO.getMessage());
     }
 
-    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE)
-    public String findByCriteria(@RequestParam Map<String, String> criteriaMap) {
-//        CriteriaDTO criteriaDTO = new CriteriaDTO(criteriaMap);
-        return criteriaMap.toString();
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity findByCriteria(@RequestParam Map<String, String> criteriaMap) {
+        ResponseEntity responseEntity;
+        final DataBinder dataBinder = new DataBinder(criteriaMap);
+        dataBinder.addValidators(validator);
+        dataBinder.validate();
+        if (dataBinder.getBindingResult().hasErrors()) {
+            List<String> errors = dataBinder.getBindingResult().getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getCode)
+                    .collect(Collectors.toList());
+            responseEntity = ResponseEntity.badRequest().body(errors);
+        } else {
+            SortCriteriaRequestDTO sortCriteriaRequestDTO = dtoParser.parseSortCriteria(criteriaMap);
+            SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
+            LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO = dtoParser.parseLimitOffsetCriteria(criteriaMap);
+            responseEntity = ResponseEntity.ok(certificateService
+                    .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO));
+        }
+        return responseEntity;
     }
-//    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE)
-//    public String findByCriteria(
-//            @RequestParam("command") List<String> commands,
-//            @RequestParam("then") List<String> thenCommands,
-//            @RequestParam("name") List<String> names
-//    ) {
-//        return "params: " + " com:" + commands + " , then: " + thenCommands + " , nams" + names;
-//    }
 }

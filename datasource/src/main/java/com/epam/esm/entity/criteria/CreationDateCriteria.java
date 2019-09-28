@@ -4,12 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * giftcertificates
+ * gift certificates
  *
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
-public class CreationDateCriteria {
+public class CreationDateCriteria implements Criteria {
 
     private ParameterSearchType parameterSearchType;
     private List<LocalDate> criteriaList;

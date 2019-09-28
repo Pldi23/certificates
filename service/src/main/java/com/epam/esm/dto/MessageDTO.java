@@ -1,5 +1,6 @@
 package com.epam.esm.dto;
 
+
 import java.util.Objects;
 
 /**
@@ -11,12 +12,14 @@ import java.util.Objects;
 public class MessageDTO {
 
     private String message;
+    private int status;
 
     public MessageDTO() {
     }
 
-    public MessageDTO(String message) {
+    public MessageDTO(String message, int status) {
         this.message = message;
+        this.status = status;
     }
 
     public String getMessage() {
@@ -27,16 +30,25 @@ public class MessageDTO {
         this.message = message;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MessageDTO that = (MessageDTO) o;
-        return Objects.equals(message, that.message);
+        return status == that.status &&
+                Objects.equals(message, that.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(message);
+        return Objects.hash(message, status);
     }
 }

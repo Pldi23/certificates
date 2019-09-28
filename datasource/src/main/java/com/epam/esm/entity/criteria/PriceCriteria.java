@@ -1,20 +1,20 @@
 package com.epam.esm.entity.criteria;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * giftcertificates
+ * gift certificates
  *
- * @author Dzmitry Platonov on 2019-09-26.
+ * @author Dzmitry Platonov on 2019-09-27.
  * @version 0.0.1
  */
-public class ModificationDateCriteria implements Criteria {
+public class PriceCriteria implements Criteria {
 
     private ParameterSearchType parameterSearchType;
-    private List<LocalDate> criteriaList;
+    private List<BigDecimal> criteriaList;
 
-    public ModificationDateCriteria(ParameterSearchType parameterSearchType, List<LocalDate> criteriaList) {
+    public PriceCriteria(ParameterSearchType parameterSearchType, List<BigDecimal> criteriaList) {
         this.parameterSearchType = parameterSearchType;
         this.criteriaList = criteriaList;
     }
@@ -27,11 +27,11 @@ public class ModificationDateCriteria implements Criteria {
         this.parameterSearchType = parameterSearchType;
     }
 
-    public List<LocalDate> getCriteriaList() {
+    public List<BigDecimal> getCriteriaList() {
         return criteriaList;
     }
 
-    public void setCriteriaList(List<LocalDate> criteriaList) {
+    public void setCriteriaList(List<BigDecimal> criteriaList) {
         this.criteriaList = criteriaList;
     }
 }

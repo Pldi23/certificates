@@ -1,5 +1,6 @@
-package com.epam.esm;
+package com.epam.esm.controller;
 
+import com.epam.esm.DataSourceConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.WebApplicationInitializer;

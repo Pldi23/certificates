@@ -14,6 +14,8 @@ public class SearchCriteria {
     private CreationDateCriteria creationDateCriteria;
     private ModificationDateCriteria modificationDateCriteria;
     private ExpirationDateCriteria expirationDateCriteria;
+    private PriceCriteria priceCriteria;
+    private TagCriteria tagCriteria;
 
 
     private SearchCriteria() {
@@ -52,6 +54,16 @@ public class SearchCriteria {
             return this;
         }
 
+        public Builder withPriceCriteria(PriceCriteria priceCriteria) {
+            searchCriteria.priceCriteria = priceCriteria;
+            return this;
+        }
+
+        public Builder withTagCriteria(TagCriteria tagCriteria) {
+            searchCriteria.tagCriteria = tagCriteria;
+            return this;
+        }
+
         public SearchCriteria build() {
             return searchCriteria;
         }
@@ -79,5 +91,13 @@ public class SearchCriteria {
 
     public ExpirationDateCriteria getExpirationDateCriteria() {
         return expirationDateCriteria;
+    }
+
+    public PriceCriteria getPriceCriteria() {
+        return priceCriteria;
+    }
+
+    public TagCriteria getTagCriteria() {
+        return tagCriteria;
     }
 }

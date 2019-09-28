@@ -5,10 +5,13 @@ import com.epam.esm.dto.TagDTO;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
 /**
  * gift certificates
@@ -19,6 +22,7 @@ import java.util.List;
 @RestController
 @EnableWebMvc
 @RequestMapping("tags")
+@Validated
 public class TagController {
 
     private TagService tagService;
@@ -29,23 +33,25 @@ public class TagController {
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<TagDTO> getAllTags() {
-        return tagService.findAll();
+    public ResponseEntity getAllTags() {
+        return ResponseEntity.ok().body(tagService.findAll());
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<TagDTO> getById(@PathVariable("id") long id) {
-        return tagService.getTag(id);
+    public ResponseEntity getById(@PathVariable("id") @Min(value = 0, message = "id should be greater than 0") long id) {
+        return ResponseEntity.ok().body(tagService.getTag(id));
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public MessageDTO add(@RequestBody TagDTO tagDTO) {
-        return tagService.save(tagDTO);
+    public ResponseEntity add(@Valid @RequestBody TagDTO tagDTO) {
+        MessageDTO messageDTO = tagService.save(tagDTO);
+        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO.getMessage());
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public MessageDTO delete(@PathVariable("id") long id) {
-        return tagService.delete(id);
+    public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "id should be greater than 0") long id) {
+        MessageDTO messageDTO = tagService.delete(id);
+        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO.getMessage());
     }
 
 //    @GetMapping(value = "/certificates/{id}/tags/{id}")

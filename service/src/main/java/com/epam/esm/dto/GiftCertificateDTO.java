@@ -2,6 +2,8 @@ package com.epam.esm.dto;
 
 import com.epam.esm.entity.Tag;
 
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -15,14 +17,30 @@ import java.util.Set;
  */
 public class GiftCertificateDTO {
 
+    @Min(value = 0, message = "certificate id should be greater than 0")
     private long id;
+
+    @NotBlank(message = "name should not be empty") @Size(min = 1, max = 30, message = "name should be 1-30 symbols")
     private String name;
+
+    @Size(min = 1, max = 1000, message = "description should be 1-1000 symbols")
     private String description;
+
+    @DecimalMin(value = "0", message = "price should be positive")
     private BigDecimal price;
+
+    @NotNull
+    @PastOrPresent
     private LocalDate creationDate;
+
+    @NotNull
+    @PastOrPresent
     private LocalDate modificationDate;
+
+    @NotNull
     private LocalDate expirationDate;
 
+    @Valid
     private Set<Tag> tags;
 
     public GiftCertificateDTO() {
@@ -102,6 +120,16 @@ public class GiftCertificateDTO {
 
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
+    }
+
+    @AssertTrue(message="creation date later than date of modification")
+    private boolean isCreationDateBeforeModificationDate() {
+        return this.creationDate.isBefore(this.modificationDate);
+    }
+
+    @AssertTrue(message="creation date later than date of expiration")
+    private boolean isCreationDateBeforeExpirationDate() {
+        return this.creationDate.isBefore(this.expirationDate);
     }
 
     @Override

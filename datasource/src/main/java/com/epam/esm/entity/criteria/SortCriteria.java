@@ -12,8 +12,6 @@ public class SortCriteria {
 
     private boolean isPrimaryAscending;
     private List<String> criteriaList;
-    private int limit;
-    private long offset;
 
     private SortCriteria() {
     }
@@ -35,16 +33,6 @@ public class SortCriteria {
             return this;
         }
 
-        public Builder withLimit(int limit) {
-            sortCriteria.limit = limit;
-            return this;
-        }
-
-        public Builder withOffset(long offset) {
-            sortCriteria.offset = offset;
-            return this;
-        }
-
         public SortCriteria build() {
             return sortCriteria;
         }
@@ -56,13 +44,5 @@ public class SortCriteria {
 
     public List<String> getCriteriaList() {
         return criteriaList;
-    }
-
-    public int getLimit() {
-        return limit;
-    }
-
-    public long getOffset() {
-        return offset;
     }
 }

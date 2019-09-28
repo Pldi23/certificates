@@ -1,5 +1,6 @@
 package com.epam.esm.specification;
 
+import com.epam.esm.entity.criteria.LimitOffsetCriteria;
 import com.epam.esm.entity.criteria.SearchCriteria;
 import com.epam.esm.entity.criteria.SortCriteria;
 import com.epam.esm.exception.CriteriaSearchTypeException;
@@ -7,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,7 +28,9 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     private static final String SQL_SPECIFICATION = "select * from certificate " +
             "join certificate_tag on certificate.id = certificate_id " +
-            "left join tag on certificate_tag.tag_id = tag.id where ";
+            "left join tag on certificate_tag.tag_id = tag.id";
+
+    private static final String SQL_WHERE = " where ";
 
 
     private static final String SQL_ID_BETWEEN = "certificate.id between ? and ? ";
@@ -63,6 +67,16 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
     private static final String SQL_EXPIRATION_DATE_IN = "expirationdate in (";
     private static final String SQL_EXPIRATION_DATE_NOT_IN = "expirationdate not in (";
 
+    private static final String SQL_PRICE_BETWEEN = "price between ? and ?";
+    private static final String SQL_PRICE_NOT_BETWEEN = "price not between ? and ?";
+    private static final String SQL_PRICE_IN = "price in (";
+    private static final String SQL_PRICE_NOT_IN = "price not in (";
+
+    private static final String SQL_TAG_ID_BETWEEN = "tag.id between ? and ? ";
+    private static final String SQL_TAG_ID_NOT_BETWEEN = "tag.id not between ? and ? ";
+    private static final String SQL_TAG_ID_IN = "tag.id in (";
+    private static final String SQL_TAG_ID_NOT_IN = "tag.id not in (";
+
     private static final String SQL_LIMIT = " limit ? ";
     private static final String SQL_OFFSET = " offset ? ";
     private static final String SQL_ORDER_BY = " order by ";
@@ -71,51 +85,71 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     private SearchCriteria searchCriteria;
     private SortCriteria sortCriteria;
+    private LimitOffsetCriteria limitOffsetCriteria;
 
 
-    public FindCertificatesByCriteriaSpecification(SearchCriteria searchCriteria, SortCriteria sortCriteria) {
+    public FindCertificatesByCriteriaSpecification(SearchCriteria searchCriteria, SortCriteria sortCriteria,
+                                                   LimitOffsetCriteria limitOffsetCriteria) {
         this.searchCriteria = searchCriteria;
         this.sortCriteria = sortCriteria;
+        this.limitOffsetCriteria = limitOffsetCriteria;
     }
 
     @Override
     public String sql() {
-        return SQL_SPECIFICATION + List.of(
+        return SQL_SPECIFICATION + buildSqlWhere() +
+                List.of(
                 buildIdCriteriaSqlSearchClause(),
                 buildNameCriteriaSqlSearchClause(),
                 buildDescriptionCriteriaSqlSearchClause(),
                 buildCreationDateCriteriaSqlSearchClause(),
                 buildModificationDateCriteriaSqlSearchClause(),
-                buildExpirationDateCriteriaSqlSearchClause()).stream()
+                buildExpirationDateCriteriaSqlSearchClause(),
+                buildTagIdCriteriaSqlSearchClause(),
+                buildPriceCriteriaSqlSearchClause()).stream()
                 .collect(Collectors.filtering(s -> !s.isBlank(), Collectors.joining(SQL_AND))) +
-                buildSortSqlClause();
+                buildSortSqlClause() +
+                buildLimitOffsetSqlClause();
     }
 
     @Override
     public PreparedStatementSetter setStatement() {
-        return new PreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement preparedStatement) throws SQLException {
-                int lastSettedField = setPreparedStatementIdCriteria(preparedStatement);
-                lastSettedField = setPreparedStatementNameCriteria(preparedStatement, lastSettedField);
-                lastSettedField = setPreparedStatementDescriptionCriteria(preparedStatement, lastSettedField);
-                lastSettedField = setPreparedStatementCreationDateCriteria(preparedStatement, lastSettedField);
-                lastSettedField = setPreparedStatementModificationDateCriteria(preparedStatement, lastSettedField);
-                lastSettedField = setPreparedStatementExpirationDateCriteria(preparedStatement, lastSettedField);
-                setPreparedStatementSortCriteria(preparedStatement, lastSettedField);
-                log.debug(lastSettedField);
-                log.debug(preparedStatement);
-            }
+        return preparedStatement -> {
+            int lastSettedField = setPreparedStatementIdCriteria(preparedStatement);
+            lastSettedField = setPreparedStatementNameCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementDescriptionCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementCreationDateCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementModificationDateCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementExpirationDateCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementPriceCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementTagIdCriteria(preparedStatement, lastSettedField);
+            setPreparedStatementLimitOffsetCriteria(preparedStatement, lastSettedField);
+            log.debug(lastSettedField);
+            log.debug(preparedStatement);
         };
     }
 
-    private void setPreparedStatementSortCriteria(PreparedStatement preparedStatement, int lastSettedField) throws SQLException {
-        if (sortCriteria != null) {
+    private String buildSqlWhere() {
+        if (searchCriteria.getIdCriteria() == null &&
+        searchCriteria.getPriceCriteria() == null && searchCriteria.getExpirationDateCriteria() == null &&
+        searchCriteria.getModificationDateCriteria() == null && searchCriteria.getCreationDateCriteria() == null &&
+        searchCriteria.getDescriptionCriteria() == null && searchCriteria.getNameCriteria() == null &&
+        searchCriteria.getTagCriteria() == null) {
+            log.debug("here");
+            return "";
+        } else {
+            log.debug("wgere");
+            return SQL_WHERE;
+        }
+    }
+
+    private void setPreparedStatementLimitOffsetCriteria(PreparedStatement preparedStatement, int lastSettedField) throws SQLException {
+        if (limitOffsetCriteria != null) {
             lastSettedField++;
-            if (sortCriteria.getLimit() != 0) {
-                preparedStatement.setInt(lastSettedField++, sortCriteria.getLimit());
+            if (limitOffsetCriteria.getLimit() != 0) {
+                preparedStatement.setInt(lastSettedField++, limitOffsetCriteria.getLimit());
             }
-            preparedStatement.setLong(lastSettedField, sortCriteria.getOffset());
+            preparedStatement.setLong(lastSettedField, limitOffsetCriteria.getOffset());
         }
     }
 
@@ -130,7 +164,14 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
             for (int i = 1; i < criteriaList.size(); i++) {
                 sql.append(criteriaList.get(i));
             }
-            if (sortCriteria.getLimit() != 0) {
+        }
+        return sql.toString();
+    }
+
+    private String buildLimitOffsetSqlClause() {
+        StringBuilder sql = new StringBuilder();
+        if (limitOffsetCriteria != null) {
+            if (limitOffsetCriteria.getLimit() != 0) {
                 sql.append(SQL_LIMIT);
             }
             sql.append(SQL_OFFSET);
@@ -162,6 +203,56 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
             }
         }
         return idSql;
+    }
+
+    private String buildPriceCriteriaSqlSearchClause() {
+        String priceSql = "";
+        if (searchCriteria != null && searchCriteria.getPriceCriteria() != null) {
+            switch (searchCriteria.getPriceCriteria().getParameterSearchType()) {
+                case IN:
+                    priceSql = SQL_PRICE_IN + searchCriteria.getPriceCriteria().getCriteriaList().stream()
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
+                    break;
+                case NOT_IN:
+                    priceSql = SQL_PRICE_NOT_IN + searchCriteria.getPriceCriteria().getCriteriaList().stream()
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
+                    break;
+                case BETWEEN:
+                    priceSql = SQL_PRICE_BETWEEN;
+                    break;
+                case NOT_BETWEEN:
+                    priceSql = SQL_PRICE_NOT_BETWEEN;
+                    break;
+                default:
+                    throw new CriteriaSearchTypeException("no enum constant for "
+                            + searchCriteria.getPriceCriteria().getParameterSearchType() + " found");
+            }
+        }
+        return priceSql;
+    }
+
+    private int setPreparedStatementPriceCriteria(PreparedStatement preparedStatement, int lastSettedField) throws SQLException {
+        if (searchCriteria != null && searchCriteria.getPriceCriteria() != null) {
+            switch (searchCriteria.getPriceCriteria().getParameterSearchType()) {
+                case IN:
+                case NOT_IN:
+                    for (BigDecimal price : searchCriteria.getPriceCriteria().getCriteriaList()) {
+                        lastSettedField++;
+                        preparedStatement.setBigDecimal(lastSettedField, price);
+                    }
+                    break;
+                case BETWEEN:
+                case NOT_BETWEEN:
+                    lastSettedField++;
+                    preparedStatement.setBigDecimal(lastSettedField++, searchCriteria.getPriceCriteria().getCriteriaList().get(0));
+                    preparedStatement.setBigDecimal(lastSettedField, searchCriteria.getPriceCriteria().getCriteriaList().get(1));
+                    break;
+                default:
+                    throw new CriteriaSearchTypeException("no enum constant for "
+                            + searchCriteria.getCreationDateCriteria().getParameterSearchType() + " found");
+            }
+        }
+        return lastSettedField;
     }
 
     private int setPreparedStatementIdCriteria(PreparedStatement preparedStatement) throws SQLException {
@@ -434,6 +525,56 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                 default:
                     throw new CriteriaSearchTypeException("no enum constant for "
                             + searchCriteria.getExpirationDateCriteria().getSearchType() + " found");
+            }
+        }
+        return lastSettedField;
+    }
+
+    private String buildTagIdCriteriaSqlSearchClause() {
+        String tagIdSql = "";
+        if (searchCriteria != null && searchCriteria.getTagCriteria() != null) {
+            switch (searchCriteria.getTagCriteria().getParameterSearchType()) {
+                case IN:
+                    tagIdSql = SQL_TAG_ID_IN + searchCriteria.getTagCriteria().getTagIds().stream()
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
+                    break;
+                case NOT_IN:
+                    tagIdSql = SQL_TAG_ID_NOT_IN+ searchCriteria.getTagCriteria().getTagIds().stream()
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
+                    break;
+                case BETWEEN:
+                    tagIdSql = SQL_TAG_ID_BETWEEN;
+                    break;
+                case NOT_BETWEEN:
+                    tagIdSql = SQL_TAG_ID_NOT_BETWEEN;
+                    break;
+                default:
+                    throw new CriteriaSearchTypeException("no enum constant for "
+                            + searchCriteria.getTagCriteria().getTagIds() + " found");
+            }
+        }
+        return tagIdSql;
+    }
+
+    private int setPreparedStatementTagIdCriteria(PreparedStatement preparedStatement, int lastSettedField) throws SQLException {
+        if (searchCriteria != null && searchCriteria.getTagCriteria() != null) {
+            switch (searchCriteria.getTagCriteria().getParameterSearchType()) {
+                case IN:
+                case NOT_IN:
+                    for (long id : searchCriteria.getTagCriteria().getTagIds()) {
+                        lastSettedField++;
+                        preparedStatement.setLong(lastSettedField, id);
+                    }
+                    break;
+                case BETWEEN:
+                case NOT_BETWEEN:
+                    lastSettedField++;
+                    preparedStatement.setLong(lastSettedField++, searchCriteria.getTagCriteria().getTagIds().get(0));
+                    preparedStatement.setLong(lastSettedField, searchCriteria.getTagCriteria().getTagIds().get(1));
+                    break;
+                default:
+                    throw new CriteriaSearchTypeException("no enum constant for "
+                            + searchCriteria.getIdCriteria().getParameterSearchType() + " found");
             }
         }
         return lastSettedField;

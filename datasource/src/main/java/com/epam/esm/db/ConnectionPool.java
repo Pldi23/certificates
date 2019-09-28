@@ -1,5 +1,6 @@
 package com.epam.esm.db;
 
+import com.epam.esm.exception.ApplicationDataSourceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.datasource.SmartDataSource;
@@ -43,7 +44,7 @@ public class ConnectionPool implements SmartDataSource {
             }
         } catch (ClassNotFoundException e) {
             log.fatal("Driver registration error", e);
-            throw new RuntimeException("Database driver connection failed", e);
+            throw new ApplicationDataSourceException("Database driver connection failed", e);
         }
         log.debug("Connection pool initialized with " + connections.size() + " connections");
     }
@@ -59,7 +60,7 @@ public class ConnectionPool implements SmartDataSource {
             return connections.take();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Interruption during getting connection");
+            throw new ApplicationDataSourceException("Interruption during getting connection", e);
         }
     }
 

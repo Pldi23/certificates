@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class TagService {
 
     private static final String TAG_ADDED = "successfully added";
+    private static final String TAG_DELETED = "successfully removed";
     private static final String TAG_EXISTS = "already exists";
 
 
@@ -61,25 +62,25 @@ public class TagService {
 
     public MessageDTO save(TagDTO tagDTO) {
         Tag tag = tagConverter.convert(tagDTO);
-        String message;
+        MessageDTO messageDTO;
         if (tagRepository.query(new FindTagByIdSpecification(tag.getId())).isEmpty()) {
             tagRepository.add(tag);
-            message = TAG_ADDED;
+            messageDTO = new MessageDTO(TAG_ADDED, 201);
         } else {
-            message = TAG_EXISTS;
+            messageDTO = new MessageDTO(TAG_EXISTS, 200);
         }
-        return new MessageDTO(message);
+        return messageDTO;
     }
 
     public MessageDTO delete(long id) {
         List<Tag> tags = tagRepository.query(new FindTagByIdSpecification(id));
-        String message;
+        MessageDTO messageDTO;
         if (!tags.isEmpty()) {
             tagRepository.remove(tags.get(0));
-            message = TAG_ADDED;
+            messageDTO = new MessageDTO(TAG_DELETED, 204);
         } else {
-            message = "tag with id: " + id + " not found";
+            messageDTO = new MessageDTO("tag with id: " + id + " not found", 200);
         }
-        return new MessageDTO(message);
+        return messageDTO;
     }
 }

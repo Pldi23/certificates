@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withIdCriteria(idCriteria)
                 .build();
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null);
+        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
         log.debug(sqlSpecification.sql());
         assertEquals(2, certificateRepository.query(sqlSpecification).size());
     }
@@ -52,7 +53,7 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withNameCriteria(nameCriteriaLike)
                 .build();
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null);
+        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
         log.debug(sqlSpecification.sql());
         assertEquals(2, certificateRepository.query(sqlSpecification).size());
     }
@@ -67,6 +68,7 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         ModificationDateCriteria modificationDateCriteria = new ModificationDateCriteria(ParameterSearchType.NOT_BETWEEN,
                 List.of(LocalDate.of(2017,1,1), LocalDate.of(2018,1,1)));
         CreationDateCriteria creationDateCriteria = new CreationDateCriteria(ParameterSearchType.NOT_IN, List.of());
+        PriceCriteria priceCriteria = new PriceCriteria(ParameterSearchType.BETWEEN, List.of(new BigDecimal(0), new BigDecimal(1000)));
 
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withNameCriteria(nameCriteriaIn)
@@ -75,16 +77,20 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
                 .withExpirationDateCriteria(expirationDateCriteria)
                 .withCreationDateCriteria(creationDateCriteria)
                 .withModificationDateCriteria(modificationDateCriteria)
+                .withPriceCriteria(priceCriteria)
+                .build();
+
+        LimitOffsetCriteria limitOffsetCriteria = new LimitOffsetCriteria.Builder()
+                .withLimit(20)
+                .withOffset(0)
                 .build();
 
         SortCriteria sortCriteria = new SortCriteria.Builder()
                 .withIsAscending(false)
                 .withCriterias(List.of("name"))
-                .withLimit(20)
-                .withOffset(0)
                 .build();
 
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, sortCriteria);
+        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, sortCriteria, limitOffsetCriteria);
         List<GiftCertificate> actual = certificateRepository.query(sqlSpecification);
         log.debug(sqlSpecification.sql());
         log.debug(actual);
@@ -98,10 +104,21 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withCreationDateCriteria(creationDateCriteria)
                 .build();
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null);
+        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
         log.debug(sqlSpecification.sql());
         assertEquals(3, certificateRepository.query(sqlSpecification).size());
 
+    }
+
+    @Test
+    public void testTagCriteria() {
+        TagCriteria tagCriteria = new TagCriteria(ParameterSearchType.IN, List.of(1L));
+        SearchCriteria searchCriteria = new SearchCriteria.Builder()
+                .withTagCriteria(tagCriteria)
+                .build();
+        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
+        log.debug(sqlSpecification.sql());
+        assertEquals(3, certificateRepository.query(sqlSpecification).size());
     }
 
 }

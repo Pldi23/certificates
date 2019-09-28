@@ -1,5 +1,9 @@
 package com.epam.esm.dto;
 
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -10,7 +14,10 @@ import java.util.Objects;
  */
 public class TagDTO {
 
+    @Min(value = 0, message = "id should be greater than 0")
     private long id;
+
+    @NotBlank(message = "title should not be empty")
     private String title;
 
     public TagDTO() {
