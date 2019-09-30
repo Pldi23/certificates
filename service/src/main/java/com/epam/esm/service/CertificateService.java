@@ -5,7 +5,6 @@ import com.epam.esm.converter.CriteriaConverter;
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.AbstractCertificateRepository;
-import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindAllCertificatesSpecification;
 import com.epam.esm.specification.FindCertificateByIdSpecification;
 import com.epam.esm.specification.FindCertificatesByCriteriaSpecification;
@@ -25,7 +24,13 @@ import java.util.stream.Collectors;
  */
 @Component(value = "CertificateService")
 @Transactional
-public class CertificateService {
+public class CertificateServiceImpl implements CertificateService {
+
+    private static final String SAVE_SUCCESS = "successfully added";
+    private static final String UPDATE_SUCCESS = "successfully updated";
+    private static final String REMOVE_SUCCESS = "successfully removed";
+    private static final String NOT_FOUND = "gift certificate no found";
+    private static final String EXISTS = "already exists";
 
     @Qualifier(value = "CertificateRepository")
     private AbstractCertificateRepository certificateRepository;
@@ -34,62 +39,69 @@ public class CertificateService {
     private CriteriaConverter criteriaConverter;
 
     @Autowired
-    public CertificateService(AbstractCertificateRepository certificateRepository,
-                              CertificateConverter certificateConverter,
-                              CriteriaConverter criteriaConverter) {
+    public CertificateServiceImpl(AbstractCertificateRepository certificateRepository,
+                                  CertificateConverter certificateConverter,
+                                  CriteriaConverter criteriaConverter) {
         this.certificateRepository = certificateRepository;
         this.certificateConverter = certificateConverter;
         this.criteriaConverter = criteriaConverter;
     }
 
+    @Override
     public List<GiftCertificateDTO> findAll() {
         return certificateRepository.query(new FindAllCertificatesSpecification()).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<GiftCertificateDTO> findOneById(long id) {
         return certificateRepository.query(new FindCertificateByIdSpecification(id)).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
 
+    @Override
     public MessageDTO save(GiftCertificateDTO giftCertificateDTO) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         MessageDTO messageDTO;
         if (certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
             certificateRepository.add(giftCertificate);
-            messageDTO = new MessageDTO("successfully added", 201);
+            messageDTO = new MessageDTO(SAVE_SUCCESS, 201);
         } else {
-            messageDTO = new MessageDTO("already exists", 200);
+            messageDTO = new MessageDTO(EXISTS, 400);
         }
         return messageDTO;
     }
 
-    public MessageDTO update(GiftCertificateDTO giftCertificateDTO) {
+    @Override
+    public MessageDTO update(GiftCertificateDTO giftCertificateDTO, long id) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
+        giftCertificate.setId(id);
         MessageDTO messageDTO;
         if (!certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
             certificateRepository.update(giftCertificate);
-            messageDTO = new MessageDTO("successfully updated", 200);
+            messageDTO = new MessageDTO(UPDATE_SUCCESS, 200);
         } else {
-            messageDTO = new MessageDTO("gift certificate id: " + giftCertificateDTO.getId() + " no found", 204);
+            messageDTO = new MessageDTO(NOT_FOUND, 400);
         }
         return messageDTO;
     }
 
+    @Override
     public MessageDTO delete(long id) {
         List<GiftCertificate> certificates = certificateRepository.query(new FindCertificateByIdSpecification(id));
         MessageDTO messageDTO;
         if (!certificates.isEmpty()) {
             certificateRepository.remove(certificates.get(0));
-            messageDTO = new MessageDTO("successfully removed", 204);
+            messageDTO = new MessageDTO(REMOVE_SUCCESS, 200);
         } else {
-            messageDTO = new MessageDTO("certificate with id: " + id + " not found", 200);
+            messageDTO = new MessageDTO(NOT_FOUND, 400);
         }
         return messageDTO;
     }
 
+    @Override
     public List<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO,
                                                    SortCriteriaRequestDTO sortCriteriaDTO,
                                                    LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO) {

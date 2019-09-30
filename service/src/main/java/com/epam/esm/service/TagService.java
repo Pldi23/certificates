@@ -4,9 +4,8 @@ import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.MessageDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.Repository;
+import com.epam.esm.repository.AbstractTagRepository;
 import com.epam.esm.specification.FindAllTagSpecification;
-import com.epam.esm.specification.FindTagByTitlePartSpecification;
 import com.epam.esm.specification.FindTagByIdSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,28 +23,21 @@ import java.util.stream.Collectors;
  */
 @Service(value = "TagService")
 @Transactional
-public class TagService {
+public class TagServiceImpl {
 
     private static final String TAG_ADDED = "successfully added";
     private static final String TAG_DELETED = "successfully removed";
-    private static final String TAG_EXISTS = "already exists";
 
 
     @Qualifier(value = "TagRepository")
-    private Repository<Tag> tagRepository;
+    private AbstractTagRepository tagRepository;
 
     private TagConverter tagConverter;
 
     @Autowired
-    public TagService(Repository<Tag> tagRepository, TagConverter tagConverter) {
+    public TagServiceImpl(AbstractTagRepository tagRepository, TagConverter tagConverter) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
-    }
-
-    public List<TagDTO> getTag(String title) {
-        return tagRepository.query(new FindTagByTitlePartSpecification(title)).stream()
-                .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
     }
 
     public List<TagDTO> getTag(long id) {
@@ -62,14 +54,8 @@ public class TagService {
 
     public MessageDTO save(TagDTO tagDTO) {
         Tag tag = tagConverter.convert(tagDTO);
-        MessageDTO messageDTO;
-        if (tagRepository.query(new FindTagByIdSpecification(tag.getId())).isEmpty()) {
-            tagRepository.add(tag);
-            messageDTO = new MessageDTO(TAG_ADDED, 201);
-        } else {
-            messageDTO = new MessageDTO(TAG_EXISTS, 200);
-        }
-        return messageDTO;
+        tagRepository.add(tag);
+        return new MessageDTO(TAG_ADDED, 201);
     }
 
     public MessageDTO delete(long id) {
@@ -77,9 +63,9 @@ public class TagService {
         MessageDTO messageDTO;
         if (!tags.isEmpty()) {
             tagRepository.remove(tags.get(0));
-            messageDTO = new MessageDTO(TAG_DELETED, 204);
+            messageDTO = new MessageDTO(TAG_DELETED, 200);
         } else {
-            messageDTO = new MessageDTO("tag with id: " + id + " not found", 200);
+            messageDTO = new MessageDTO("tag with id: " + id + " not found", 400);
         }
         return messageDTO;
     }
