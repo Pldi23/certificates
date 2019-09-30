@@ -1,7 +1,7 @@
 package com.epam.esm;
 
 import com.epam.esm.db.ConnectionPool;
-import com.epam.esm.db.DataSourceConfiguration;
+import com.epam.esm.config.DataSourceConfiguration;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
