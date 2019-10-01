@@ -10,7 +10,6 @@ create table certificate
 
 
     constraint certificate_pkey1 PRIMARY KEY (id)
---     constraint unique_id UNIQUE (id)
 );
 
 create table tag
@@ -19,7 +18,6 @@ create table tag
     title varchar(200),
 
     constraint tag_pkey1 primary key (id)
---     constraint unique_id UNIQUE (id)
 );
 
 create table certificate_tag

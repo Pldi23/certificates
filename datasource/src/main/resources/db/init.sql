@@ -9,8 +9,7 @@ create table certificate
     expirationDate   date,
 
 
-    constraint certificate_pkey1 PRIMARY KEY (id),
-    constraint unique_id UNIQUE (id)
+    constraint certificate_pkey1 PRIMARY KEY (id)
 );
 
 create table tag
@@ -18,8 +17,7 @@ create table tag
     id    serial,
     title varchar(200),
 
-    constraint tag_pkey1 primary key (id),
-    constraint unique_id UNIQUE (id)
+    constraint tag_pkey1 primary key (id)
 );
 
 create table certificate_tag
@@ -28,7 +26,7 @@ create table certificate_tag
     tag_id        integer,
 
     constraint foreign_key_certificate_id foreign key (certificate_id)
-        references certificate (id) match simple,
+        references certificate (id),
     constraint foreign_key_tag_id foreign key (tag_id)
-        references tag (id) match simple
+        references tag (id)
 )

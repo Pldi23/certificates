@@ -24,7 +24,9 @@ class SqlConstant {
             "update certificate set name = ?, description = ?, price = ?, creationdate = ?, modificationdate = ?," +
                     " expirationdate = ? where id = ?;";
 
-    static final String SQL_SELECT_CERTIFICATES_BY_TAG = "select * from get_certificates_by_tag(?)";
+    static final String SQL_SELECT_CERTIFICATES_BY_TAG =
+            "select id, name, description, price, creationdate, modificationdate, expirationdate, out_certificate_id," +
+                    " out_tag_id, t_id, title from get_certificates_by_tag(?)";
     static final String CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN = "tag_id";
     static final String CERTIFICATE_EXTRACTOR_OUT_TAG_ID = "out_tag_id";
 
