@@ -10,9 +10,7 @@ import com.epam.esm.specification.FindCertificateByIdSpecification;
 import com.epam.esm.specification.FindCertificatesByCriteriaSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +23,6 @@ import java.util.stream.Collectors;
  * @version 0.0.1
  */
 @Component(value = "CertificateService")
-@Transactional
 public class CertificateService {
 
     private AbstractCertificateRepository certificateRepository;
@@ -67,11 +64,6 @@ public class CertificateService {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         giftCertificate.setId(id);
         return certificateRepository.update(giftCertificate);
-//        if (!certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
-//            certificateRepository.update(giftCertificate);
-//            return new MessageDTO(messageSource.getMessage("entity.update", null, null), 200);
-//        }
-//        return new MessageDTO(messageSource.getMessage("entity.no", null, null), 404);
 
     }
 
