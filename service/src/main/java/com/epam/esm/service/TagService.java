@@ -51,10 +51,9 @@ public class TagService {
                 .collect(Collectors.toList());
     }
 
-    public MessageDTO save(TagDTO tagDTO) {
-        Tag tag = tagConverter.convert(tagDTO);
-        tagRepository.add(tag);
-        return new MessageDTO(messageSource.getMessage("entity.save", null, null), 201);
+    public TagDTO save(TagDTO tagDTO) {
+        Tag tag = tagRepository.add(tagConverter.convert(tagDTO));
+        return tag != null ? tagConverter.convert(tag) : null;
     }
 
     public MessageDTO delete(long id) {

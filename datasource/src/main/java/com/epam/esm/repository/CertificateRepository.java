@@ -31,9 +31,9 @@ public class CertificateRepository implements AbstractCertificateRepository {
     }
 
     @Override
-    public void add(GiftCertificate giftCertificate) {
+    public GiftCertificate add(GiftCertificate giftCertificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
+        int insertionResult = jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(SQL_INSERT_CERTIFICATE, new String[]{"id"});
             ps.setString(1, giftCertificate.getName());
             ps.setString(2, giftCertificate.getDescription());
@@ -56,6 +56,8 @@ public class CertificateRepository implements AbstractCertificateRepository {
                 jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, keyHolder.getKey(), tag.getId());
             }
         });
+        giftCertificate.setId(keyHolder.getKey().longValue());
+        return insertionResult != 0 ? giftCertificate : null;
     }
 
     @Override

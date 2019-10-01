@@ -33,7 +33,16 @@
             <artifactId>spring-web</artifactId>
             <version>${spring.framework}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.hateoas</groupId>
+            <artifactId>spring-hateoas</artifactId>
+            <version>0.25.1.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.plugin</groupId>
+            <artifactId>spring-plugin-core</artifactId>
+            <version>1.2.0.RELEASE</version>
+        </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>

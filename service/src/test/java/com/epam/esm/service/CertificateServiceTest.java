@@ -95,24 +95,21 @@ public class CertificateServiceTest {
 
     @Test
     public void saveSuccessful() {
+        Mockito.when(repository.add(any())).thenReturn(giftCertificate);
 
-        Mockito.when(repository.query(any())).thenReturn(List.of());
-        Mockito.doNothing().when(repository).add(giftCertificate);
-
-        MessageDTO actual = service.save(giftCertificateDTO);
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.save", null, null), 201);
-        assertEquals(expected, actual);
+        GiftCertificateDTO actual = service.save(giftCertificateDTO);
+        giftCertificateDTO.setId(4);
+        assertEquals(giftCertificateDTO, actual);
 
     }
 
     @Test
     public void saveUnSuccessful() {
 
-        Mockito.when(repository.query(any())).thenReturn(List.of(giftCertificate));
+        Mockito.when(repository.add(any())).thenReturn(null);
+        GiftCertificateDTO actual = service.save(giftCertificateDTO);
 
-        MessageDTO actual = service.save(giftCertificateDTO);
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.exist", null, null), 400);
-        assertEquals(expected, actual);
+        assertNull(actual);
 
     }
 

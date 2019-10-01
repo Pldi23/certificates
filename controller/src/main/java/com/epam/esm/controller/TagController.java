@@ -5,6 +5,10 @@ import com.epam.esm.dto.TagDTO;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityLinks;
+import org.springframework.hateoas.ExposesResourceFor;
+import org.springframework.hateoas.LinkBuilder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,16 +29,19 @@ import java.util.List;
 @EnableWebMvc
 @RequestMapping("tags")
 @Validated
+@ExposesResourceFor(TagDTO.class)
 public class TagController {
 
     private TagService tagService;
     private CertificateService certificateService;
+    private EntityLinks entityLinks;
 
 
     @Autowired
-    public TagController(TagService tagService, CertificateService certificateService) {
+    public TagController(TagService tagService, CertificateService certificateService, EntityLinks entityLinks) {
         this.tagService = tagService;
         this.certificateService = certificateService;
+        this.entityLinks = entityLinks;
     }
 
 
@@ -52,8 +59,18 @@ public class TagController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity add(@Valid @RequestBody TagDTO tagDTO) {
-        MessageDTO messageDTO = tagService.save(tagDTO);
-        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO);
+        ResponseEntity responseEntity;
+        TagDTO createdTagDTO = tagService.save(tagDTO);
+        if (createdTagDTO != null) {
+            LinkBuilder linkBuilder
+                    = entityLinks.linkForSingleResource(TagDTO.class, createdTagDTO.getId());
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
+            responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(createdTagDTO);
+        } else {
+            responseEntity = ResponseEntity.status(500).build();
+        }
+        return responseEntity;
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

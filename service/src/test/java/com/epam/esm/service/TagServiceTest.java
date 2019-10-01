@@ -79,9 +79,11 @@ public class TagServiceTest {
     @Test
     public void save() {
         TagDTO tagDTO = new TagDTO(1, "expected");
-        MessageDTO messageDTO = tagService.save(tagDTO);
+
+        Mockito.when(tagRepository.add(any())).thenReturn(new Tag(8, tagDTO.getTitle()));
+        TagDTO actual = tagService.save(tagDTO);
         Mockito.verify(tagRepository, times(1)).add(new Tag(1, "expected"));
-        assertEquals(new MessageDTO(messageSource.getMessage("entity.save", null, null), 201), messageDTO);
+        assertEquals(new TagDTO(8, tagDTO.getTitle()), actual);
     }
 
     @Test

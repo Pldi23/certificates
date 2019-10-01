@@ -5,6 +5,10 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
+import org.springframework.hateoas.EntityLinks;
+import org.springframework.hateoas.ExposesResourceFor;
+import org.springframework.hateoas.LinkBuilder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.DataBinder;
@@ -28,20 +32,25 @@ import java.util.Map;
 @EnableWebMvc
 @RequestMapping("certificates")
 @Validated
+@ExposesResourceFor(GiftCertificateDTO.class)
 public class CertificateController {
 
     private CertificateService certificateService;
     private TagService tagService;
     private DtoParser dtoParser;
     private RequestParametersValidator validator;
+    private EntityLinks entityLinks;
+
 
 
     public CertificateController(CertificateService certificateService, DtoParser dtoParser,
-                                 RequestParametersValidator validator, TagService tagService) {
+                                 RequestParametersValidator validator, TagService tagService,
+                                 EntityLinks entityLinks) {
         this.certificateService = certificateService;
         this.dtoParser = dtoParser;
         this.validator = validator;
         this.tagService = tagService;
+        this.entityLinks = entityLinks;
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,8 +69,19 @@ public class CertificateController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
-        MessageDTO messageDTO = certificateService.save(giftCertificateDTO);
-        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO);
+        ResponseEntity responseEntity;
+
+        GiftCertificateDTO createdGiftCertificatesDTO = certificateService.save(giftCertificateDTO);
+        if (createdGiftCertificatesDTO != null) {
+            LinkBuilder linkBuilder
+                    = entityLinks.linkForSingleResource(GiftCertificateDTO.class, createdGiftCertificatesDTO.getId());
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
+            responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(createdGiftCertificatesDTO);
+        } else {
+            responseEntity = ResponseEntity.status(500).build();
+        }
+        return responseEntity;
     }
 
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

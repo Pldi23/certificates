@@ -5,9 +5,12 @@ import com.epam.esm.repository.mapper.TagMapper;
 import com.epam.esm.specification.SqlSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 import static com.epam.esm.repository.SqlConstant.*;
@@ -24,8 +27,15 @@ public class TagRepository implements AbstractTagRepository {
     }
 
     @Override
-    public void add(Tag tag) {
-        jdbcTemplate.update(SQL_TAG_INSERT, tag.getTitle());
+    public Tag add(Tag tag) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        int insertionResult = jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(SQL_TAG_INSERT, new String[]{"id"});
+            ps.setString(1, tag.getTitle());
+            return ps;
+        }, keyHolder);
+        tag.setId(keyHolder.getKey().longValue());
+        return insertionResult != 0 ? tag : null;
     }
 
     @Override

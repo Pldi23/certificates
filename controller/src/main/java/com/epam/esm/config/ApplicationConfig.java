@@ -2,6 +2,7 @@ package com.epam.esm.config;
 
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.hateoas.config.EnableEntityLinks;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
@@ -14,6 +15,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 @Configuration
 @ComponentScan("com.epam.esm")
 @EnableTransactionManagement
+@EnableEntityLinks
 public class ApplicationConfig {
 
     @Bean

@@ -57,14 +57,9 @@ public class CertificateService {
     }
 
 
-    public MessageDTO save(GiftCertificateDTO giftCertificateDTO) {
-        GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
-        if (certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
-            certificateRepository.add(giftCertificate);
-            return new MessageDTO(messageSource.getMessage("entity.save", null, null), 201);
-        }
-        return new MessageDTO(messageSource.getMessage("entity.exist", null, null), 400);
-
+    public GiftCertificateDTO save(GiftCertificateDTO giftCertificateDTO) {
+        GiftCertificate giftCertificate = certificateRepository.add(certificateConverter.convert(giftCertificateDTO));
+        return giftCertificate != null ? certificateConverter.convert(giftCertificate) : null;
     }
 
 
