@@ -48,7 +48,8 @@ public class TagRepository implements AbstractTagRepository {
 
     @Override
     public List<Tag> query(SqlSpecification specification) {
-        return jdbcTemplate.query(specification.sql(), specification.setStatement(), new BeanPropertyRowMapper<>(Tag.class));
+        return jdbcTemplate.query(specification.sql(), specification.setStatement(),
+                new TagMapper(SQL_TAG_ID_COLUMN, SQL_TAG_TITLE_COLUMN));
     }
 
     @Override
@@ -63,6 +64,7 @@ public class TagRepository implements AbstractTagRepository {
         return jdbcTemplate.query(
                 SQL_GET_TAGS_BY_CERTIFICATE_FUNCTION,
                 preparedStatement ->
-                        preparedStatement.setLong(1, id), new TagMapper());
+                        preparedStatement.setLong(1, id),
+                new TagMapper(SQL_TAG_ID_FUNCTION_COLUMN, SQL_TAG_TITLE_FUNCTION_COLUMN));
     }
 }

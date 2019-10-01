@@ -13,8 +13,19 @@ import java.sql.SQLException;
  * @version 0.0.1
  */
 public class TagMapper implements RowMapper<Tag> {
+
+    private String idColumn;
+    private String titleColumn;
+
+    public TagMapper(String idColumn, String titleColumn) {
+        this.idColumn = idColumn;
+        this.titleColumn = titleColumn;
+    }
+
     @Override
     public Tag mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Tag(resultSet.getLong("out_id"), resultSet.getString("out_title"));
+        return new Tag(resultSet.getLong(idColumn), resultSet.getString(titleColumn));
     }
+
+    //"out_id" "out_title"
 }

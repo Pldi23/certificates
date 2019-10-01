@@ -32,4 +32,10 @@ class SqlConstant {
     static final String SQL_TAG_DELETE = "delete from tag where id = ?;";
     static final String SQL_TAG_DELETE_LINK = "delete from certificate_tag where tag_id = ?;";
     static final String SQL_GET_TAGS_BY_CERTIFICATE_FUNCTION = "select * from get_tags_by_certificate(?)";
+    static final String SQL_TAG_ID_COLUMN = "id";
+    static final String SQL_TAG_TITLE_COLUMN = "title";
+    static final String SQL_TAG_ID_FUNCTION_COLUMN = "out_id";
+    static final String SQL_TAG_TITLE_FUNCTION_COLUMN = "out_title";
+
+
 }
