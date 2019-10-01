@@ -80,7 +80,7 @@ public class CertificateController {
             httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
             responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(optionalGiftCertificateDTO.get());
         } else {
-            responseEntity = ResponseEntity.status(500).build();
+            responseEntity = ResponseEntity.status(204).build();
         }
         return responseEntity;
     }
