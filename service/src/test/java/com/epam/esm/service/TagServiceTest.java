@@ -2,7 +2,6 @@ package com.epam.esm.service;
 
 
 import com.epam.esm.converter.TagConverter;
-import com.epam.esm.dto.MessageDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.AbstractTagRepository;
@@ -14,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.context.support.ResourceBundleMessageSource;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,16 +36,12 @@ public class TagServiceTest {
 
     @Mock
     private AbstractTagRepository tagRepository;
-    private ResourceBundleMessageSource messageSource;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         TagConverter converter = new TagConverter();
-        messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasenames("message");
-        messageSource.setUseCodeAsDefaultMessage(true);
-        tagService = new TagService(tagRepository, converter, messageSource);
+        tagService = new TagService(tagRepository, converter);
     }
 
 

@@ -31,7 +31,6 @@ import java.util.Optional;
  * @version 0.0.1
  */
 @RestController
-@EnableWebMvc
 @RequestMapping("certificates")
 @Validated
 @ExposesResourceFor(GiftCertificateDTO.class)

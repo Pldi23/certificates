@@ -5,6 +5,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.hateoas.config.EnableEntityLinks;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * gift certificates
@@ -14,7 +15,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
  */
 @Configuration
 @ComponentScan("com.epam.esm")
-@EnableTransactionManagement
+@EnableWebMvc
 @EnableEntityLinks
 public class ApplicationConfig {
 
