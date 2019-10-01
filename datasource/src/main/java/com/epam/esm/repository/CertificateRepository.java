@@ -61,14 +61,19 @@ public class CertificateRepository implements AbstractCertificateRepository {
     }
 
     @Override
-    public void remove(GiftCertificate giftCertificate) {
-        jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, giftCertificate.getId());
-        jdbcTemplate.update(SQL_CERTIFICATE_DELETE, giftCertificate.getId());
-    }
+    public boolean update(GiftCertificate giftCertificate) {
 
-    @Override
-    public void update(GiftCertificate giftCertificate) {
-
+        int updateResult = jdbcTemplate.update(SQL_CERTIFICATE_UPDATE,
+                giftCertificate.getName(),
+                giftCertificate.getDescription(),
+                giftCertificate.getPrice(),
+                Date.valueOf(giftCertificate.getCreationDate()),
+                Date.valueOf(giftCertificate.getModificationDate()),
+                Date.valueOf(giftCertificate.getExpirationDate()),
+                giftCertificate.getId());
+        if (updateResult == 0) {
+            return false;
+        }
         jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, giftCertificate.getId());
         giftCertificate.getTags().forEach(tag -> {
             if (jdbcTemplate.queryForObject(SQL_CERTIFICATE_DETECT_TAG, Integer.class, tag.getId()) == 0) {
@@ -83,14 +88,8 @@ public class CertificateRepository implements AbstractCertificateRepository {
                 jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, giftCertificate.getId(), tag.getId());
             }
         });
-        jdbcTemplate.update(SQL_CERTIFICATE_UPDATE,
-                giftCertificate.getName(),
-                giftCertificate.getDescription(),
-                giftCertificate.getPrice(),
-                Date.valueOf(giftCertificate.getCreationDate()),
-                Date.valueOf(giftCertificate.getModificationDate()),
-                Date.valueOf(giftCertificate.getExpirationDate()),
-                giftCertificate.getId());
+
+        return true;
     }
 
     @Override
@@ -101,7 +100,7 @@ public class CertificateRepository implements AbstractCertificateRepository {
 
 
     @Override
-    public void removeById(long id) {
+    public void remove(long id) {
         jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, id);
         jdbcTemplate.update(SQL_CERTIFICATE_DELETE, id);
     }

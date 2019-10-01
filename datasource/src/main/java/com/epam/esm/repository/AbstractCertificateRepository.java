@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface AbstractCertificateRepository extends Repository<GiftCertificate> {
 
-    void removeById(long id);
     List<GiftCertificate> getCertificatesByTagId(long tagId);
 }

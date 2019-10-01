@@ -40,14 +40,7 @@ public class TagRepository implements AbstractTagRepository {
     }
 
     @Override
-    public void remove(Tag tag) {
-        jdbcTemplate.update(SQL_TAG_DELETE_LINK, tag.getId());
-        jdbcTemplate.update(SQL_TAG_DELETE, tag.getId());
-
-    }
-
-    @Override
-    public void update(Tag tag) {
+    public boolean update(Tag tag) {
         throw new UnsupportedOperationException();
     }
 
@@ -58,7 +51,7 @@ public class TagRepository implements AbstractTagRepository {
     }
 
     @Override
-    public void removeById(long id) {
+    public void remove(long id) {
         jdbcTemplate.update(SQL_TAG_DELETE_LINK, id);
         jdbcTemplate.update(SQL_TAG_DELETE, id);
     }

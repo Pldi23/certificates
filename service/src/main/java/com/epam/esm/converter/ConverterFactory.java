@@ -26,7 +26,7 @@ public class ConverterFactory {
     Criteria buildCriteria(Map<String, String> criteriaMap, String key) {
         Criteria criteria;
         String criteriaString = criteriaMap.get(key);
-        if (criteriaString == null || criteriaString.equals("")) {
+        if (criteriaString == null || criteriaString.isBlank()) {
             return null;
         }
         List<Object> parameters;

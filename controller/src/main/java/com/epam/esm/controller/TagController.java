@@ -76,8 +76,8 @@ public class TagController {
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity delete(@PathVariable("id") @Min(0) long id) {
-        MessageDTO messageDTO = tagService.delete(id);
-        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO);
+        tagService.delete(id);
+        return ResponseEntity.status(204).build();
     }
 
     @GetMapping(value = "/{id}/certificates", produces = MediaType.APPLICATION_JSON_VALUE)

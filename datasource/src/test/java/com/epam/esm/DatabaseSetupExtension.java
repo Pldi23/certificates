@@ -33,7 +33,7 @@ public class DatabaseSetupExtension {
     }
 
     @After
-    public void tierDown() {
+    public void tearDown() {
         flyway.clean();
     }
 }

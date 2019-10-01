@@ -29,18 +29,16 @@ import java.util.stream.Collectors;
 public class CertificateService {
 
     private AbstractCertificateRepository certificateRepository;
-    private ResourceBundleMessageSource messageSource;
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
 
     @Autowired
     public CertificateService(@Qualifier("CertificateRepository") AbstractCertificateRepository certificateRepository,
                               CertificateConverter certificateConverter,
-                              CriteriaConverter criteriaConverter, ResourceBundleMessageSource messageSource) {
+                              CriteriaConverter criteriaConverter) {
         this.certificateRepository = certificateRepository;
         this.certificateConverter = certificateConverter;
         this.criteriaConverter = criteriaConverter;
-        this.messageSource = messageSource;
     }
 
 
@@ -65,21 +63,21 @@ public class CertificateService {
     }
 
 
-    public MessageDTO update(GiftCertificateDTO giftCertificateDTO, long id) {
+    public boolean update(GiftCertificateDTO giftCertificateDTO, long id) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         giftCertificate.setId(id);
-        if (!certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
-            certificateRepository.update(giftCertificate);
-            return new MessageDTO(messageSource.getMessage("entity.update", null, null), 200);
-        }
-        return new MessageDTO(messageSource.getMessage("entity.no", null, null), 404);
+        return certificateRepository.update(giftCertificate);
+//        if (!certificateRepository.query(new FindCertificateByIdSpecification(giftCertificate.getId())).isEmpty()) {
+//            certificateRepository.update(giftCertificate);
+//            return new MessageDTO(messageSource.getMessage("entity.update", null, null), 200);
+//        }
+//        return new MessageDTO(messageSource.getMessage("entity.no", null, null), 404);
 
     }
 
 
-    public MessageDTO delete(long id) {
-        certificateRepository.removeById(id);
-        return new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
+    public void delete(long id) {
+        certificateRepository.remove(id);
     }
 
 

@@ -91,10 +91,8 @@ public class TagServiceTest {
     public void deleteSuccessful() {
         List<Tag> tags = List.of(new Tag(1, "expected"));
 
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
-
-        assertEquals(expected, tagService.delete(1));
-        Mockito.verify(tagRepository, times(1)).removeById(tags.get(0).getId());
+        tagService.delete(tags.get(0).getId());
+        Mockito.verify(tagRepository, times(1)).remove(tags.get(0).getId());
 
     }
 
@@ -102,8 +100,7 @@ public class TagServiceTest {
     public void deleteUnsuccessful() {
         Tag tag = new Tag(1, "expected");
 
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
-        assertEquals(expected, tagService.delete(1));
-        Mockito.verify(tagRepository, times(1)).removeById(tag.getId());
+        tagService.delete(tag.getId());
+        Mockito.verify(tagRepository, times(1)).remove(tag.getId());
     }
 }

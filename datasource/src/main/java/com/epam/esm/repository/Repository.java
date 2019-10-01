@@ -8,8 +8,8 @@ import java.util.Optional;
 public interface Repository<T> {
 
     Optional<T> add(T entity);
-    void remove(T entity);
-    void update(T entity);
+    void remove(long id);
+    boolean update(T entity);
 
     List<T> query(SqlSpecification specification);
 }

@@ -39,7 +39,7 @@ public class TagRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testRemovePositive() {
-        tagRepository.remove(new Tag(7,"jump"));
+        tagRepository.remove(7);
         assertEquals(6, (int) jdbcTemplate.queryForObject("select count(*) from tag", Integer.class));
     }
 

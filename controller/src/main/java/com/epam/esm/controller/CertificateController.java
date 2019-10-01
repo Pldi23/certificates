@@ -5,6 +5,7 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -41,17 +42,18 @@ public class CertificateController {
     private DtoParser dtoParser;
     private RequestParametersValidator validator;
     private EntityLinks entityLinks;
-
+    private ResourceBundleMessageSource messageSource;
 
 
     public CertificateController(CertificateService certificateService, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagService tagService,
-                                 EntityLinks entityLinks) {
+                                 EntityLinks entityLinks, ResourceBundleMessageSource messageSource) {
         this.certificateService = certificateService;
         this.dtoParser = dtoParser;
         this.validator = validator;
         this.tagService = tagService;
         this.entityLinks = entityLinks;
+        this.messageSource = messageSource;
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,14 +91,16 @@ public class CertificateController {
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(0) long id) {
-        MessageDTO messageDTO = certificateService.update(giftCertificateDTO, id);
+        MessageDTO messageDTO = certificateService.update(giftCertificateDTO, id) ?
+                new MessageDTO(messageSource.getMessage("entity.update", null, null), 200) :
+                new MessageDTO(messageSource.getMessage("entity.no", null, null), 404);
         return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(0) long id) {
-        MessageDTO messageDTO = certificateService.delete(id);
-        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO);
+        certificateService.delete(id);
+        return ResponseEntity.status(204).build();
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -107,11 +111,11 @@ public class CertificateController {
         if (dataBinder.getBindingResult().hasErrors()) {
             return ResponseEntity.badRequest().body(dataBinder.getBindingResult().getAllErrors());
         }
-            SortCriteriaRequestDTO sortCriteriaRequestDTO = dtoParser.parseSortCriteria(criteriaMap);
-            SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
-            LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO = dtoParser.parseLimitOffsetCriteria(criteriaMap);
-            return ResponseEntity.ok(certificateService
-                    .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO));
+        SortCriteriaRequestDTO sortCriteriaRequestDTO = dtoParser.parseSortCriteria(criteriaMap);
+        SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
+        LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO = dtoParser.parseLimitOffsetCriteria(criteriaMap);
+        return ResponseEntity.ok(certificateService
+                .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO));
 
     }
 

@@ -45,7 +45,6 @@ public class CertificateServiceTest {
     private CertificateConverter converter;
     private GiftCertificate giftCertificate;
     private GiftCertificateDTO giftCertificateDTO;
-    private ResourceBundleMessageSource messageSource;
 
     @Before
     public void setUp() {
@@ -53,10 +52,7 @@ public class CertificateServiceTest {
         converter = new CertificateConverter();
         ConverterFactory converterFactory = new ConverterFactory();
         CriteriaConverter criteriaConverter = new CriteriaConverter(converterFactory);
-        messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasenames("message");
-        messageSource.setUseCodeAsDefaultMessage(true);
-        service = new CertificateService(repository, converter, criteriaConverter, messageSource);
+        service = new CertificateService(repository, converter, criteriaConverter);
 
         giftCertificate = new GiftCertificate(4,"flowers", "one hundred roses",
                 new BigDecimal(50),
@@ -116,43 +112,27 @@ public class CertificateServiceTest {
     @Test
     public void updateSuccessful() {
 
-        Mockito.when(repository.query(any())).thenReturn(List.of(giftCertificate));
-        Mockito.doNothing().when(repository).update(giftCertificate);
 
-        MessageDTO actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.update", null, null), 200);
-        assertEquals(expected, actual);
+        Mockito.when(repository.update(giftCertificate)).thenReturn(true);
+        boolean actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
+        assertTrue(actual);
     }
 
     @Test
     public void updateUnSuccessful() {
 
-        Mockito.when(repository.query(any())).thenReturn(List.of());
+        Mockito.when(repository.update(any())).thenReturn(false);
 
 
-        MessageDTO actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.no", null, null), 404);
-        assertEquals(expected, actual);
+        boolean actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
+        assertFalse(actual);
     }
 
     @Test
     public void deleteSuccessful() {
 
-        MessageDTO actual = service.delete(giftCertificateDTO.getId());
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
-        assertEquals(expected, actual);
-        Mockito.verify(repository, times(1)).removeById(giftCertificateDTO.getId());
-
-
-    }
-
-    @Test
-    public void deleteUnSuccessful() {
-
-        MessageDTO actual = service.delete(giftCertificateDTO.getId());
-        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
-        assertEquals(expected, actual);
-        Mockito.verify(repository, times(1)).removeById(giftCertificateDTO.getId());
+        service.delete(giftCertificateDTO.getId());
+        Mockito.verify(repository, times(1)).remove(giftCertificateDTO.getId());
 
 
     }

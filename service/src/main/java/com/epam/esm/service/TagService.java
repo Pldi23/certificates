@@ -58,9 +58,8 @@ public class TagService {
         return optionalTag.map(value -> tagConverter.convert(value));
     }
 
-    public MessageDTO delete(long id) {
-        tagRepository.removeById(id);
-        return new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
+    public void delete(long id) {
+        tagRepository.remove(id);
     }
 
     public List<TagDTO> getTagsByCertificate(long id) {

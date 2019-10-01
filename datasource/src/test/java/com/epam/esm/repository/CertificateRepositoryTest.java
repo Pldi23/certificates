@@ -16,7 +16,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -54,10 +53,7 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testRemovePositive() {
-        certificateRepository.remove(new GiftCertificate(1,"sport car", "1 hour lamborghini ride",
-                new BigDecimal(250), LocalDate.of(2019,1,1),
-                LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), new HashSet<>()));
+        certificateRepository.remove(1);
         assertEquals(2, (int) jdbcTemplate.queryForObject("select count(*) from certificate", Integer.class));
     }
 
