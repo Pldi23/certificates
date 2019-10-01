@@ -1,18 +1,11 @@
 package com.epam.esm.specification;
 
-import com.epam.esm.config.DataSourceConfig;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.criteria.*;
 import com.epam.esm.DatabaseSetupExtension;
 import com.epam.esm.repository.Repository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,14 +19,9 @@ import static org.junit.Assert.*;
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {DataSourceConfig.class})
 public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupExtension {
 
-    private static final Logger log = LogManager.getLogger();
-
     @Autowired
-    @Qualifier("CertificateRepository")
     private Repository<GiftCertificate> certificateRepository;
 
     @Test
@@ -43,7 +31,6 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
                 .withIdCriteria(idCriteria)
                 .build();
         SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
-        log.debug(sqlSpecification.sql());
         assertEquals(2, certificateRepository.query(sqlSpecification).size());
     }
 
@@ -54,7 +41,6 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
                 .withNameCriteria(nameCriteriaLike)
                 .build();
         SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
-        log.debug(sqlSpecification.sql());
         assertEquals(2, certificateRepository.query(sqlSpecification).size());
     }
 
@@ -94,8 +80,6 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
 
         SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, sortCriteria, limitOffsetCriteria);
         List<GiftCertificate> actual = certificateRepository.query(sqlSpecification);
-        log.debug(sqlSpecification.sql());
-        log.debug(actual);
         assertEquals(3, actual.size());
     }
 
@@ -107,7 +91,6 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
                 .withCreationDateCriteria(creationDateCriteria)
                 .build();
         SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
-        log.debug(sqlSpecification.sql());
         assertEquals(3, certificateRepository.query(sqlSpecification).size());
 
     }

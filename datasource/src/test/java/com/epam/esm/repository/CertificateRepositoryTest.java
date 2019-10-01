@@ -1,18 +1,13 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.config.DataSourceConfig;
 import com.epam.esm.DatabaseSetupExtension;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.extractor.GiftCertificateExtractor;
 import com.epam.esm.specification.FindAllCertificatesSpecification;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,12 +22,10 @@ import static org.junit.Assert.assertEquals;
  * @author Dzmitry Platonov on 2019-09-24.
  * @version 0.0.1
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {DataSourceConfig.class})
+
 public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Autowired
-    @Qualifier("CertificateRepository")
     private AbstractCertificateRepository certificateRepository;
 
     @Autowired

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
-@Component(value = "CertificateService")
+@Component
 public class CertificateService {
 
     private AbstractCertificateRepository certificateRepository;
@@ -30,7 +30,7 @@ public class CertificateService {
     private CriteriaConverter criteriaConverter;
 
     @Autowired
-    public CertificateService(@Qualifier("CertificateRepository") AbstractCertificateRepository certificateRepository,
+    public CertificateService( AbstractCertificateRepository certificateRepository,
                               CertificateConverter certificateConverter,
                               CriteriaConverter criteriaConverter) {
         this.certificateRepository = certificateRepository;

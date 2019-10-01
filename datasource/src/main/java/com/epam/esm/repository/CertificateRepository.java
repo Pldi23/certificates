@@ -19,7 +19,7 @@ import java.util.*;
 
 import static com.epam.esm.repository.SqlConstant.*;
 
-@Component(value = "CertificateRepository")
+@Component
 @Transactional
 public class CertificateRepository implements AbstractCertificateRepository {
 

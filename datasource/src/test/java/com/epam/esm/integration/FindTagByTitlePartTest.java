@@ -7,7 +7,6 @@ import com.epam.esm.specification.FindTagByTitlePartSpecification;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * giftcertificates
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class FindTagByTitlePartTest extends DatabaseSetupExtension {
 
     @Autowired
-    @Qualifier("TagRepository")
     private Repository<Tag> tagRepository;
 
     @Test

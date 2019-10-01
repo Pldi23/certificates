@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.epam.esm.repository.SqlConstant.*;
 
-@Component(value = "TagRepository")
+@Component
 @Transactional
 public class TagRepository implements AbstractTagRepository {
 

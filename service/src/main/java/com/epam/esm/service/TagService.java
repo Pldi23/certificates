@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @author Dzmitry Platonov on 2019-09-25.
  * @version 0.0.1
  */
-@Service(value = "TagService")
+@Service
 public class TagService {
 
     private AbstractTagRepository tagRepository;
@@ -28,7 +28,7 @@ public class TagService {
     private TagConverter tagConverter;
 
     @Autowired
-    public TagService(@Qualifier("TagRepository") AbstractTagRepository tagRepository, TagConverter tagConverter) {
+    public TagService(AbstractTagRepository tagRepository, TagConverter tagConverter) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
     }
