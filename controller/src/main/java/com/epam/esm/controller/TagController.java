@@ -18,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * gift certificates
@@ -60,13 +61,13 @@ public class TagController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity add(@Valid @RequestBody TagDTO tagDTO) {
         ResponseEntity responseEntity;
-        TagDTO createdTagDTO = tagService.save(tagDTO);
-        if (createdTagDTO != null) {
+        Optional<TagDTO> optionalTagDTO = tagService.save(tagDTO);
+        if (optionalTagDTO.isPresent()) {
             LinkBuilder linkBuilder
-                    = entityLinks.linkForSingleResource(TagDTO.class, createdTagDTO.getId());
+                    = entityLinks.linkForSingleResource(TagDTO.class, optionalTagDTO.get().getId());
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
-            responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(createdTagDTO);
+            responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(optionalTagDTO.get());
         } else {
             responseEntity = ResponseEntity.status(500).build();
         }

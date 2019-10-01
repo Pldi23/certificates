@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 
 import static com.epam.esm.repository.SqlConstant.*;
 
@@ -27,7 +28,7 @@ public class TagRepository implements AbstractTagRepository {
     }
 
     @Override
-    public Tag add(Tag tag) {
+    public Optional<Tag> add(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int insertionResult = jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(SQL_TAG_INSERT, new String[]{"id"});
@@ -35,7 +36,7 @@ public class TagRepository implements AbstractTagRepository {
             return ps;
         }, keyHolder);
         tag.setId(keyHolder.getKey().longValue());
-        return insertionResult != 0 ? tag : null;
+        return insertionResult != 0 ? Optional.of(tag) : Optional.empty();
     }
 
     @Override

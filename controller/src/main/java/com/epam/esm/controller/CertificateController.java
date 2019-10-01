@@ -21,6 +21,7 @@ import javax.validation.constraints.Min;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * gift certificates
@@ -71,13 +72,13 @@ public class CertificateController {
     public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
         ResponseEntity responseEntity;
 
-        GiftCertificateDTO createdGiftCertificatesDTO = certificateService.save(giftCertificateDTO);
-        if (createdGiftCertificatesDTO != null) {
+        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateService.save(giftCertificateDTO);
+        if (optionalGiftCertificateDTO.isPresent()) {
             LinkBuilder linkBuilder
-                    = entityLinks.linkForSingleResource(GiftCertificateDTO.class, createdGiftCertificatesDTO.getId());
+                    = entityLinks.linkForSingleResource(GiftCertificateDTO.class, optionalGiftCertificateDTO.get().getId());
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
-            responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(createdGiftCertificatesDTO);
+            responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(optionalGiftCertificateDTO.get());
         } else {
             responseEntity = ResponseEntity.status(500).build();
         }

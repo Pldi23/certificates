@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -51,9 +52,10 @@ public class TagService {
                 .collect(Collectors.toList());
     }
 
-    public TagDTO save(TagDTO tagDTO) {
-        Tag tag = tagRepository.add(tagConverter.convert(tagDTO));
-        return tag != null ? tagConverter.convert(tag) : null;
+    public Optional<TagDTO> save(TagDTO tagDTO) {
+        Tag tag = tagConverter.convert(tagDTO);
+        Optional<Tag> optionalTag = tagRepository.add(tag);
+        return optionalTag.map(value -> tagConverter.convert(value));
     }
 
     public MessageDTO delete(long id) {

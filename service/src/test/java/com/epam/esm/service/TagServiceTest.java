@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,10 +81,10 @@ public class TagServiceTest {
     public void save() {
         TagDTO tagDTO = new TagDTO(1, "expected");
 
-        Mockito.when(tagRepository.add(any())).thenReturn(new Tag(8, tagDTO.getTitle()));
-        TagDTO actual = tagService.save(tagDTO);
+        Mockito.when(tagRepository.add(any())).thenReturn(Optional.of(new Tag(8, tagDTO.getTitle())));
+        Optional<TagDTO> actual = tagService.save(tagDTO);
         Mockito.verify(tagRepository, times(1)).add(new Tag(1, "expected"));
-        assertEquals(new TagDTO(8, tagDTO.getTitle()), actual);
+        assertEquals(Optional.of(new TagDTO(8, tagDTO.getTitle())), actual);
     }
 
     @Test

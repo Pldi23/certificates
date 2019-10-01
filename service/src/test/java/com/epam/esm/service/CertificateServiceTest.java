@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -95,21 +96,20 @@ public class CertificateServiceTest {
 
     @Test
     public void saveSuccessful() {
-        Mockito.when(repository.add(any())).thenReturn(giftCertificate);
+        Mockito.when(repository.add(any())).thenReturn(Optional.of(giftCertificate));
 
-        GiftCertificateDTO actual = service.save(giftCertificateDTO);
+        Optional<GiftCertificateDTO> actual = service.save(giftCertificateDTO);
         giftCertificateDTO.setId(4);
-        assertEquals(giftCertificateDTO, actual);
+        assertEquals(Optional.of(giftCertificateDTO), actual);
 
     }
 
     @Test
     public void saveUnSuccessful() {
 
-        Mockito.when(repository.add(any())).thenReturn(null);
-        GiftCertificateDTO actual = service.save(giftCertificateDTO);
-
-        assertNull(actual);
+        Mockito.when(repository.add(any())).thenReturn(Optional.empty());
+        Optional<GiftCertificateDTO> actual = service.save(giftCertificateDTO);
+        assertEquals(Optional.empty(), actual);
 
     }
 
