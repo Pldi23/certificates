@@ -1,28 +1,31 @@
-package com.epam.esm.validator;
+package com.epam.esm.constant;
 
 /**
- * giftcertificates
+ * gift certificates
  *
  * @author Dzmitry Platonov on 2019-09-30.
  * @version 0.0.1
  */
-class RequestConstant {
+public class RequestConstant {
 
     private RequestConstant() {
     }
 
-    static final String ID = "id";
-    static final String TAG_ID = "tagid";
-    static final String PRICE = "price";
-    static final String NAME = "name";
-    static final String DESCRIPTION = "description";
-    static final String EXPIRATION_DATE = "expirationdate";
-    static final String MODIFICATION_DATE = "modificationdate";
-    static final String CREATION_DATE = "creationdate";
-    static final String SORT = "sort";
-    static final String LIMIT = "limit";
-    static final String OFFSET = "offset";
-    static final String BETWEEN = "bw:";
-    static final String NOT_BERWEEN = "nbw:";
-    static final String NOT_IN = "-";
+    public static final String ID = "id";
+    public static final String TAG_ID = "tagid";
+    public static final String PRICE = "price";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
+    public static final String EXPIRATION_DATE = "expirationdate";
+    public static final String MODIFICATION_DATE = "modificationdate";
+    public static final String CREATION_DATE = "creationdate";
+    public static final String SORT = "sort";
+    public static final String LIMIT = "limit";
+    public static final String OFFSET = "offset";
+    public static final String BETWEEN = "bw:";
+    public static final String NOT_BERWEEN = "nbw:";
+    public static final String NOT_IN = "-";
+    public static final String SORT_PARAMETER = "sort";
+    public static final String LIMIT_PARAMETER = "limit";
+    public static final String OFFSET_PARAMETER = "offset";
 }

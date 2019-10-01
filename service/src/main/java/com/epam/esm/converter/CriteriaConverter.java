@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.epam.esm.converter.ConvertConstant.*;
+import static com.epam.esm.converter.ConverterConstant.*;
 
 /**
  * gift certificates

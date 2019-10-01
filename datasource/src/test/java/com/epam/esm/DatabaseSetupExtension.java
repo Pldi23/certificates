@@ -1,7 +1,7 @@
-package com.epam.esm.repository;
+package com.epam.esm;
 
-import com.epam.esm.DataSourceConfig;
-import com.epam.esm.db.DataSourceConfiguration;
+import com.epam.esm.config.DataSourceConfig;
+import com.epam.esm.config.DataSourceConfiguration;
 import org.flywaydb.core.Flyway;
 import org.junit.After;
 import org.junit.Before;

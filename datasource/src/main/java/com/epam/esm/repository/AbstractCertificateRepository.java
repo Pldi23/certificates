@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface AbstractCertificateRepository extends Repository<GiftCertificate> {
 
-    List<GiftCertificate> getCertificatesByNameOrDescription(String description, String name);
+    void removeById(long id);
+    List<GiftCertificate> getCertificatesByTagId(long tagId);
 }

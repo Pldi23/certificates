@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.converter.ConvertConstant.*;
+import static com.epam.esm.converter.ConverterConstant.*;
 
 /**
- * giftcertificates
+ * gift certificates
  *
  * @author Dzmitry Platonov on 2019-09-27.
  * @version 0.0.1
  */
 @Component
-class ConverterFactory {
+public class ConverterFactory {
 
 
     Criteria buildCriteria(Map<String, String> criteriaMap, String key) {
@@ -97,8 +97,8 @@ class ConverterFactory {
                         .map(Long::parseLong).collect(Collectors.toList());
                 criteria = new TagCriteria(parameterSearchType, tagsList);
                 break;
-                default:
-                    throw new CriteriaSearchTypeException("could not possible to build criteria for parameter: " + criteriaString);
+            default:
+                throw new CriteriaSearchTypeException("could not possible to build criteria for parameter: " + criteriaString);
         }
         return criteria;
     }
@@ -137,8 +137,9 @@ class ConverterFactory {
     }
 
     private String cutPrefixCriteriaString(String criteria) {
-        return criteria.startsWith(NOT_IN_KEY) ? criteria.replaceFirst(NOT_IN_KEY, "") :
-                criteria.startsWith(LIKE_KEY) ? criteria.replaceFirst(LIKE_KEY, "") :
-                        !criteria.startsWith(NOT_LIKE_KEY) ? criteria : criteria.replaceFirst(NOT_LIKE_KEY, "");
+        if (criteria.startsWith(NOT_IN_KEY)) return criteria.replaceFirst(NOT_IN_KEY, "");
+        else if (criteria.startsWith(LIKE_KEY)) return criteria.replaceFirst(LIKE_KEY, "");
+        else if (!criteria.startsWith(NOT_LIKE_KEY)) return criteria;
+        else return criteria.replaceFirst(NOT_LIKE_KEY, "");
     }
 }

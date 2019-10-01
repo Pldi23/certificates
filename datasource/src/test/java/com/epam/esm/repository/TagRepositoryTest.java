@@ -1,6 +1,7 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.DataSourceConfig;
+import com.epam.esm.config.DataSourceConfig;
+import com.epam.esm.DatabaseSetupExtension;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.specification.FindAllTagSpecification;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class TagRepositoryTest extends DatabaseSetupExtension {
 
     @Autowired
     @Qualifier("TagRepository")
-    private Repository<Tag> tagRepository;
+    private AbstractTagRepository tagRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -46,4 +47,5 @@ public class TagRepositoryTest extends DatabaseSetupExtension {
     public void testQuery() {
         assertEquals(7, tagRepository.query(new FindAllTagSpecification()).size());
     }
+
 }

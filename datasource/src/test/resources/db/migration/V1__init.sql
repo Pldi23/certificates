@@ -1,6 +1,6 @@
 create table certificate
 (
-    id               bigint not null,
+    id               serial,
     name             varchar(200),
     description      varchar(1000),
     price            numeric,
@@ -15,7 +15,7 @@ create table certificate
 
 create table tag
 (
-    id    bigint not null,
+    id    serial,
     title varchar(200),
 
     constraint tag_pkey1 primary key (id)
@@ -33,13 +33,13 @@ create table certificate_tag
         references tag (id)
 );
 
-insert into certificate(id, name, description, price, creationDate, modificationDate, expirationDate)
-    values (1, 'sport car', '1 hour lamborghini ride', 250, '2019-01-01', '2019-01-06', '2021-01-01'),
-           (2, 'bike', '1 hour yamaha ride', 120, '2019-01-03', '2019-01-07', '2021-01-01'),
-           (3, 'skydiving', '1 jump', 100, '2019-01-05', '2019-01-08', '2021-01-01');
+insert into certificate(name, description, price, creationDate, modificationDate, expirationDate)
+    values ('sport car', '1 hour lamborghini ride', 250, '2019-01-01', '2019-01-06', '2021-01-01'),
+           ('bike', '1 hour yamaha ride', 120, '2019-01-03', '2019-01-07', '2021-01-01'),
+           ('skydiving', '1 jump', 100, '2019-01-05', '2019-01-08', '2021-01-01');
 
-insert into tag(id, title)
-    values (1, 'extreme'), (2, 'emotions'), (3, 'luxury'), (4, 'bike'), (5, 'car'), (6, 'air'), (7, 'jump');
+insert into tag(title)
+    values ('extreme'), ('emotions'), ('luxury'), ('bike'), ('car'), ('air'), ('jump');
 
 insert into certificate_tag(certificate_id, tag_id)
     values (1, 3),

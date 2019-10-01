@@ -1,6 +1,5 @@
 package com.epam.esm.entity;
 
-import javax.validation.constraints.Positive;
 import java.util.Objects;
 
 /**
@@ -11,7 +10,6 @@ import java.util.Objects;
  */
 public abstract class Entity {
 
-    @Positive
     private long id;
 
     Entity() {

@@ -1,5 +1,6 @@
 package com.epam.esm.db;
 
+import com.epam.esm.config.DataSourceConfiguration;
 import com.epam.esm.exception.ApplicationDataSourceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

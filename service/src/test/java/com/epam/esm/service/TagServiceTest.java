@@ -1,25 +1,106 @@
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.runner.RunWith;
+package com.epam.esm.service;
 
-import static org.junit.Assert.*;
+
+import com.epam.esm.converter.TagConverter;
+import com.epam.esm.dto.MessageDTO;
+import com.epam.esm.dto.TagDTO;
+import com.epam.esm.entity.Tag;
+import com.epam.esm.repository.AbstractTagRepository;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.support.ResourceBundleMessageSource;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 
 /**
- * giftcertificates
+ * gift certificates
  *
  * @author Dzmitry Platonov on 2019-09-29.
  * @version 0.0.1
  */
-@RunWith(Arquillian.class)
+@RunWith(MockitoJUnitRunner.class)
 public class TagServiceTest {
-    @Deployment
-    public static JavaArchive createDeployment() {
-        return ShrinkWrap.create(JavaArchive.class)
-                .addClass(com.epam.esm.service.TagService.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+
+
+    @InjectMocks
+    private TagService tagService;
+
+    @Mock
+    private AbstractTagRepository tagRepository;
+    private ResourceBundleMessageSource messageSource;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        TagConverter converter = new TagConverter();
+        messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasenames("message");
+        messageSource.setUseCodeAsDefaultMessage(true);
+        tagService = new TagService(tagRepository, converter, messageSource);
     }
 
+
+    @Test
+    public void getTag() {
+        Tag tag = new Tag(1, "expected");
+        Mockito.when(tagRepository.query(any()))
+                .thenReturn(List.of(tag));
+
+        List<TagDTO> expected = List.of(new TagDTO(1, "expected"));
+
+        //test
+        List<TagDTO> actual = tagService.getTag(tag.getId());
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void findAll() {
+        List<TagDTO> tagDTOS = List.of(new TagDTO(1, "expected1"), new TagDTO(2, "expected2"));
+        List<Tag> tags = List.of(new Tag(1, "expected1"), new Tag(2, "expected2"));
+
+        Mockito.when(tagRepository.query(any())).thenReturn(tags);
+
+        List<TagDTO> actual = tagService.findAll();
+
+        assertEquals(tagDTOS, actual);
+    }
+
+    @Test
+    public void save() {
+        TagDTO tagDTO = new TagDTO(1, "expected");
+        MessageDTO messageDTO = tagService.save(tagDTO);
+        Mockito.verify(tagRepository, times(1)).add(new Tag(1, "expected"));
+        assertEquals(new MessageDTO(messageSource.getMessage("entity.save", null, null), 201), messageDTO);
+    }
+
+    @Test
+    public void deleteSuccessful() {
+        List<Tag> tags = List.of(new Tag(1, "expected"));
+
+        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
+
+        assertEquals(expected, tagService.delete(1));
+        Mockito.verify(tagRepository, times(1)).removeById(tags.get(0).getId());
+
+    }
+
+    @Test
+    public void deleteUnsuccessful() {
+        Tag tag = new Tag(1, "expected");
+
+        MessageDTO expected = new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
+        assertEquals(expected, tagService.delete(1));
+        Mockito.verify(tagRepository, times(1)).removeById(tag.getId());
+    }
 }

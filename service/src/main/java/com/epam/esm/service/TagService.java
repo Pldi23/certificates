@@ -9,6 +9,7 @@ import com.epam.esm.specification.FindAllTagSpecification;
 import com.epam.esm.specification.FindTagByIdSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,21 +24,19 @@ import java.util.stream.Collectors;
  */
 @Service(value = "TagService")
 @Transactional
-public class TagServiceImpl {
+public class TagService {
 
-    private static final String TAG_ADDED = "successfully added";
-    private static final String TAG_DELETED = "successfully removed";
-
-
-    @Qualifier(value = "TagRepository")
+    private ResourceBundleMessageSource messageSource;
     private AbstractTagRepository tagRepository;
 
     private TagConverter tagConverter;
 
     @Autowired
-    public TagServiceImpl(AbstractTagRepository tagRepository, TagConverter tagConverter) {
+    public TagService(@Qualifier("TagRepository") AbstractTagRepository tagRepository, TagConverter tagConverter,
+                      ResourceBundleMessageSource messageSource) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
+        this.messageSource = messageSource;
     }
 
     public List<TagDTO> getTag(long id) {
@@ -55,18 +54,17 @@ public class TagServiceImpl {
     public MessageDTO save(TagDTO tagDTO) {
         Tag tag = tagConverter.convert(tagDTO);
         tagRepository.add(tag);
-        return new MessageDTO(TAG_ADDED, 201);
+        return new MessageDTO(messageSource.getMessage("entity.save", null, null), 201);
     }
 
     public MessageDTO delete(long id) {
-        List<Tag> tags = tagRepository.query(new FindTagByIdSpecification(id));
-        MessageDTO messageDTO;
-        if (!tags.isEmpty()) {
-            tagRepository.remove(tags.get(0));
-            messageDTO = new MessageDTO(TAG_DELETED, 200);
-        } else {
-            messageDTO = new MessageDTO("tag with id: " + id + " not found", 400);
-        }
-        return messageDTO;
+        tagRepository.removeById(id);
+        return new MessageDTO(messageSource.getMessage("entity.remove", null, null), 204);
+    }
+
+    public List<TagDTO> getTagsByCertificate(long id) {
+        return tagRepository.getTagsByCertificate(id).stream()
+                .map(tag -> tagConverter.convert(tag))
+                .collect(Collectors.toList());
     }
 }

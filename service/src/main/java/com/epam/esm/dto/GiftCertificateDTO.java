@@ -1,6 +1,11 @@
 package com.epam.esm.dto;
 
 import com.epam.esm.entity.Tag;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -29,21 +34,29 @@ public class GiftCertificateDTO {
     @DecimalMin(value = "0", message = "price should be positive")
     private BigDecimal price;
 
-    @NotNull
+
     @PastOrPresent
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate creationDate;
 
-    @NotNull
+
     @PastOrPresent
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate modificationDate;
 
-    @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate expirationDate;
 
     @Valid
     private Set<Tag> tags;
 
-    public GiftCertificateDTO() {
+    private GiftCertificateDTO() {
     }
 
     public GiftCertificateDTO(long id, String name, String description, BigDecimal price, LocalDate creationDate,

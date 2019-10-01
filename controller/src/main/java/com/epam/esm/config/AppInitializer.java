@@ -1,6 +1,5 @@
-package com.epam.esm.controller;
+package com.epam.esm.config;
 
-import com.epam.esm.DataSourceConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.WebApplicationInitializer;
@@ -12,6 +11,7 @@ import javax.servlet.ServletRegistration;
 
 /**
  * gift certificates
+ * application starter
  *
  * @author Dzmitry Platonov on 2019-09-25.
  * @version 0.0.1

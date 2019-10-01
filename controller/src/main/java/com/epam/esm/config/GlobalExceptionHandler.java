@@ -1,8 +1,7 @@
-package com.epam.esm.controller;
+package com.epam.esm.config;
 
+import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.exception.CriteriaSearchTypeException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,19 +30,10 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger log = LogManager.getLogger();
-
-    @ExceptionHandler(ConstraintViolationException.class)
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
-
-        log.warn(ex.getLocalizedMessage());
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
 
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -51,9 +41,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        body.put("errors", errors);
+        return ResponseEntity.badRequest().body(new ViolationDTO(errors, 400, LocalDateTime.now()));
+    }
 
-        return new ResponseEntity<>(body, headers, status);
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConstraitViolationException(ConstraintViolationException ex, WebRequest request) {
+
+        return ResponseEntity.badRequest().body(new ViolationDTO(List.of(ex.getMessage()), 400, LocalDateTime.now()));
     }
 
     @ExceptionHandler(CriteriaSearchTypeException.class)

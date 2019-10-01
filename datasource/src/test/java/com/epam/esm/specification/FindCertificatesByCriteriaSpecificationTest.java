@@ -1,9 +1,9 @@
 package com.epam.esm.specification;
 
-import com.epam.esm.DataSourceConfig;
+import com.epam.esm.config.DataSourceConfig;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.criteria.*;
-import com.epam.esm.repository.DatabaseSetupExtension;
+import com.epam.esm.DatabaseSetupExtension;
 import com.epam.esm.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

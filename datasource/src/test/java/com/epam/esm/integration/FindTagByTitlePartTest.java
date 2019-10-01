@@ -1,7 +1,7 @@
 package com.epam.esm.integration;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.DatabaseSetupExtension;
+import com.epam.esm.DatabaseSetupExtension;
 import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindTagByTitlePartSpecification;
 import org.junit.Assert;

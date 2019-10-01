@@ -1,16 +1,16 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
+import com.epam.esm.repository.mapper.TagMapper;
 import com.epam.esm.specification.SqlSpecification;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.epam.esm.repository.SqlConstant.*;
 
 /**
  * gift certificates
@@ -20,14 +20,7 @@ import java.util.List;
  */
 @Component(value = "TagRepository")
 @Transactional
-public class TagRepository implements Repository<Tag> {
-
-    private static final Logger log = LogManager.getLogger();
-
-
-    private static final String SQL_INSERT = "insert into tag (id, title) values (?, ?)";
-    private static final String SQL_DELETE = "delete from tag where id = ?;";
-    private static final String SQL_DELETE_LINK = "delete from certificate_tag where tag_id = ?;";
+public class TagRepository implements AbstractTagRepository {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -38,15 +31,14 @@ public class TagRepository implements Repository<Tag> {
 
     @Override
     public void add(Tag tag) {
-        jdbcTemplate.update(SQL_INSERT, tag.getId(), tag.getTitle());
-        log.debug(tag + " successfully added");
+        jdbcTemplate.update(SQL_TAG_INSERT, tag.getTitle());
     }
 
     @Override
     public void remove(Tag tag) {
-        jdbcTemplate.update(SQL_DELETE_LINK, tag.getId());
-        jdbcTemplate.update(SQL_DELETE, tag.getId());
-        log.debug(tag + " successfully removed");
+        jdbcTemplate.update(SQL_TAG_DELETE_LINK, tag.getId());
+        jdbcTemplate.update(SQL_TAG_DELETE, tag.getId());
+
     }
 
     @Override
@@ -57,5 +49,20 @@ public class TagRepository implements Repository<Tag> {
     @Override
     public List<Tag> query(SqlSpecification specification) {
         return jdbcTemplate.query(specification.sql(), specification.setStatement(), new BeanPropertyRowMapper<>(Tag.class));
+    }
+
+    @Override
+    public void removeById(long id) {
+        jdbcTemplate.update(SQL_TAG_DELETE_LINK, id);
+        jdbcTemplate.update(SQL_TAG_DELETE, id);
+    }
+
+    @Override
+    public List<Tag> getTagsByCertificate(long id) {
+
+        return jdbcTemplate.query(
+                SQL_GET_TAGS_BY_CERTIFICATE_FUNCTION,
+                preparedStatement ->
+                        preparedStatement.setLong(1, id), new TagMapper());
     }
 }

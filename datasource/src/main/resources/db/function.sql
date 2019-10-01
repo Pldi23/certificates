@@ -29,15 +29,16 @@ END
 $BODY$;
 
 create or replace function get_tags_by_certificate(
-    certificate_id integer
+    in_id bigint
 )
     returns table
             (
-                id    integer,
-                title varchar(200),
-                tag_id integer,
-                c_id integer
+                out_id             integer,
+                out_title          varchar(200),
+                out_tag_id         integer,
+                out_certificate_id integer
             )
+    LANGUAGE 'plpgsql'
 as
 $BODY$
 begin
@@ -45,6 +46,36 @@ begin
         select *
         from tag
                  join certificate_tag ct on tag.id = ct.tag_id
-    where ct.certificate_id = id;
+        where ct.certificate_id = in_id;
 end;
+$BODY$;
+
+create or replace function get_certificates_by_tag(
+    in_id bigint
+)
+    returns table
+            (
+                id             integer,
+                name          varchar(200),
+                description         varchar(200),
+                price numeric,
+                creationdate date,
+                modificationdate date,
+                expirationdate date,
+                out_certificate_id integer,
+                out_tag_id integer,
+                t_id integer,
+                title varchar(200)
+            )
+
+    LANGUAGE 'plpgsql'
+as
 $BODY$
+begin
+    return query
+        select *
+        from certificate join certificate_tag on certificate.id = certificate_id
+                         left join tag as t on tag_id = t.id
+        where certificate_id in (select certificate_id from certificate_tag where public.certificate_tag.tag_id in (in_id));
+end;
+$BODY$;

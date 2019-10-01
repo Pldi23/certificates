@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.specification.SqlSpecificationConstant.*;
+
 /**
  * gift certificates
  *
@@ -26,67 +28,7 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     private static final Logger log = LogManager.getLogger();
 
-    private static final String SQL_SPECIFICATION = "select certificate.id, name, description, price, creationdate," +
-            " modificationdate, expirationdate, certificate_id, tag_id, tag.id, title from certificate " +
-            "join certificate_tag on certificate.id = certificate_id " +
-            "left join tag on certificate_tag.tag_id = tag.id";
-
-    private static final String SQL_WHERE = " where ";
-
-
-    private static final String SQL_ID_BETWEEN = "certificate.id between ? and ? ";
-    private static final String SQL_ID_NOT_BETWEEN = "certificate.id not between ? and ? ";
-    private static final String SQL_ID_IN = "certificate.id in (";
-    private static final String SQL_ID_NOT_IN = "certificate.id not in (";
-
-    private static final String SQL_AND = " and ";
-    private static final String SQL_PARAMETER = "?";
-    private static final String SQL_CLOSE_IN = ") ";
-
-    private static final String SQL_NAME_IN = "name in (";
-    private static final String SQL_NAME_NOT_IN = "name not in (";
-    private static final String SQL_NAME_LIKE = "name like lower(?)";
-    private static final String SQL_NAME_NOT_LIKE = "name not like (?)";
-
-    private static final String SQL_DESCRIPTION_IN = "description in (";
-    private static final String SQL_DESCRIPTION_NOT_IN = "description not in (";
-    private static final String SQL_DESCRITION_LIKE = "description like lower(?)";
-    private static final String SQL_DESCRIPTION_NOT_LIKE = "description not like (?)";
-
-    private static final String SQL_CREATION_DATE_BETWEEN = "creationdate between ? and ?";
-    private static final String SQL_CREATION_DATE_NOT_BETWEEN = "creationdate not between ? and ?";
-    private static final String SQL_CREATION_DATE_IN = "creationdate in (";
-    private static final String SQL_CREATION_DATE_NOT_IN = "creationdate not in (";
-
-    private static final String SQL_MODIFICATION_DATE_BETWEEN = "modificationdate between ? and ?";
-    private static final String SQL_MODIFICATION_DATE_NOT_BETWEEN = "modificationdate not between ? and ?";
-    private static final String SQL_MODIFICATION_DATE_IN = "modificationdate in (";
-    private static final String SQL_MODIFICATION_DATE_NOT_IN = "modificationdate not in (";
-
-    private static final String SQL_EXPIRATION_DATE_BETWEEN = "expirationdate between ? and ?";
-    private static final String SQL_EXPIRATION_DATE_NOT_BETWEEN = "expirationdate not between ? and ?";
-    private static final String SQL_EXPIRATION_DATE_IN = "expirationdate in (";
-    private static final String SQL_EXPIRATION_DATE_NOT_IN = "expirationdate not in (";
-
-    private static final String SQL_PRICE_BETWEEN = "price between ? and ?";
-    private static final String SQL_PRICE_NOT_BETWEEN = "price not between ? and ?";
-    private static final String SQL_PRICE_IN = "price in (";
-    private static final String SQL_PRICE_NOT_IN = "price not in (";
-
-    private static final String SQL_TAG_ID_BETWEEN =
-            "certificate_id in (select certificate_id from certificate_tag where tag_id between ? and ?) ";
-    private static final String SQL_TAG_ID_NOT_BETWEEN =
-            "certificate_id in (select certificate_id from certificate_tag where tag_id not between ? and ?) ";
-    private static final String SQL_TAG_ID_IN = "certificate_id in (select certificate_id from certificate_tag where tag_id in (";
-    private static final String SQL_TAG_ID_NOT_IN = "certificate_id in (select certificate_id from certificate_tag where tag_id not in (";
-
-    private static final String ID = "id";
-    private static final String CERTIFICATE_ID = "certificate.id";
-    private static final String SQL_LIMIT = " limit ? ";
-    private static final String SQL_OFFSET = " offset ? ";
-    private static final String SQL_ORDER_BY = " order by ";
-    private static final String SQL_DESC = " desc ";
-
+    private static final String EXCEPTION_MESSAGE = "no enum constant for found for ";
 
     private SearchCriteria searchCriteria;
     private SortCriteria sortCriteria;
@@ -102,7 +44,7 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     @Override
     public String sql() {
-        return SQL_SPECIFICATION + buildSqlWhere() +
+        return SQL_CERTIFICATE_BY_CRITERIA_SPECIFICATION + buildSqlWhere() +
                 List.of(
                         buildIdCriteriaSqlSearchClause(),
                         buildNameCriteriaSqlSearchClause(),
@@ -202,8 +144,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     idSql = SQL_ID_NOT_BETWEEN;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getIdCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getIdCriteria().getParameterSearchType());
             }
         }
         return idSql;
@@ -228,8 +170,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     priceSql = SQL_PRICE_NOT_BETWEEN;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getPriceCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getPriceCriteria().getParameterSearchType());
             }
         }
         return priceSql;
@@ -252,8 +194,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     preparedStatement.setBigDecimal(lastSettedField, searchCriteria.getPriceCriteria().getCriteriaList().get(1));
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getCreationDateCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getCreationDateCriteria().getParameterSearchType());
             }
         }
         return lastSettedField;
@@ -277,8 +219,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     preparedStatement.setLong(lastSettedField, searchCriteria.getIdCriteria().getCriteriaList().get(1));
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getIdCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getIdCriteria().getParameterSearchType());
             }
         }
         return lastSettedField;
@@ -303,8 +245,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     nameSql = SQL_NAME_NOT_LIKE;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getNameCriteria().getSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getNameCriteria().getSearchType());
             }
         }
         return nameSql;
@@ -327,8 +269,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                             "%" + searchCriteria.getNameCriteria().getCriteriaList().get(0) + "%");
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getNameCriteria().getSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getNameCriteria().getSearchType());
             }
         }
         return lastSettedField;
@@ -353,8 +295,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     descriptionSql = SQL_DESCRIPTION_NOT_LIKE;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getDescriptionCriteria().getSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getDescriptionCriteria().getSearchType());
             }
         }
         return descriptionSql;
@@ -377,8 +319,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                             "%" + searchCriteria.getDescriptionCriteria().getCriteriaList().get(0) + "%");
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getDescriptionCriteria().getSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getDescriptionCriteria().getSearchType());
             }
         }
         return lastSettedField;
@@ -403,8 +345,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     creationDateSql = SQL_CREATION_DATE_NOT_BETWEEN;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getCreationDateCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getCreationDateCriteria().getParameterSearchType());
             }
         }
         return creationDateSql;
@@ -427,8 +369,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     preparedStatement.setDate(lastSettedField, Date.valueOf(searchCriteria.getCreationDateCriteria().getCriteriaList().get(1)));
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getCreationDateCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getCreationDateCriteria().getParameterSearchType());
             }
         }
         return lastSettedField;
@@ -453,8 +395,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     modificationDateSql = SQL_MODIFICATION_DATE_NOT_BETWEEN;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getModificationDateCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getModificationDateCriteria().getParameterSearchType());
             }
         }
         return modificationDateSql;
@@ -477,8 +419,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     preparedStatement.setDate(lastSettedField, Date.valueOf(searchCriteria.getModificationDateCriteria().getCriteriaList().get(1)));
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getModificationDateCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getModificationDateCriteria().getParameterSearchType());
             }
         }
         return lastSettedField;
@@ -503,8 +445,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     expirationDateSql = SQL_EXPIRATION_DATE_NOT_BETWEEN;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getExpirationDateCriteria().getSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getExpirationDateCriteria().getSearchType());
             }
         }
         return expirationDateSql;
@@ -527,8 +469,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     preparedStatement.setDate(lastSettedField, Date.valueOf(searchCriteria.getExpirationDateCriteria().getCriteriaList().get(1)));
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getExpirationDateCriteria().getSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getExpirationDateCriteria().getSearchType());
             }
         }
         return lastSettedField;
@@ -553,8 +495,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     tagIdSql = SQL_TAG_ID_NOT_BETWEEN;
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getTagCriteria().getTagIds() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getTagCriteria().getTagIds());
             }
         }
         return tagIdSql;
@@ -577,8 +519,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     preparedStatement.setLong(lastSettedField, searchCriteria.getTagCriteria().getTagIds().get(1));
                     break;
                 default:
-                    throw new CriteriaSearchTypeException("no enum constant for "
-                            + searchCriteria.getIdCriteria().getParameterSearchType() + " found");
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getIdCriteria().getParameterSearchType());
             }
         }
         return lastSettedField;

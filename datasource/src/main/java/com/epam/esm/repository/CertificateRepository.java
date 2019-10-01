@@ -1,23 +1,23 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.GiftCertificate;
+
 import com.epam.esm.repository.extractor.GiftCertificateExtractor;
 import com.epam.esm.specification.SqlSpecification;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.PreparedStatement;
+import java.util.*;
+
+import static com.epam.esm.repository.SqlConstant.*;
 
 /**
  * gift certificates
@@ -29,23 +29,6 @@ import java.util.Map;
 @Transactional
 public class CertificateRepository implements AbstractCertificateRepository {
 
-    private static final Logger log = LogManager.getLogger();
-
-
-    private static final String SQL_INSERT =
-            "insert into certificate(id, name, description, price, creationdate, modificationdate, expirationdate) " +
-                    "values (?, ?, ?, ?, ?, ?, ?);";
-
-    private static final String SQL_INSERT_LINK = "insert into certificate_tag(certificate_id, tag_id) values (?, ?);";
-    private static final String SQL_INSERT_TAG = "insert into tag(id, title) values (?, ?);";
-    private static final String SQL_DETECT_TAG = "select count(*) from tag where id = ?;";
-    private static final String SQL_DELETE = "delete from certificate where id = ?;";
-    private static final String SQL_DELETE_LINK = "delete from certificate_tag where certificate_id = ?;";
-    private static final String SQL_UPDATE =
-            "update certificate set name = ?, description = ?, price = ?, creationdate = ?, modificationdate = ?," +
-                    " expirationdate = ? where id = ?;";
-
-
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -55,33 +38,56 @@ public class CertificateRepository implements AbstractCertificateRepository {
 
     @Override
     public void add(GiftCertificate giftCertificate) {
-        jdbcTemplate.update(SQL_INSERT,
-                giftCertificate.getId(),
-                giftCertificate.getName(),
-                giftCertificate.getDescription(),
-                giftCertificate.getPrice(),
-                Date.valueOf(giftCertificate.getCreationDate()),
-                Date.valueOf(giftCertificate.getModificationDate()),
-                Date.valueOf(giftCertificate.getExpirationDate()));
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(SQL_INSERT_CERTIFICATE, new String[]{"id"});
+            ps.setString(1, giftCertificate.getName());
+            ps.setString(2, giftCertificate.getDescription());
+            ps.setBigDecimal(3, giftCertificate.getPrice());
+            ps.setDate(4, Date.valueOf(giftCertificate.getCreationDate()));
+            ps.setDate(5, Date.valueOf(giftCertificate.getModificationDate()));
+            ps.setDate(6, Date.valueOf(giftCertificate.getExpirationDate()));
+            return ps;
+        }, keyHolder);
         giftCertificate.getTags().forEach(tag -> {
-            if (jdbcTemplate.queryForObject(SQL_DETECT_TAG, Integer.class, tag.getId()) == 0) {
-                jdbcTemplate.update(SQL_INSERT_TAG, tag.getId(), tag.getTitle());
+            if (jdbcTemplate.queryForObject(SQL_CERTIFICATE_DETECT_TAG, Integer.class, tag.getId()) == 0) {
+                KeyHolder tagIdHolder = new GeneratedKeyHolder();
+                jdbcTemplate.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(SQL_CERTIFICATE_INSERT_TAG, new String[]{"id"});
+                    ps.setString(1, tag.getTitle());
+                    return ps;
+                }, tagIdHolder);
+                jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, keyHolder.getKey(), tagIdHolder.getKey());
+            } else {
+                jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, keyHolder.getKey(), tag.getId());
             }
-            jdbcTemplate.update(SQL_INSERT_LINK, giftCertificate.getId(), tag.getId());
         });
-        log.debug(giftCertificate + " successfully added");
     }
 
     @Override
     public void remove(GiftCertificate giftCertificate) {
-        jdbcTemplate.update(SQL_DELETE_LINK, giftCertificate.getId());
-        jdbcTemplate.update(SQL_DELETE, giftCertificate.getId());
-        log.debug(giftCertificate + " successfully removed");
+        jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, giftCertificate.getId());
+        jdbcTemplate.update(SQL_CERTIFICATE_DELETE, giftCertificate.getId());
     }
 
     @Override
     public void update(GiftCertificate giftCertificate) {
-        jdbcTemplate.update(SQL_UPDATE,
+
+        jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, giftCertificate.getId());
+        giftCertificate.getTags().forEach(tag -> {
+            if (jdbcTemplate.queryForObject(SQL_CERTIFICATE_DETECT_TAG, Integer.class, tag.getId()) == 0) {
+                KeyHolder idHolder = new GeneratedKeyHolder();
+                jdbcTemplate.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(SQL_CERTIFICATE_INSERT_TAG,new String[]{"id"});
+                    ps.setString(1, tag.getTitle());
+                    return ps;
+                }, idHolder);
+                jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, giftCertificate.getId(), idHolder.getKey().longValue());
+            } else {
+                jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, giftCertificate.getId(), tag.getId());
+            }
+        });
+        jdbcTemplate.update(SQL_CERTIFICATE_UPDATE,
                 giftCertificate.getName(),
                 giftCertificate.getDescription(),
                 giftCertificate.getPrice(),
@@ -89,36 +95,26 @@ public class CertificateRepository implements AbstractCertificateRepository {
                 Date.valueOf(giftCertificate.getModificationDate()),
                 Date.valueOf(giftCertificate.getExpirationDate()),
                 giftCertificate.getId());
-        jdbcTemplate.update(SQL_DELETE_LINK, giftCertificate.getId());
-        giftCertificate.getTags().forEach(tag -> {
-            if (jdbcTemplate.queryForObject(SQL_DETECT_TAG, Integer.class, tag.getId()) == 0) {
-                jdbcTemplate.update(SQL_INSERT_TAG, tag.getId(), tag.getTitle());
-            }
-            jdbcTemplate.update(SQL_INSERT_LINK, giftCertificate.getId(), tag.getId());
-        });
-        log.debug(giftCertificate + " successfully updated");
     }
 
     @Override
     public List<GiftCertificate> query(SqlSpecification specification) {
-        return jdbcTemplate.query(specification.sql(), specification.setStatement(), new GiftCertificateExtractor());
+        return jdbcTemplate.query(specification.sql(), specification.setStatement(),
+                new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN));
     }
 
-    public List<GiftCertificate> getCertificatesByNameOrDescription(String description, String name) {
-        log.debug("desc " + description);
-        log.debug("name " + name);
-        SimpleJdbcCall jdbcCall = new
-                SimpleJdbcCall(jdbcTemplate.getDataSource())
-                .withFunctionName("get_certificate_by_name_description")
-                .returningResultSet("giftCertificates", BeanPropertyRowMapper.newInstance(GiftCertificate.class));
 
-        SqlParameterSource in = new MapSqlParameterSource()
-                .addValue("part_of_description", description)
-                .addValue("part_of_name", name);
+    @Override
+    public void removeById(long id) {
+        jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, id);
+        jdbcTemplate.update(SQL_CERTIFICATE_DELETE, id);
+    }
 
-        Map<String, Object> out = jdbcCall.execute(in);
-
-        out.forEach((k,v) -> log.debug("key : " + k + " value : " + v));
-        return (List<GiftCertificate>) out.get("giftCertificates");
+    @Override
+    public List<GiftCertificate> getCertificatesByTagId(long tagId) {
+        return jdbcTemplate.query(
+                SQL_SELECT_CERTIFICATES_BY_TAG,
+                preparedStatement -> preparedStatement.setLong(1, tagId),
+                new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_OUT_TAG_ID));
     }
 }

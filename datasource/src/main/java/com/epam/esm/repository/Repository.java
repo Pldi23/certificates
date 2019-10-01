@@ -1,7 +1,6 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.specification.SqlSpecification;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -11,7 +10,6 @@ import java.util.List;
  * @author Dzmitry Platonov on 2019-09-23.
  * @version 0.0.1
  */
-@Component
 public interface Repository<T> {
 
     void add(T entity);

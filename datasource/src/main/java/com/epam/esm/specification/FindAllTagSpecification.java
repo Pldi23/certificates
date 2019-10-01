@@ -10,11 +10,9 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
  */
 public class FindAllTagSpecification implements SqlSpecification {
 
-    private static final String SQL_SPECIFICATION = "select * from tag";
-
     @Override
     public String sql() {
-        return SQL_SPECIFICATION;
+        return SqlSpecificationConstant.SQL_TAG_ALL_SPECIFICATION;
     }
 
     @Override

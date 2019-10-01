@@ -10,8 +10,6 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
  */
 public class FindTagByTitlePartSpecification implements SqlSpecification {
 
-    private static final String SQL_SPECIFICATION = "select * from tag where title like ?";
-
     private String stringPart;
 
     public FindTagByTitlePartSpecification(String stringPart) {
@@ -20,7 +18,7 @@ public class FindTagByTitlePartSpecification implements SqlSpecification {
 
     @Override
     public String sql() {
-        return SQL_SPECIFICATION;
+        return SqlSpecificationConstant.SQL_TAG_BY_TITLE_SPECIFICATION;
     }
 
     @Override

@@ -24,7 +24,12 @@ public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCer
     private static final String MODIFICATION_DATE_COLUMN = "modificationdate";
     private static final String EXPIRATION_DATE_COLUMN = "expirationdate";
     private static final String TAG_TITLE_COLUMN = "title";
-    private static final String TAG_ID_COLUMN = "tag_id";
+
+    private String tagIdColumn;
+
+    public GiftCertificateExtractor(String tagIdColumn) {
+        this.tagIdColumn = tagIdColumn;
+    }
 
     @Override
     public List<GiftCertificate> extractData(ResultSet resultSet) throws SQLException {
@@ -42,11 +47,11 @@ public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCer
                 giftCertificate.setModificationDate(resultSet.getDate(MODIFICATION_DATE_COLUMN).toLocalDate());
                 giftCertificate.setExpirationDate(resultSet.getDate(EXPIRATION_DATE_COLUMN).toLocalDate());
                 giftCertificate.setTags(new HashSet<>());
-                giftCertificate.getTags().add(new Tag(resultSet.getLong(TAG_ID_COLUMN), resultSet.getString(TAG_TITLE_COLUMN)));
+                giftCertificate.getTags().add(new Tag(resultSet.getLong(tagIdColumn), resultSet.getString(TAG_TITLE_COLUMN)));
                 table.put(giftCertificate.getId(), giftCertificate);
             } else {
                 table.get(resultSet.getLong(ID_COLUMN)).getTags()
-                        .add(new Tag(resultSet.getLong(TAG_ID_COLUMN), resultSet.getString(TAG_TITLE_COLUMN)));
+                        .add(new Tag(resultSet.getLong(tagIdColumn), resultSet.getString(TAG_TITLE_COLUMN)));
             }
         }
         table.forEach((id, giftCertificate) -> giftCertificates.add(giftCertificate));

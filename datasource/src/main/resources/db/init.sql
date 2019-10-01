@@ -1,6 +1,6 @@
 create table certificate
 (
-    id               bigint not null,
+    id               serial,
     name             varchar(200),
     description      varchar(1000),
     price            numeric,
@@ -15,7 +15,7 @@ create table certificate
 
 create table tag
 (
-    id    bigint not null,
+    id    serial,
     title varchar(200),
 
     constraint tag_pkey1 primary key (id),

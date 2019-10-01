@@ -1,12 +1,11 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.DataSourceConfig;
+import com.epam.esm.config.DataSourceConfig;
+import com.epam.esm.DatabaseSetupExtension;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.extractor.GiftCertificateExtractor;
 import com.epam.esm.specification.FindAllCertificatesSpecification;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 
 /**
- * giftcertificates
+ * gift certificates
  *
  * @author Dzmitry Platonov on 2019-09-24.
  * @version 0.0.1
@@ -33,10 +32,8 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(classes = {DataSourceConfig.class})
 public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
-    private static final Logger log = LogManager.getLogger();
-
     @Autowired
-//    @Qualifier("CertificateRepository")
+    @Qualifier("CertificateRepository")
     private AbstractCertificateRepository certificateRepository;
 
     @Autowired
@@ -70,7 +67,7 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
         GiftCertificate giftCertificate = new GiftCertificate(1,"sport car", "1 hour lamborghini ride",
                 new BigDecimal(300), LocalDate.of(2019,1,1),
                 LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), Set.of(new Tag(9, "blue"), new Tag(10, "red")));
+                LocalDate.of(2021, 1,1), Set.of(new Tag(9, "blue"), new Tag(1, "extreme")));
 
         certificateRepository.update(giftCertificate);
 
@@ -79,7 +76,7 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
                         "left join tag on certificate_tag.tag_id = tag.id where certificate_id = ?"
                         ,
                 preparedStatement -> preparedStatement.setLong(1, giftCertificate.getId()),
-                new GiftCertificateExtractor()).get(0);
+                new GiftCertificateExtractor("tag_id")).get(0);
 
         assertEquals(giftCertificate, actual);
     }

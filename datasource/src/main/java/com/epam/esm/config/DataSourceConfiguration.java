@@ -1,4 +1,4 @@
-package com.epam.esm.db;
+package com.epam.esm.config;
 
 /**
  * gift certificates
