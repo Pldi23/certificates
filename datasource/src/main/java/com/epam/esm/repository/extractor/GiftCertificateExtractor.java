@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * giftcertificates
+ * extractor for {@link GiftCertificate} and nested {@link Tag}
  *
  * @author Dzmitry Platonov on 2019-09-25.
  * @version 0.0.1

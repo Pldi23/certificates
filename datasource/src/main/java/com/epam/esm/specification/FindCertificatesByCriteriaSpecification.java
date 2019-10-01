@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static com.epam.esm.specification.SqlSpecificationConstant.*;
 
 /**
- * gift certificates
+ * to select certificate by criteria
  *
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1

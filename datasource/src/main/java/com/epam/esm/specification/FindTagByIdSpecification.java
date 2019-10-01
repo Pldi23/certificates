@@ -3,7 +3,7 @@ package com.epam.esm.specification;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 
 /**
- * gift certificates
+ * to select tag by id
  *
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1

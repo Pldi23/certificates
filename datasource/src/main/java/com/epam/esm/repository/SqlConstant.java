@@ -1,7 +1,7 @@
 package com.epam.esm.repository;
 
 /**
- * gift certificates
+ * Sql constants to be used in repository methods
  *
  * @author Dzmitry Platonov on 2019-09-30.
  * @version 0.0.1

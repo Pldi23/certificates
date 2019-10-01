@@ -12,12 +12,6 @@ import java.util.List;
 
 import static com.epam.esm.repository.SqlConstant.*;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-23.
- * @version 0.0.1
- */
 @Component(value = "TagRepository")
 @Transactional
 public class TagRepository implements AbstractTagRepository {

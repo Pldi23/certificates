@@ -1,7 +1,7 @@
 package com.epam.esm.specification;
 
 /**
- * gift certificates
+ * constants to be used for {@link SqlSpecification}'s
  *
  * @author Dzmitry Platonov on 2019-09-30.
  * @version 0.0.1

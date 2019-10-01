@@ -19,12 +19,6 @@ import java.util.*;
 
 import static com.epam.esm.repository.SqlConstant.*;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-24.
- * @version 0.0.1
- */
 @Component(value = "CertificateRepository")
 @Transactional
 public class CertificateRepository implements AbstractCertificateRepository {
