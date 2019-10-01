@@ -2,7 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
-import com.epam.esm.service.TagService;
+import com.epam.esm.service.TagServiceImpl;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -35,44 +35,44 @@ import java.util.Optional;
 @ExposesResourceFor(GiftCertificateDTO.class)
 public class CertificateController {
 
-    private CertificateService certificateService;
-    private TagService tagService;
+    private CertificateService certificateServiceImpl;
+    private TagServiceImpl tagServiceImpl;
     private DtoParser dtoParser;
     private RequestParametersValidator validator;
     private EntityLinks entityLinks;
     private ResourceBundleMessageSource messageSource;
 
 
-    public CertificateController(CertificateService certificateService, DtoParser dtoParser,
-                                 RequestParametersValidator validator, TagService tagService,
+    public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
+                                 RequestParametersValidator validator, TagServiceImpl tagServiceImpl,
                                  EntityLinks entityLinks, ResourceBundleMessageSource messageSource) {
-        this.certificateService = certificateService;
+        this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;
-        this.tagService = tagService;
+        this.tagServiceImpl = tagServiceImpl;
         this.entityLinks = entityLinks;
         this.messageSource = messageSource;
     }
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/")
     public ResponseEntity findAll() {
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll();
+        List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findAll();
         return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok().body(giftCertificateDTOS)
                 : ResponseEntity.notFound().build();
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity findOneById(@PathVariable("id") @Min(0) long id) {
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findOneById(id);
+        List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findOneById(id);
         return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok().body(giftCertificateDTOS)
                 : ResponseEntity.notFound().build();
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
         ResponseEntity responseEntity;
 
-        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateService.save(giftCertificateDTO);
+        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.save(giftCertificateDTO);
         if (optionalGiftCertificateDTO.isPresent()) {
             LinkBuilder linkBuilder
                     = entityLinks.linkForSingleResource(GiftCertificateDTO.class, optionalGiftCertificateDTO.get().getId());
@@ -85,11 +85,11 @@ public class CertificateController {
         return responseEntity;
     }
 
-    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}")
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(0) long id) {
-        MessageDTO messageDTO = certificateService.update(giftCertificateDTO, id) ?
+        MessageDTO messageDTO = certificateServiceImpl.update(giftCertificateDTO, id) ?
                 new MessageDTO(messageSource.getMessage("entity.update", null, null), 200) :
                 new MessageDTO(messageSource.getMessage("entity.no", null, null), 404);
         return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO);
@@ -97,11 +97,11 @@ public class CertificateController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(0) long id) {
-        certificateService.delete(id);
+        certificateServiceImpl.delete(id);
         return ResponseEntity.status(204).build();
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public ResponseEntity findByCriteria(@RequestParam Map<String, String> criteriaMap) {
         DataBinder dataBinder = new DataBinder(criteriaMap);
         dataBinder.addValidators(validator);
@@ -112,13 +112,13 @@ public class CertificateController {
         SortCriteriaRequestDTO sortCriteriaRequestDTO = dtoParser.parseSortCriteria(criteriaMap);
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
         LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO = dtoParser.parseLimitOffsetCriteria(criteriaMap);
-        return ResponseEntity.ok(certificateService
+        return ResponseEntity.ok(certificateServiceImpl
                 .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO));
 
     }
 
-    @GetMapping(value = "/{id}/tags", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByCertificate(@PathVariable("id") @Min(0) long id) {
-        return ResponseEntity.ok(tagService.getTagsByCertificate(id));
+        return ResponseEntity.ok(tagServiceImpl.getTagsByCertificate(id));
     }
 }

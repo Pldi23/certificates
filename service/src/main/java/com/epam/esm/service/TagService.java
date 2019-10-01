@@ -1,63 +1,21 @@
 package com.epam.esm.service;
 
-import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.TagDTO;
-import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.AbstractTagRepository;
-import com.epam.esm.specification.FindAllTagSpecification;
-import com.epam.esm.specification.FindTagByIdSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * gift certificates
+ * giftcertificates
  *
- * @author Dzmitry Platonov on 2019-09-25.
+ * @author Dzmitry Platonov on 2019-10-01.
  * @version 0.0.1
  */
-@Service
-public class TagService {
+public interface TagService {
 
-    private AbstractTagRepository tagRepository;
-
-    private TagConverter tagConverter;
-
-    @Autowired
-    public TagService(AbstractTagRepository tagRepository, TagConverter tagConverter) {
-        this.tagRepository = tagRepository;
-        this.tagConverter = tagConverter;
-    }
-
-    public List<TagDTO> getTag(long id) {
-        return tagRepository.query(new FindTagByIdSpecification(id)).stream()
-                .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
-    }
-
-    public List<TagDTO> findAll() {
-        return tagRepository.query(new FindAllTagSpecification()).stream()
-                .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
-    }
-
-    public Optional<TagDTO> save(TagDTO tagDTO) {
-        Tag tag = tagConverter.convert(tagDTO);
-        Optional<Tag> optionalTag = tagRepository.add(tag);
-        return optionalTag.map(value -> tagConverter.convert(value));
-    }
-
-    public void delete(long id) {
-        tagRepository.remove(id);
-    }
-
-    public List<TagDTO> getTagsByCertificate(long id) {
-        return tagRepository.getTagsByCertificate(id).stream()
-                .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
-    }
+    List<TagDTO> getTag(long id);
+    List<TagDTO> findAll();
+    Optional<TagDTO> save(TagDTO tagDTO);
+    List<TagDTO> getTagsByCertificate(long id);
+    void delete(long id);
 }

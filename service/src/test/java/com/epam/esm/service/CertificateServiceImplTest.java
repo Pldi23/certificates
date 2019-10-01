@@ -33,10 +33,10 @@ import static org.mockito.Mockito.times;
  * @version 0.0.1
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CertificateServiceTest {
+public class CertificateServiceImplTest {
 
     @InjectMocks
-    private CertificateService service;
+    private CertificateServiceImpl service;
 
     @Mock
     private AbstractCertificateRepository repository;
@@ -51,7 +51,7 @@ public class CertificateServiceTest {
         converter = new CertificateConverter();
         ConverterFactory converterFactory = new ConverterFactory();
         CriteriaConverter criteriaConverter = new CriteriaConverter(converterFactory);
-        service = new CertificateService(repository, converter, criteriaConverter);
+        service = new CertificateServiceImpl(repository, converter, criteriaConverter);
 
         giftCertificate = new GiftCertificate(4,"flowers", "one hundred roses",
                 new BigDecimal(50),

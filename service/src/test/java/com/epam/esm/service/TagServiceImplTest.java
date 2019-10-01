@@ -28,11 +28,11 @@ import static org.mockito.Mockito.times;
  * @version 0.0.1
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TagServiceTest {
+public class TagServiceImplTest {
 
 
     @InjectMocks
-    private TagService tagService;
+    private TagServiceImpl tagServiceImpl;
 
     @Mock
     private AbstractTagRepository tagRepository;
@@ -41,7 +41,7 @@ public class TagServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         TagConverter converter = new TagConverter();
-        tagService = new TagService(tagRepository, converter);
+        tagServiceImpl = new TagServiceImpl(tagRepository, converter);
     }
 
 
@@ -54,7 +54,7 @@ public class TagServiceTest {
         List<TagDTO> expected = List.of(new TagDTO(1, "expected"));
 
         //test
-        List<TagDTO> actual = tagService.getTag(tag.getId());
+        List<TagDTO> actual = tagServiceImpl.getTag(tag.getId());
 
         assertEquals(expected, actual);
     }
@@ -66,7 +66,7 @@ public class TagServiceTest {
 
         Mockito.when(tagRepository.query(any())).thenReturn(tags);
 
-        List<TagDTO> actual = tagService.findAll();
+        List<TagDTO> actual = tagServiceImpl.findAll();
 
         assertEquals(tagDTOS, actual);
     }
@@ -76,7 +76,7 @@ public class TagServiceTest {
         TagDTO tagDTO = new TagDTO(1, "expected");
 
         Mockito.when(tagRepository.add(any())).thenReturn(Optional.of(new Tag(8, tagDTO.getTitle())));
-        Optional<TagDTO> actual = tagService.save(tagDTO);
+        Optional<TagDTO> actual = tagServiceImpl.save(tagDTO);
         Mockito.verify(tagRepository, times(1)).add(new Tag(1, "expected"));
         assertEquals(Optional.of(new TagDTO(8, tagDTO.getTitle())), actual);
     }
@@ -85,7 +85,7 @@ public class TagServiceTest {
     public void deleteSuccessful() {
         List<Tag> tags = List.of(new Tag(1, "expected"));
 
-        tagService.delete(tags.get(0).getId());
+        tagServiceImpl.delete(tags.get(0).getId());
         Mockito.verify(tagRepository, times(1)).remove(tags.get(0).getId());
 
     }
@@ -94,7 +94,7 @@ public class TagServiceTest {
     public void deleteUnsuccessful() {
         Tag tag = new Tag(1, "expected");
 
-        tagService.delete(tag.getId());
+        tagServiceImpl.delete(tag.getId());
         Mockito.verify(tagRepository, times(1)).remove(tag.getId());
     }
 }
