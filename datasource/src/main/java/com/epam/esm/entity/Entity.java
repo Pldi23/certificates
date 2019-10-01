@@ -10,16 +10,16 @@ import java.util.Objects;
  */
 public abstract class Entity {
 
-    private long id;
+    private Long id;
 
     Entity() {
     }
 
-    Entity(long id) {
+    Entity(Long id) {
         this.id = id;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -32,7 +32,7 @@ public abstract class Entity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Entity entity = (Entity) o;
-        return id == entity.id;
+        return Objects.equals(id, entity.id);
     }
 
     @Override

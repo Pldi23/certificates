@@ -26,7 +26,7 @@ public class TagRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testAddPositive() {
-        tagRepository.add(new Tag(9, "test"));
+        tagRepository.add(new Tag(9L, "test"));
         assertEquals(8, (int) jdbcTemplate.queryForObject("select count(*) from tag", Integer.class));
     }
 

@@ -17,7 +17,7 @@ public class Tag extends Entity{
     public Tag() {
     }
 
-    public Tag(long id, String title) {
+    public Tag(Long id, String title) {
         super(id);
         this.title = title;
     }

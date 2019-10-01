@@ -14,7 +14,7 @@ import java.util.Objects;
 public class TagDTO {
 
     @Min(value = 0, message = "id should be greater than 0")
-    private long id;
+    private Long id;
 
     @NotBlank(message = "title should not be empty")
     private String title;
@@ -22,16 +22,16 @@ public class TagDTO {
     public TagDTO() {
     }
 
-    public TagDTO(long id, String title) {
+    public TagDTO(Long id, String title) {
         this.id = id;
         this.title = title;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

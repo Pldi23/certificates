@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -42,16 +43,20 @@ public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCer
         while (resultSet.next()) {
             if (!table.containsKey(resultSet.getLong(ID_COLUMN))) {
 
-                GiftCertificate giftCertificate = new GiftCertificate();
+                GiftCertificate giftCertificate = new GiftCertificate.Builder().build();
                 giftCertificate.setId(resultSet.getLong(ID_COLUMN));
                 giftCertificate.setName(resultSet.getString(NAME_COLUMN));
                 giftCertificate.setDescription(resultSet.getString(DESCRIPTION_COLUMN));
                 giftCertificate.setPrice(resultSet.getBigDecimal(PRICE_COLUMN));
-                giftCertificate.setCreationDate(resultSet.getDate(CREATION_DATE_COLUMN).toLocalDate());
-                giftCertificate.setModificationDate(resultSet.getDate(MODIFICATION_DATE_COLUMN).toLocalDate());
-                giftCertificate.setExpirationDate(resultSet.getDate(EXPIRATION_DATE_COLUMN).toLocalDate());
+                giftCertificate.setCreationDate(extractDate(resultSet, CREATION_DATE_COLUMN));
+                giftCertificate.setModificationDate(extractDate(resultSet, MODIFICATION_DATE_COLUMN));
+                giftCertificate.setExpirationDate(extractDate(resultSet, EXPIRATION_DATE_COLUMN));
                 giftCertificate.setTags(new HashSet<>());
-                giftCertificate.getTags().add(new Tag(resultSet.getLong(tagIdColumn), resultSet.getString(TAG_TITLE_COLUMN)));
+
+                Long tagId = resultSet.getLong(tagIdColumn);
+                String tagTitle = resultSet.getString(TAG_TITLE_COLUMN);
+                Tag tag = new Tag(tagId, tagTitle);
+                giftCertificate.getTags().add(!resultSet.wasNull() ? tag : null);
                 table.put(giftCertificate.getId(), giftCertificate);
             } else {
                 table.get(resultSet.getLong(ID_COLUMN)).getTags()
@@ -60,5 +65,10 @@ public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCer
         }
         table.forEach((id, giftCertificate) -> giftCertificates.add(giftCertificate));
         return giftCertificates;
+    }
+
+    private LocalDate extractDate(ResultSet resultSet, String column) throws SQLException {
+        return resultSet.getDate(column) != null ?
+                resultSet.getDate(column).toLocalDate() : null;
     }
 }

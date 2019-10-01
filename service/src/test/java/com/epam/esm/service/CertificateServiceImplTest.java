@@ -53,15 +53,27 @@ public class CertificateServiceImplTest {
         CriteriaConverter criteriaConverter = new CriteriaConverter(converterFactory);
         service = new CertificateServiceImpl(repository, converter, criteriaConverter);
 
-        giftCertificate = new GiftCertificate(4,"flowers", "one hundred roses",
-                new BigDecimal(50),
-                LocalDate.of(2019,1,1), LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), Set.of());
+        giftCertificate = new GiftCertificate.Builder()
+                        .withId(4L)
+                        .withName("flowers")
+                        .withDescription("one hundred roses")
+                        .withPrice(new BigDecimal(50))
+                        .withCreationDate(LocalDate.of(2019, 1, 1))
+                        .withModificationDate(LocalDate.of(2019, 6, 1))
+                        .withExpirationDate(LocalDate.of(2021, 1, 1))
+                        .withTags(Set.of())
+                        .build();
 
-        giftCertificateDTO = new GiftCertificateDTO(4,"flowers", "one hundred roses",
-                new BigDecimal(50),
-                LocalDate.of(2019,1,1), LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), Set.of());
+        giftCertificateDTO = new GiftCertificateDTO.Builder()
+                .withId(4L)
+                .withName("flowers")
+                .withDescription("one hundred roses")
+                .withPrice(new BigDecimal(50))
+                .withCreationDate(LocalDate.of(2019, 1, 1))
+                .withModificationDate(LocalDate.of(2019, 6, 1))
+                .withExpirationDate(LocalDate.of(2021, 1, 1))
+                .withTags(Set.of())
+                .build();
     }
 
     @Test
@@ -94,7 +106,7 @@ public class CertificateServiceImplTest {
         Mockito.when(repository.add(any())).thenReturn(Optional.of(giftCertificate));
 
         Optional<GiftCertificateDTO> actual = service.save(giftCertificateDTO);
-        giftCertificateDTO.setId(4);
+        giftCertificateDTO.setId(4L);
         assertEquals(Optional.of(giftCertificateDTO), actual);
 
     }

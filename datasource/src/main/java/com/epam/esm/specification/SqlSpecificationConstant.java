@@ -22,12 +22,12 @@ class SqlSpecificationConstant {
     static final String SQL_CERTIFICATE_BY_ID_SPECIFICATION =
             "select certificate.id, name, description, price, creationdate, modificationdate, expirationdate," +
                     " certificate_id, tag_id, tag.id, title from certificate " +
-                    "join certificate_tag on certificate.id = certificate_id left " +
-                    "join tag on certificate_tag.tag_id = tag.id where certificate.id = ?";
+                    "left join certificate_tag on certificate.id = certificate_id " +
+                    "left join tag on certificate_tag.tag_id = tag.id where certificate.id = ?";
     static final String SQL_TAG_ALL_SPECIFICATION = "select id, title from tag";
     static final String SQL_CERTIFICATES_ALL_SPECIFICATION =
             "select certificate.id, name, description, price, creationdate, modificationdate, expirationdate, certificate_id, " +
-                    "tag_id, tag.id, title from certificate join certificate_tag on certificate.id = certificate_id " +
+                    "tag_id, tag.id, title from certificate left join certificate_tag on certificate.id = certificate_id " +
                     "left join tag on certificate_tag.tag_id = tag.id";
 
     static final String SQL_WHERE = " where ";

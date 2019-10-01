@@ -22,19 +22,55 @@ public class GiftCertificate extends Entity {
 
     private Set<Tag> tags;
 
-    public GiftCertificate() {
+    private GiftCertificate() {
     }
 
-    public GiftCertificate(long id, String name, String description, BigDecimal price, LocalDate creationDate,
-                           LocalDate modificationDate, LocalDate expirationDate, Set<Tag> tags) {
-        super(id);
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.creationDate = creationDate;
-        this.modificationDate = modificationDate;
-        this.expirationDate = expirationDate;
-        this.tags = tags;
+    public static class Builder {
+        private GiftCertificate giftCertificate;
+
+        public Builder() {
+            giftCertificate = new GiftCertificate();
+        }
+
+        public Builder withId(Long id) {
+            giftCertificate.setId(id);
+            return this;
+        }
+
+        public Builder withName(String name) {
+            giftCertificate.name = name;
+            return this;
+        }
+        public Builder withDescription(String description) {
+            giftCertificate.description = description;
+            return this;
+        }
+        public Builder withPrice(BigDecimal price) {
+            giftCertificate.price = price;
+            return this;
+        }
+        public Builder withCreationDate(LocalDate creationDate) {
+            giftCertificate.creationDate = creationDate;
+            return this;
+        }
+        public Builder withModificationDate(LocalDate modificationDate) {
+            giftCertificate.modificationDate = modificationDate;
+            return this;
+        }
+        public Builder withExpirationDate(LocalDate expirationDate) {
+            giftCertificate.expirationDate = expirationDate;
+            return this;
+        }
+
+
+        public Builder withTags(Set<Tag> tags) {
+            giftCertificate.tags = tags;
+            return this;
+        }
+
+        public GiftCertificate build() {
+            return giftCertificate;
+        }
     }
 
     public String getName() {

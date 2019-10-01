@@ -33,9 +33,17 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Test
     public void testAddPositive() {
-        certificateRepository.add(new GiftCertificate(4,"flowers", "one hundred roses", new BigDecimal(50),
-                LocalDate.of(2019,1,1), LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), Set.of(new Tag(8, "yellow"))));
+        certificateRepository.add(new GiftCertificate.Builder()
+                .withId(4L)
+                .withName("flowers")
+                .withDescription("one hundred roses")
+                .withPrice(new BigDecimal(50))
+                .withCreationDate(LocalDate.of(2019, 1, 1))
+                .withModificationDate(LocalDate.of(2019, 6, 1))
+                .withExpirationDate(LocalDate.of(2021, 1, 1))
+                .withTags(Set.of(new Tag(8L, "yellow")))
+                .build());
+
         assertEquals(4, (int) jdbcTemplate.queryForObject("select count(*) from certificate", Integer.class));
     }
 
@@ -53,17 +61,23 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
     @Test
     public void testUpdate() {
 
-        GiftCertificate giftCertificate = new GiftCertificate(1,"sport car", "1 hour lamborghini ride",
-                new BigDecimal(300), LocalDate.of(2019,1,1),
-                LocalDate.of(2019,6,1),
-                LocalDate.of(2021, 1,1), Set.of(new Tag(9, "blue"), new Tag(1, "extreme")));
+        GiftCertificate giftCertificate = new GiftCertificate.Builder()
+                .withId(1L)
+                .withName("sport car")
+                .withDescription("1 hour lamborghini ride")
+                .withPrice(new BigDecimal(300))
+                .withCreationDate(LocalDate.of(2019, 1, 1))
+                .withModificationDate(LocalDate.of(2019, 6, 1))
+                .withExpirationDate(LocalDate.of(2021, 1, 1))
+                .withTags(Set.of(new Tag(9L, "blue"), new Tag(1L, "extreme")))
+                .build();
 
         certificateRepository.update(giftCertificate);
 
         GiftCertificate actual = jdbcTemplate.query(
                 "select * from certificate join certificate_tag on certificate.id = certificate_id " +
                         "left join tag on certificate_tag.tag_id = tag.id where certificate_id = ?"
-                        ,
+                ,
                 preparedStatement -> preparedStatement.setLong(1, giftCertificate.getId()),
                 new GiftCertificateExtractor("tag_id")).get(0);
 

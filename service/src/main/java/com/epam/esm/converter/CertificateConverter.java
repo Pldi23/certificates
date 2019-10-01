@@ -1,8 +1,13 @@
 package com.epam.esm.converter;
 
 import com.epam.esm.dto.GiftCertificateDTO;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * gift certificates
@@ -14,28 +19,30 @@ import org.springframework.stereotype.Component;
 public class CertificateConverter {
 
     public GiftCertificateDTO convert(GiftCertificate giftCertificate) {
-        return new GiftCertificateDTO(
-                giftCertificate.getId(),
-                giftCertificate.getName(),
-                giftCertificate.getDescription(),
-                giftCertificate.getPrice(),
-                giftCertificate.getCreationDate(),
-                giftCertificate.getModificationDate(),
-                giftCertificate.getExpirationDate(),
-                giftCertificate.getTags()
-        );
+        return new GiftCertificateDTO.Builder()
+                .withId(giftCertificate.getId())
+                .withName(giftCertificate.getName())
+                .withDescription(giftCertificate.getDescription())
+                .withPrice(giftCertificate.getPrice())
+                .withCreationDate(giftCertificate.getCreationDate())
+                .withModificationDate(giftCertificate.getModificationDate())
+                .withExpirationDate(giftCertificate.getExpirationDate())
+                .withTags(giftCertificate.getTags().stream().filter(Objects::nonNull).map(tag ->
+                        new TagDTO(tag.getId(), tag.getTitle())).collect(Collectors.toSet()))
+                .build();
     }
 
     public GiftCertificate convert(GiftCertificateDTO giftCertificateDTO) {
-        return new GiftCertificate(
-                giftCertificateDTO.getId(),
-                giftCertificateDTO.getName(),
-                giftCertificateDTO.getDescription(),
-                giftCertificateDTO.getPrice(),
-                giftCertificateDTO.getCreationDate(),
-                giftCertificateDTO.getModificationDate(),
-                giftCertificateDTO.getExpirationDate(),
-                giftCertificateDTO.getTags()
-        );
+        return new GiftCertificate.Builder()
+                .withId(giftCertificateDTO.getId())
+                .withName(giftCertificateDTO.getName())
+                .withDescription(giftCertificateDTO.getDescription())
+                .withPrice(giftCertificateDTO.getPrice())
+                .withCreationDate(giftCertificateDTO.getCreationDate())
+                .withModificationDate(giftCertificateDTO.getModificationDate())
+                .withExpirationDate(giftCertificateDTO.getExpirationDate())
+                .withTags(giftCertificateDTO.getTags().stream().filter(Objects::nonNull).map(tagDTO ->
+                        new Tag(tagDTO.getId(), tagDTO.getTitle())).collect(Collectors.toSet()))
+                .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.Tag;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -8,7 +7,12 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -25,15 +29,16 @@ public class GiftCertificateDTO {
     @Min(value = 0, message = "certificate id should be greater than 0")
     private long id;
 
-    @NotBlank(message = "name should not be empty") @Size(min = 1, max = 30, message = "name should be 1-30 symbols")
+    @NotBlank(message = "name should not be empty")
+    @Size(min = 1, max = 30, message = "name should be 1-30 symbols")
     private String name;
 
     @Size(min = 1, max = 1000, message = "description should be 1-1000 symbols")
     private String description;
 
+
     @DecimalMin(value = "0", message = "price should be positive")
     private BigDecimal price;
-
 
     @PastOrPresent
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
@@ -54,28 +59,69 @@ public class GiftCertificateDTO {
     private LocalDate expirationDate;
 
     @Valid
-    private Set<Tag> tags;
+    private Set<TagDTO> tags;
 
     private GiftCertificateDTO() {
     }
 
-    public GiftCertificateDTO(long id, String name, String description, BigDecimal price, LocalDate creationDate,
-                              LocalDate modificationDate, LocalDate expirationDate, Set<Tag> tags) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.creationDate = creationDate;
-        this.modificationDate = modificationDate;
-        this.expirationDate = expirationDate;
-        this.tags = tags;
+    public static class Builder {
+        private GiftCertificateDTO giftCertificateDTO;
+
+        public Builder() {
+            giftCertificateDTO = new GiftCertificateDTO();
+        }
+
+        public Builder withId(Long id) {
+            giftCertificateDTO.id = id;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            giftCertificateDTO.name = name;
+            return this;
+        }
+
+        public Builder withDescription(String description) {
+            giftCertificateDTO.description = description;
+            return this;
+        }
+
+        public Builder withPrice(BigDecimal price) {
+            giftCertificateDTO.price = price;
+            return this;
+        }
+
+        public Builder withCreationDate(LocalDate creationDate) {
+            giftCertificateDTO.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder withModificationDate(LocalDate modificationDate) {
+            giftCertificateDTO.modificationDate = modificationDate;
+            return this;
+        }
+
+        public Builder withExpirationDate(LocalDate expirationDate) {
+            giftCertificateDTO.expirationDate = expirationDate;
+            return this;
+        }
+
+
+        public Builder withTags(Set<TagDTO> tags) {
+            giftCertificateDTO.tags = tags;
+            return this;
+        }
+
+        public GiftCertificateDTO build() {
+            return giftCertificateDTO;
+        }
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -127,23 +173,30 @@ public class GiftCertificateDTO {
         this.expirationDate = expirationDate;
     }
 
-    public Set<Tag> getTags() {
+    public Set<TagDTO> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Tag> tags) {
+    public void setTags(Set<TagDTO> tags) {
         this.tags = tags;
     }
 
-    @AssertTrue(message="creation date later than date of modification")
+    @AssertTrue(message = "creation date later than date of modification")
     private boolean isCreationDateBeforeModificationDate() {
-        return this.creationDate.isBefore(this.modificationDate);
+        if (creationDate != null && modificationDate != null) {
+            return this.creationDate.isBefore(this.modificationDate);
+        }
+        return true;
     }
 
-    @AssertTrue(message="creation date later than date of expiration")
+    @AssertTrue(message = "creation date later than date of expiration")
     private boolean isCreationDateBeforeExpirationDate() {
-        return this.creationDate.isBefore(this.expirationDate);
+        if (creationDate != null && expirationDate != null) {
+            return this.creationDate.isBefore(this.expirationDate);
+        }
+        return true;
     }
+
 
     @Override
     public boolean equals(Object o) {
