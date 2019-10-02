@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface CertificateService {
 
     List<GiftCertificateDTO> findAll();
-    List<GiftCertificateDTO> findOneById(long id);
+    Optional<GiftCertificateDTO> findOne(long id);
     Optional<GiftCertificateDTO> save(GiftCertificateDTO giftCertificateDTO);
     boolean update(GiftCertificateDTO giftCertificateDTO, long id);
     void delete(long id);

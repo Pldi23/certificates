@@ -30,7 +30,7 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withIdCriteria(idCriteria)
                 .build();
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
+        SqlSpecification<GiftCertificate> sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
         assertEquals(2, certificateRepository.query(sqlSpecification).size());
     }
 
@@ -40,7 +40,7 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withNameCriteria(nameCriteriaLike)
                 .build();
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
+        SqlSpecification<GiftCertificate> sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
         assertEquals(2, certificateRepository.query(sqlSpecification).size());
     }
 
@@ -90,7 +90,7 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withCreationDateCriteria(creationDateCriteria)
                 .build();
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
+        SqlSpecification<GiftCertificate> sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
         assertEquals(3, certificateRepository.query(sqlSpecification).size());
 
     }

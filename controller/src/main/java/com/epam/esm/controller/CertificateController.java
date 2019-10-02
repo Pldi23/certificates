@@ -5,12 +5,12 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagServiceImpl;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.annotation.Validated;
@@ -42,7 +42,7 @@ public class CertificateController {
     private EntityLinks entityLinks;
     private ResourceBundleMessageSource messageSource;
 
-
+    @Autowired
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagServiceImpl tagServiceImpl,
                                  EntityLinks entityLinks, ResourceBundleMessageSource messageSource) {
@@ -63,8 +63,8 @@ public class CertificateController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity findOneById(@PathVariable("id") @Min(0) long id) {
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findOneById(id);
-        return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok().body(giftCertificateDTOS)
+        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.findOne(id);
+        return optionalGiftCertificateDTO.isPresent() ? ResponseEntity.ok().body(optionalGiftCertificateDTO.get())
                 : ResponseEntity.notFound().build();
     }
 

@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -19,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 public class TagRepositoryTest extends DatabaseSetupExtension {
 
     @Autowired
-    private AbstractTagRepository tagRepository;
+    private Repository<Tag> tagRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -39,6 +41,18 @@ public class TagRepositoryTest extends DatabaseSetupExtension {
     @Test
     public void testQuery() {
         assertEquals(7, tagRepository.query(new FindAllTagSpecification()).size());
+    }
+
+    @Test
+    public void testFindOne() {
+        Tag actual = tagRepository.findOne(1).get();
+        Tag expected = new Tag(1L, "extreme");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testFindOneEmpty() {
+        assertEquals(Optional.empty(), tagRepository.findOne(200));
     }
 
 }

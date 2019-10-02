@@ -7,29 +7,32 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.util.List;
 
-import static com.epam.esm.specification.SqlSpecificationConstant.CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN;
-
 /**
- * to select all certificates from {@link com.epam.esm.repository.CertificateRepository}
+ * giftcertificates
  *
- * @author Dzmitry Platonov on 2019-09-25.
+ * @author Dzmitry Platonov on 2019-10-02.
  * @version 0.0.1
  */
-public class FindAllCertificatesSpecification implements SqlSpecification<GiftCertificate> {
+public class FindCertificatesByTagSpecification implements SqlSpecification<GiftCertificate> {
+
+    private long id;
+
+    public FindCertificatesByTagSpecification(long id) {
+        this.id = id;
+    }
 
     @Override
     public String sql() {
-        return SqlSpecificationConstant.SQL_CERTIFICATES_ALL_SPECIFICATION;
+        return SqlSpecificationConstant.SQL_SELECT_CERTIFICATES_BY_TAG;
     }
 
     @Override
     public PreparedStatementSetter setStatement() {
-        return null;
+        return preparedStatement -> preparedStatement.setLong(1, id);
     }
 
     @Override
     public ResultSetExtractor<List<GiftCertificate>> provideExtractor() {
-        return new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN);
-
+        return new GiftCertificateExtractor(SqlSpecificationConstant.CERTIFICATE_EXTRACTOR_OUT_TAG_ID);
     }
 }

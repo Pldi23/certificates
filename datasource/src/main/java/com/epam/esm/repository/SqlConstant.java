@@ -23,21 +23,21 @@ class SqlConstant {
     static final String SQL_CERTIFICATE_UPDATE =
             "update certificate set name = ?, description = ?, price = ?, creationdate = ?, modificationdate = ?," +
                     " expirationdate = ? where id = ?;";
+    static final String SQL_SELECT_CERTIFICATE_BY_ID =
+            "select certificate.id, name, description, price, creationdate, modificationdate, expirationdate," +
+                    " certificate_id, tag_id, tag.id, title from certificate " +
+                    "left join certificate_tag on certificate.id = certificate_id " +
+                    "left join tag on certificate_tag.tag_id = tag.id where certificate.id = ?";
 
-    static final String SQL_SELECT_CERTIFICATES_BY_TAG =
-            "select id, name, description, price, creationdate, modificationdate, expirationdate, out_certificate_id," +
-                    " out_tag_id, t_id, title from get_certificates_by_tag(?)";
-    static final String CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN = "tag_id";
-    static final String CERTIFICATE_EXTRACTOR_OUT_TAG_ID = "out_tag_id";
 
     static final String SQL_TAG_INSERT = "insert into tag (title) values (?)";
     static final String SQL_TAG_DELETE = "delete from tag where id = ?;";
     static final String SQL_TAG_DELETE_LINK = "delete from certificate_tag where tag_id = ?;";
-    static final String SQL_GET_TAGS_BY_CERTIFICATE_FUNCTION = "select * from get_tags_by_certificate(?)";
+    static final String SQL_SELECT_TAG_BY_ID = "select id, title from tag where id = ?";
+
     static final String SQL_TAG_ID_COLUMN = "id";
     static final String SQL_TAG_TITLE_COLUMN = "title";
-    static final String SQL_TAG_ID_FUNCTION_COLUMN = "out_id";
-    static final String SQL_TAG_TITLE_FUNCTION_COLUMN = "out_title";
+    static final String CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN = "tag_id";
 
 
 }

@@ -1,12 +1,15 @@
 package com.epam.esm.specification;
 
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.criteria.LimitOffsetCriteria;
 import com.epam.esm.entity.criteria.SearchCriteria;
 import com.epam.esm.entity.criteria.SortCriteria;
 import com.epam.esm.exception.CriteriaSearchTypeException;
+import com.epam.esm.repository.extractor.GiftCertificateExtractor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -24,7 +27,7 @@ import static com.epam.esm.specification.SqlSpecificationConstant.*;
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
-public class FindCertificatesByCriteriaSpecification implements SqlSpecification {
+public class FindCertificatesByCriteriaSpecification implements SqlSpecification<GiftCertificate> {
 
     private static final Logger log = LogManager.getLogger();
 
@@ -74,6 +77,11 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
             log.debug(lastSettedField);
             log.debug(preparedStatement);
         };
+    }
+
+    @Override
+    public ResultSetExtractor<List<GiftCertificate>> provideExtractor() {
+        return new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN);
     }
 
     private String buildSqlWhere() {

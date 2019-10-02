@@ -4,10 +4,10 @@ import com.epam.esm.converter.CertificateConverter;
 import com.epam.esm.converter.CriteriaConverter;
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindAllCertificatesSpecification;
-import com.epam.esm.specification.FindCertificateByIdSpecification;
 import com.epam.esm.specification.FindCertificatesByCriteriaSpecification;
+import com.epam.esm.specification.FindCertificatesByTagSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 @Component
 public class CertificateServiceImpl implements CertificateService {
 
-    private AbstractCertificateRepository certificateRepository;
+    private Repository<GiftCertificate> certificateRepository;
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
 
     @Autowired
-    public CertificateServiceImpl(AbstractCertificateRepository certificateRepository,
+    public CertificateServiceImpl(Repository<GiftCertificate> certificateRepository,
                                   CertificateConverter certificateConverter,
                                   CriteriaConverter criteriaConverter) {
         this.certificateRepository = certificateRepository;
@@ -45,10 +45,9 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public List<GiftCertificateDTO> findOneById(long id) {
-        return certificateRepository.query(new FindCertificateByIdSpecification(id)).stream()
-                .map(giftCertificate -> certificateConverter.convert(giftCertificate))
-                .collect(Collectors.toList());
+    public Optional<GiftCertificateDTO> findOne(long id) {
+        Optional<GiftCertificate> optionalGiftCertificate = certificateRepository.findOne(id);
+        return optionalGiftCertificate.map(giftCertificate -> certificateConverter.convert(giftCertificate));
     }
 
     @Override
@@ -86,7 +85,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<GiftCertificateDTO> getByTag(long id) {
-        return certificateRepository.getCertificatesByTagId(id).stream()
+        return certificateRepository.query(new FindCertificatesByTagSpecification(id)).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }

@@ -1,7 +1,7 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.mapper.TagMapper;
+import com.epam.esm.repository.extractor.TagExtractor;
 import com.epam.esm.specification.SqlSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.*;
@@ -18,7 +18,7 @@ import static com.epam.esm.repository.SqlConstant.*;
 
 @Component
 @Transactional
-public class TagRepository implements AbstractTagRepository {
+public class TagRepository implements Repository<Tag> {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -45,24 +45,21 @@ public class TagRepository implements AbstractTagRepository {
     }
 
     @Override
-    public List<Tag> query(SqlSpecification specification) {
-        return jdbcTemplate.query(specification.sql(), specification.setStatement(),
-                new TagMapper(SQL_TAG_ID_COLUMN, SQL_TAG_TITLE_COLUMN));
+    public Optional<Tag> findOne(long id) {
+        List<Tag> tags = jdbcTemplate.query(SQL_SELECT_TAG_BY_ID,
+                ps -> ps.setLong(1, id),
+                new TagExtractor(SQL_TAG_ID_COLUMN, SQL_TAG_TITLE_COLUMN));
+        return !tags.isEmpty() ? Optional.of(tags.get(0)) : Optional.empty();
+    }
+
+    @Override
+    public List<Tag> query(SqlSpecification<Tag> specification) {
+        return jdbcTemplate.query(specification.sql(), specification.setStatement(), specification.provideExtractor());
     }
 
     @Override
     public void remove(long id) {
         jdbcTemplate.update(SQL_TAG_DELETE_LINK, id);
         jdbcTemplate.update(SQL_TAG_DELETE, id);
-    }
-
-    @Override
-    public List<Tag> getTagsByCertificate(long id) {
-
-        return jdbcTemplate.query(
-                SQL_GET_TAGS_BY_CERTIFICATE_FUNCTION,
-                preparedStatement ->
-                        preparedStatement.setLong(1, id),
-                new TagMapper(SQL_TAG_ID_FUNCTION_COLUMN, SQL_TAG_TITLE_FUNCTION_COLUMN));
     }
 }

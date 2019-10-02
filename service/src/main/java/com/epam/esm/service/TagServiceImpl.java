@@ -3,9 +3,9 @@ package com.epam.esm.service;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.AbstractTagRepository;
+import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindAllTagSpecification;
-import com.epam.esm.specification.FindTagByIdSpecification;
+import com.epam.esm.specification.FindTagsByCertificateSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,21 +22,20 @@ import java.util.stream.Collectors;
 @Service
 public class TagServiceImpl implements TagService {
 
-    private AbstractTagRepository tagRepository;
+    private Repository<Tag> tagRepository;
 
     private TagConverter tagConverter;
 
     @Autowired
-    public TagServiceImpl(AbstractTagRepository tagRepository, TagConverter tagConverter) {
+    public TagServiceImpl(Repository<Tag> tagRepository, TagConverter tagConverter) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
     }
 
     @Override
-    public List<TagDTO> getTag(long id) {
-        return tagRepository.query(new FindTagByIdSpecification(id)).stream()
-                .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
+    public Optional<TagDTO> getTag(long id) {
+        Optional<Tag> optionalTag = tagRepository.findOne(id);
+        return optionalTag.map(tag -> tagConverter.convert(tag));
     }
 
     @Override
@@ -60,7 +59,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagDTO> getTagsByCertificate(long id) {
-        return tagRepository.getTagsByCertificate(id).stream()
+        return tagRepository.query(new FindTagsByCertificateSpecification(id)).stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
     }

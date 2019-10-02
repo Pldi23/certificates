@@ -8,7 +8,6 @@ import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -51,8 +50,8 @@ public class TagController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity getById(@PathVariable("id") @Min(0) long id) {
-        List<TagDTO> tagDTOS = tagServiceImpl.getTag(id);
-        return !tagDTOS.isEmpty() ? ResponseEntity.ok().body(tagDTOS) : ResponseEntity.notFound().build();
+        Optional<TagDTO> tagDTOS = tagServiceImpl.getTag(id);
+        return tagDTOS.isPresent() ? ResponseEntity.ok().body(tagDTOS.get()) : ResponseEntity.notFound().build();
     }
 
     @PostMapping

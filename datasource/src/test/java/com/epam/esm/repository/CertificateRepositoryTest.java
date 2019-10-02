@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Autowired
-    private AbstractCertificateRepository certificateRepository;
+    private Repository<GiftCertificate> certificateRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -82,5 +83,26 @@ public class CertificateRepositoryTest extends DatabaseSetupExtension {
                 new GiftCertificateExtractor("tag_id")).get(0);
 
         assertEquals(giftCertificate, actual);
+    }
+
+    @Test
+    public void testFindOne() {
+        GiftCertificate actual = certificateRepository.findOne(1).get();
+        GiftCertificate expected = new GiftCertificate.Builder()
+                .withId(1L)
+                .withName("sport car")
+                .withDescription("1 hour lamborghini ride")
+                .withPrice(new BigDecimal(250))
+                .withCreationDate(LocalDate.of(2019, 1, 1))
+                .withModificationDate(LocalDate.of(2019, 1, 6))
+                .withExpirationDate(LocalDate.of(2021, 1, 1))
+                .withTags(Set.of(new Tag(3L, "luxury"), new Tag(1L, "extreme"), new Tag(5L, "car")))
+                .build();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testFindOneEmpty() {
+        assertEquals(Optional.empty(), certificateRepository.findOne(200));
     }
 }

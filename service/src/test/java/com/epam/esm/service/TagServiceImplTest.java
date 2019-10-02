@@ -4,7 +4,7 @@ package com.epam.esm.service;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.AbstractTagRepository;
+import com.epam.esm.repository.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ public class TagServiceImplTest {
     private TagServiceImpl tagServiceImpl;
 
     @Mock
-    private AbstractTagRepository tagRepository;
+    private Repository<Tag> tagRepository;
 
     @Before
     public void setUp() {
@@ -48,13 +48,13 @@ public class TagServiceImplTest {
     @Test
     public void getTag() {
         Tag tag = new Tag(1L, "expected");
-        Mockito.when(tagRepository.query(any()))
-                .thenReturn(List.of(tag));
+        Mockito.when(tagRepository.findOne(1))
+                .thenReturn(Optional.of(tag));
 
-        List<TagDTO> expected = List.of(new TagDTO(1L, "expected"));
+        Optional<TagDTO> expected = Optional.of(new TagDTO(1L, "expected"));
 
         //test
-        List<TagDTO> actual = tagServiceImpl.getTag(tag.getId());
+        Optional<TagDTO> actual = tagServiceImpl.getTag(tag.getId());
 
         assertEquals(expected, actual);
     }

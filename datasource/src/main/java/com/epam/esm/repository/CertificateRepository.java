@@ -22,7 +22,7 @@ import static com.epam.esm.repository.SqlConstant.*;
 
 @Component
 @Transactional
-public class CertificateRepository implements AbstractCertificateRepository {
+public class CertificateRepository implements Repository<GiftCertificate> {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -94,9 +94,16 @@ public class CertificateRepository implements AbstractCertificateRepository {
     }
 
     @Override
-    public List<GiftCertificate> query(SqlSpecification specification) {
-        return jdbcTemplate.query(specification.sql(), specification.setStatement(),
+    public Optional<GiftCertificate> findOne(long id) {
+        List<GiftCertificate> certificates = jdbcTemplate.query(SQL_SELECT_CERTIFICATE_BY_ID,
+                ps -> ps.setLong(1, id),
                 new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN));
+        return !certificates.isEmpty() ? Optional.of(certificates.get(0)) : Optional.empty();
+    }
+
+    @Override
+    public List<GiftCertificate> query(SqlSpecification<GiftCertificate> specification) {
+        return jdbcTemplate.query(specification.sql(), specification.setStatement(), specification.provideExtractor());
     }
 
 
@@ -104,14 +111,6 @@ public class CertificateRepository implements AbstractCertificateRepository {
     public void remove(long id) {
         jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, id);
         jdbcTemplate.update(SQL_CERTIFICATE_DELETE, id);
-    }
-
-    @Override
-    public List<GiftCertificate> getCertificatesByTagId(long tagId) {
-        return jdbcTemplate.query(
-                SQL_SELECT_CERTIFICATES_BY_TAG,
-                preparedStatement -> preparedStatement.setLong(1, tagId),
-                new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_OUT_TAG_ID));
     }
 
     private Date setDate(LocalDate localDate) {

@@ -10,6 +10,7 @@ public interface Repository<T> {
     Optional<T> add(T entity);
     void remove(long id);
     boolean update(T entity);
+    Optional<T> findOne(long id);
 
-    List<T> query(SqlSpecification specification);
+    List<T> query(SqlSpecification<T> specification);
 }

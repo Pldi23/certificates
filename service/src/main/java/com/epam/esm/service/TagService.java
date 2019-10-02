@@ -13,7 +13,7 @@ import java.util.Optional;
  */
 public interface TagService {
 
-    List<TagDTO> getTag(long id);
+    Optional<TagDTO> getTag(long id);
     List<TagDTO> findAll();
     Optional<TagDTO> save(TagDTO tagDTO);
     List<TagDTO> getTagsByCertificate(long id);
