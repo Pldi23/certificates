@@ -2,7 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
-import com.epam.esm.service.TagServiceImpl;
+import com.epam.esm.service.TagService;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -38,7 +38,7 @@ public class CertificateController {
 
 
     private CertificateService certificateServiceImpl;
-    private TagServiceImpl tagServiceImpl;
+    private TagService tagService;
     private DtoParser dtoParser;
     private RequestParametersValidator validator;
     private EntityLinks entityLinks;
@@ -47,13 +47,13 @@ public class CertificateController {
 
 
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
-                                 RequestParametersValidator validator, TagServiceImpl tagServiceImpl,
+                                 RequestParametersValidator validator, TagService tagServiceImpl,
                                  EntityLinks entityLinks, ResourceBundleMessageSource messageSource,
                                  LocalValidatorFactoryBean localValidatorFactoryBean) {
         this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;
-        this.tagServiceImpl = tagServiceImpl;
+        this.tagService = tagServiceImpl;
         this.entityLinks = entityLinks;
         this.messageSource = messageSource;
         this.localValidatorFactoryBean = localValidatorFactoryBean;
@@ -129,6 +129,6 @@ public class CertificateController {
 
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByCertificate(@PathVariable("id") @Min(0) long id) {
-        return ResponseEntity.ok(tagServiceImpl.getTagsByCertificate(id));
+        return ResponseEntity.ok(tagService.getTagsByCertificate(id));
     }
 }

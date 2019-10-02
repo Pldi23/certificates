@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.TagDTO;
-import com.epam.esm.service.CertificateServiceImpl;
+import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -29,12 +29,12 @@ import java.util.Optional;
 public class TagController {
 
     private TagService tagServiceImpl;
-    private CertificateServiceImpl certificateServiceImpl;
+    private CertificateService certificateService;
     private EntityLinks entityLinks;
 
-    public TagController(TagService tagServiceImpl, CertificateServiceImpl certificateServiceImpl, EntityLinks entityLinks) {
+    public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks) {
         this.tagServiceImpl = tagServiceImpl;
-        this.certificateServiceImpl = certificateServiceImpl;
+        this.certificateService = certificateServiceImpl;
         this.entityLinks = entityLinks;
     }
 
@@ -75,7 +75,7 @@ public class TagController {
 
     @GetMapping(value = "/{id}/certificates")
     public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(0) long id) {
-        return ResponseEntity.ok(certificateServiceImpl.getByTag(id));
+        return ResponseEntity.ok(certificateService.getByTag(id));
     }
 
 }
