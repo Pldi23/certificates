@@ -26,18 +26,18 @@ import java.util.Set;
  */
 public class GiftCertificateDTO {
 
-    @Min(value = 0, message = "certificate id should be greater than 0")
+    @Min(0)
     private long id;
 
-    @NotBlank(message = "name should not be empty")
-    @Size(min = 1, max = 30, message = "name should be 1-30 symbols")
+    @NotBlank
+    @Size(min = 1, max = 30, message = "{violation.name.size}")
     private String name;
 
-    @Size(min = 1, max = 1000, message = "description should be 1-1000 symbols")
+    @Size(min = 1, max = 1000, message = "{violation.description}")
     private String description;
 
 
-    @DecimalMin(value = "0", message = "price should be positive")
+    @DecimalMin(value = "0", message = "{violation.price}")
     private BigDecimal price;
 
     @PastOrPresent
@@ -181,7 +181,7 @@ public class GiftCertificateDTO {
         this.tags = tags;
     }
 
-    @AssertTrue(message = "creation date later than date of modification")
+    @AssertTrue(message = "{violation.date.creation.modification}")
     private boolean isCreationDateBeforeModificationDate() {
         if (creationDate != null && modificationDate != null) {
             return this.creationDate.isBefore(this.modificationDate);
@@ -189,7 +189,7 @@ public class GiftCertificateDTO {
         return true;
     }
 
-    @AssertTrue(message = "creation date later than date of expiration")
+    @AssertTrue(message = "{violation.date.creation.expiration}")
     private boolean isCreationDateBeforeExpirationDate() {
         if (creationDate != null && expirationDate != null) {
             return this.creationDate.isBefore(this.expirationDate);

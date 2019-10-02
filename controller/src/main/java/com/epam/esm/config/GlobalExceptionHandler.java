@@ -1,6 +1,7 @@
 package com.epam.esm.config;
 
 import com.epam.esm.dto.ViolationDTO;
+import com.epam.esm.exception.ApplicationDataSourceException;
 import com.epam.esm.exception.CriteriaSearchTypeException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -53,6 +54,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(CriteriaSearchTypeException.class)
     protected ResponseEntity<Object> handleCriteriaSearchException(CriteriaSearchTypeException ex, WebRequest webRequest) {
 
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", new Date());
+        body.put("message", ex.getLocalizedMessage());
+        return new ResponseEntity<>(body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ApplicationDataSourceException.class)
+    protected ResponseEntity<Object> handleApplicationDataSourceException(ApplicationDataSourceException ex, WebRequest webRequest) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", new Date());
         body.put("message", ex.getLocalizedMessage());

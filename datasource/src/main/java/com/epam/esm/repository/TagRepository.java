@@ -17,7 +17,6 @@ import java.util.Optional;
 import static com.epam.esm.repository.SqlConstant.*;
 
 @Component
-@Transactional
 public class TagRepository implements Repository<Tag> {
 
     private JdbcTemplate jdbcTemplate;
@@ -27,6 +26,7 @@ public class TagRepository implements Repository<Tag> {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Transactional
     @Override
     public Optional<Tag> add(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -57,6 +57,7 @@ public class TagRepository implements Repository<Tag> {
         return jdbcTemplate.query(specification.sql(), specification.setStatement(), specification.provideExtractor());
     }
 
+    @Transactional
     @Override
     public void remove(long id) {
         jdbcTemplate.update(SQL_TAG_DELETE_LINK, id);

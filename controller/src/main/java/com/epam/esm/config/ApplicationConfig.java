@@ -1,10 +1,10 @@
 package com.epam.esm.config;
 
 import org.springframework.context.annotation.*;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.hateoas.config.EnableEntityLinks;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
@@ -20,18 +20,24 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 public class ApplicationConfig {
 
     @Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor() {
-        return new MethodValidationPostProcessor();
+    public LocalValidatorFactoryBean validator() {
+        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+        bean.setValidationMessageSource(messageSource());
+        return bean;
     }
 
     @Bean
     public ResourceBundleMessageSource messageSource() {
-
         ResourceBundleMessageSource source = new ResourceBundleMessageSource();
         source.setBasenames("message");
         source.setUseCodeAsDefaultMessage(true);
 
         return source;
+    }
+
+    @Bean
+    public MessageSourceAccessor messageSourceAccessor() {
+        return new MessageSourceAccessor(messageSource());
     }
 
 }

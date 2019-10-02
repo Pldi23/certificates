@@ -40,6 +40,11 @@
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>${javax.annotations}</version>
+        </dependency>
     </dependencies>
 
 

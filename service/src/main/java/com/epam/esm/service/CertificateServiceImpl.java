@@ -8,7 +8,6 @@ import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindAllCertificatesSpecification;
 import com.epam.esm.specification.FindCertificatesByCriteriaSpecification;
 import com.epam.esm.specification.FindCertificatesByTagSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -28,7 +27,6 @@ public class CertificateServiceImpl implements CertificateService {
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
 
-    @Autowired
     public CertificateServiceImpl(Repository<GiftCertificate> certificateRepository,
                                   CertificateConverter certificateConverter,
                                   CriteriaConverter criteriaConverter) {

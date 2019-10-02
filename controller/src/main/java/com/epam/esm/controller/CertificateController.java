@@ -5,7 +5,6 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagServiceImpl;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -14,6 +13,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -35,23 +36,32 @@ import java.util.Optional;
 @ExposesResourceFor(GiftCertificateDTO.class)
 public class CertificateController {
 
+
     private CertificateService certificateServiceImpl;
     private TagServiceImpl tagServiceImpl;
     private DtoParser dtoParser;
     private RequestParametersValidator validator;
     private EntityLinks entityLinks;
     private ResourceBundleMessageSource messageSource;
+    private LocalValidatorFactoryBean localValidatorFactoryBean;
 
-    @Autowired
+
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagServiceImpl tagServiceImpl,
-                                 EntityLinks entityLinks, ResourceBundleMessageSource messageSource) {
+                                 EntityLinks entityLinks, ResourceBundleMessageSource messageSource,
+                                 LocalValidatorFactoryBean localValidatorFactoryBean) {
         this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;
         this.tagServiceImpl = tagServiceImpl;
         this.entityLinks = entityLinks;
         this.messageSource = messageSource;
+        this.localValidatorFactoryBean = localValidatorFactoryBean;
+    }
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.setValidator(localValidatorFactoryBean);
     }
 
     @GetMapping(value = "/")

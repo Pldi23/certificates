@@ -4,8 +4,11 @@ import com.epam.esm.config.DataSourceConfiguration;
 import com.epam.esm.exception.ApplicationDataSourceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.jdbc.datasource.AbstractDataSource;
 import org.springframework.jdbc.datasource.SmartDataSource;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -20,7 +23,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Dzmitry Platonov on 2019-09-23.
  * @version 0.0.1
  */
-public class ConnectionPool implements SmartDataSource {
+public class ConnectionPool extends AbstractDataSource implements SmartDataSource {
 
     private static final Logger log = LogManager.getLogger();
 
@@ -36,7 +39,8 @@ public class ConnectionPool implements SmartDataSource {
         this.innerDataSource = dataSource;
     }
 
-        public void init() throws SQLException {
+    @PostConstruct
+    public void init() throws SQLException {
         try {
             Class.forName(configuration.getDbDriver());
             connections = new ArrayBlockingQueue<>(configuration.getPoolSize());
@@ -65,10 +69,23 @@ public class ConnectionPool implements SmartDataSource {
         }
     }
 
+
     @Override
     public boolean shouldClose(Connection connection) {
         releaseConnection(connection);
         return false;
+    }
+
+    @PreDestroy
+    public void destroyPool() {
+        for (Connection connection : connections) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                log.error("exception during destroying connection pool", e);
+            }
+            this.connections = null;
+        }
     }
 
     private void releaseConnection(Connection connection) {
@@ -79,40 +96,5 @@ public class ConnectionPool implements SmartDataSource {
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return innerDataSource.getConnection(username, password);
-    }
-
-    @Override
-    public PrintWriter getLogWriter() throws SQLException {
-        return innerDataSource.getLogWriter();
-    }
-
-    @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
-        innerDataSource.setLogWriter(out);
-    }
-
-    @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-        innerDataSource.setLoginTimeout(seconds);
-    }
-
-    @Override
-    public int getLoginTimeout() throws SQLException {
-        return innerDataSource.getLoginTimeout();
-    }
-
-    @Override
-    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        return innerDataSource.getParentLogger();
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return innerDataSource.unwrap(iface);
-    }
-
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return innerDataSource.isWrapperFor(iface);
     }
 }

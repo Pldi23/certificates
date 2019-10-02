@@ -3,7 +3,6 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.service.CertificateServiceImpl;
 import com.epam.esm.service.TagService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -33,8 +32,6 @@ public class TagController {
     private CertificateServiceImpl certificateServiceImpl;
     private EntityLinks entityLinks;
 
-
-    @Autowired
     public TagController(TagService tagServiceImpl, CertificateServiceImpl certificateServiceImpl, EntityLinks entityLinks) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateServiceImpl = certificateServiceImpl;

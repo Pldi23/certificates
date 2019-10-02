@@ -6,7 +6,6 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.Repository;
 import com.epam.esm.specification.FindAllTagSpecification;
 import com.epam.esm.specification.FindTagsByCertificateSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +25,6 @@ public class TagServiceImpl implements TagService {
 
     private TagConverter tagConverter;
 
-    @Autowired
     public TagServiceImpl(Repository<Tag> tagRepository, TagConverter tagConverter) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;

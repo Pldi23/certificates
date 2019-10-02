@@ -13,10 +13,10 @@ import java.util.Objects;
  */
 public class TagDTO {
 
-    @Min(value = 0, message = "id should be greater than 0")
+    @Min(0)
     private Long id;
 
-    @NotBlank(message = "title should not be empty")
+    @NotBlank(message = "{violation.title}")
     private String title;
 
     public TagDTO() {
@@ -48,7 +48,7 @@ public class TagDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TagDTO tagDTO = (TagDTO) o;
-        return id == tagDTO.id &&
+        return Objects.equals(id, tagDTO.id) &&
                 Objects.equals(title, tagDTO.title);
     }
 

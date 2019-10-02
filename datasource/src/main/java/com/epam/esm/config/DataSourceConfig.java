@@ -39,7 +39,7 @@ public class DataSourceConfig {
         return new DataSourceTransactionManager(connectionPool);
     }
 
-    @Bean(initMethod = "init")
+    @Bean
     @Lazy
     public ConnectionPool connectionPool(DataSourceConfiguration dataSourceConfiguration) {
 

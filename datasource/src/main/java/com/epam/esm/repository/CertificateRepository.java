@@ -21,7 +21,6 @@ import java.util.*;
 import static com.epam.esm.repository.SqlConstant.*;
 
 @Component
-@Transactional
 public class CertificateRepository implements Repository<GiftCertificate> {
 
     private JdbcTemplate jdbcTemplate;
@@ -31,6 +30,7 @@ public class CertificateRepository implements Repository<GiftCertificate> {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Transactional
     @Override
     public Optional<GiftCertificate> add(GiftCertificate giftCertificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -61,6 +61,7 @@ public class CertificateRepository implements Repository<GiftCertificate> {
         return insertionResult != 0 ? Optional.of(giftCertificate) : Optional.empty();
     }
 
+    @Transactional
     @Override
     public boolean update(GiftCertificate giftCertificate) {
 
@@ -106,7 +107,7 @@ public class CertificateRepository implements Repository<GiftCertificate> {
         return jdbcTemplate.query(specification.sql(), specification.setStatement(), specification.provideExtractor());
     }
 
-
+    @Transactional
     @Override
     public void remove(long id) {
         jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, id);
