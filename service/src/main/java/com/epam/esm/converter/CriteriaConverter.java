@@ -3,7 +3,6 @@ package com.epam.esm.converter;
 
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.criteria.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -12,20 +11,13 @@ import java.util.Map;
 
 import static com.epam.esm.converter.ConverterConstant.*;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-26.
- * @version 0.0.1
- */
 @Component
 public class CriteriaConverter {
 
-    private ConverterFactory converterFactory;
+    private CriteriaCreatorHelper helper;
 
-    @Autowired
-    public CriteriaConverter(ConverterFactory converterFactory) {
-        this.converterFactory = converterFactory;
+    public CriteriaConverter(CriteriaCreatorHelper helper) {
+        this.helper = helper;
     }
 
     public SearchCriteria convertSearchCriteria(SearchCriteriaRequestDTO searchCriteriaRequestDTO) {
@@ -33,14 +25,14 @@ public class CriteriaConverter {
         Map<String, String> criteriaMap = searchCriteriaRequestDTO.getParameters();
 
         return new SearchCriteria.Builder()
-                .withIdCriteria((IdCriteria) converterFactory.buildCriteria(criteriaMap, ID))
-                .withNameCriteria((NameCriteria) converterFactory.buildCriteria(criteriaMap, NAME))
-                .withDescriptionCriteria((DescriptionCriteria) converterFactory.buildCriteria(criteriaMap, DESCRIPTION))
-                .withPriceCriteria((PriceCriteria) converterFactory.buildCriteria(criteriaMap, PRICE))
-                .withCreationDateCriteria((CreationDateCriteria) converterFactory.buildCriteria(criteriaMap, CREATION_DATE))
-                .withExpirationDateCriteria((ExpirationDateCriteria) converterFactory.buildCriteria(criteriaMap, EXPIRATION_DATE))
-                .withModificationDateCriteria((ModificationDateCriteria) converterFactory.buildCriteria(criteriaMap, MODIFICATION_DATE))
-                .withTagCriteria((TagCriteria) converterFactory.buildCriteria(criteriaMap, TAG_ID))
+                .withIdCriteria(new IdCriteriaCreator(helper).create(criteriaMap))
+                .withNameCriteria(new NameCriteriaCreator(helper).create(criteriaMap))
+                .withDescriptionCriteria(new DescriptionCriteriaCreator(helper).create(criteriaMap))
+                .withPriceCriteria(new PriceCriteriaCreator(helper).create(criteriaMap))
+                .withCreationDateCriteria(new CreationDateCriteriaCreator(helper).create(criteriaMap))
+                .withExpirationDateCriteria(new ExpirationDateCriteriaCreator(helper).create(criteriaMap))
+                .withModificationDateCriteria(new ModificationDateCriteriaCreator(helper).create(criteriaMap))
+                .withTagCriteria(new TagIdCriteriaCreator(helper).create(criteriaMap))
                 .build();
     }
 

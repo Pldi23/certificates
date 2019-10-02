@@ -1,8 +1,8 @@
 package com.epam.esm.service;
 
 import com.epam.esm.converter.CertificateConverter;
-import com.epam.esm.converter.ConverterFactory;
 import com.epam.esm.converter.CriteriaConverter;
+import com.epam.esm.converter.CriteriaCreatorHelper;
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.Repository;
@@ -49,8 +49,8 @@ public class CertificateServiceImplTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         converter = new CertificateConverter();
-        ConverterFactory converterFactory = new ConverterFactory();
-        CriteriaConverter criteriaConverter = new CriteriaConverter(converterFactory);
+        CriteriaCreatorHelper helper = new CriteriaCreatorHelper();
+        CriteriaConverter criteriaConverter = new CriteriaConverter(helper);
         service = new CertificateServiceImpl(repository, converter, criteriaConverter);
 
         giftCertificate = new GiftCertificate.Builder()

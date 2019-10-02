@@ -42,7 +42,6 @@ public class DataSourceConfig {
     @Bean
     @Lazy
     public ConnectionPool connectionPool(DataSourceConfiguration dataSourceConfiguration) {
-
         return new ConnectionPool(dataSourceConfiguration, dataSource(dataSourceConfiguration));
     }
 

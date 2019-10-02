@@ -1,7 +1,6 @@
 package com.epam.esm.repository.extractor;
 
 import com.epam.esm.entity.Tag;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.ResultSet;

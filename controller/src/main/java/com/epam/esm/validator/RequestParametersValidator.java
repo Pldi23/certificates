@@ -92,7 +92,6 @@ public class RequestParametersValidator implements Validator {
 
     private void validateNameParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(NAME) && !parameters.get(NAME).isBlank() && !parameters.get(NAME).matches(NAME_REGEX_PATTERN)) {
-//            errors.reject("{violation.message.name}");
             errors.reject(messageSource.getMessage( "violation.message.name", null, null));
         }
     }
