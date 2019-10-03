@@ -11,7 +11,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -67,23 +70,10 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
         }
     }
 
-
     @Override
     public boolean shouldClose(Connection connection) {
         releaseConnection(connection);
         return false;
-    }
-
-    @PreDestroy
-    public void destroyPool() {
-        for (Connection connection : connections) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                log.error("exception during destroying connection pool", e);
-            }
-        }
-        this.connections.clear();
     }
 
     private void releaseConnection(Connection connection) {
@@ -94,5 +84,30 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return innerDataSource.getConnection(username, password);
+    }
+
+    @PreDestroy
+    public void destroyPool() {
+        if (connections.size() != configuration.getPoolSize()) {
+            int numberOfUsingConnection = configuration.getPoolSize() - connections.size();
+            log.warn("destroying pool, but " + numberOfUsingConnection + " connections processing and not closed");
+        }
+        for (Connection connection : connections) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                log.error("exception during destroying connection pool", e);
+            }
+        }
+        this.connections.clear();
+        Collections.list(DriverManager.getDrivers()).forEach(this::deregisterDriver);
+    }
+
+    private void deregisterDriver(Driver driver) {
+        try {
+            DriverManager.deregisterDriver(driver);
+        } catch (SQLException e) {
+            logger.error("error during deregister driver: ", e);
+        }
     }
 }

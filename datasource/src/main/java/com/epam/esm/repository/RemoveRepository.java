@@ -1,7 +1,7 @@
 package com.epam.esm.repository;
 
 
-public interface RemoveRepository<T> {
+public interface RemoveRepository {
 
     void remove(long id);
 }
