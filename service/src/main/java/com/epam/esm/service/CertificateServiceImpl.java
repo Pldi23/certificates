@@ -4,8 +4,7 @@ import com.epam.esm.converter.CertificateConverter;
 import com.epam.esm.converter.CriteriaConverter;
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.repository.Repository;
-import com.epam.esm.specification.FindAllCertificatesSpecification;
+import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.specification.FindCertificatesByCriteriaSpecification;
 import com.epam.esm.specification.FindCertificatesByTagSpecification;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * gift certificates
+ * implementation of {@link GiftCertificateDTO} service
  *
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
@@ -23,11 +22,12 @@ import java.util.stream.Collectors;
 @Component
 public class CertificateServiceImpl implements CertificateService {
 
-    private Repository<GiftCertificate> certificateRepository;
+
+    private AbstractCertificateRepository certificateRepository;
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
 
-    public CertificateServiceImpl(Repository<GiftCertificate> certificateRepository,
+    public CertificateServiceImpl(AbstractCertificateRepository certificateRepository,
                                   CertificateConverter certificateConverter,
                                   CriteriaConverter criteriaConverter) {
         this.certificateRepository = certificateRepository;
@@ -37,7 +37,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<GiftCertificateDTO> findAll() {
-        return certificateRepository.query(new FindAllCertificatesSpecification()).stream()
+        return certificateRepository.findAll().stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
@@ -51,7 +51,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Optional<GiftCertificateDTO> save(GiftCertificateDTO giftCertificateDTO) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
-        Optional<GiftCertificate> optionalGiftCertificate = certificateRepository.add(giftCertificate);
+        Optional<GiftCertificate> optionalGiftCertificate = certificateRepository.save(giftCertificate);
         return optionalGiftCertificate.map(certificate -> certificateConverter.convert(certificate));
     }
 

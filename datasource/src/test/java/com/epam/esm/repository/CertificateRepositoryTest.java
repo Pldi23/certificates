@@ -27,14 +27,14 @@ import static org.junit.Assert.assertEquals;
 public class CertificateRepositoryTest extends DatabaseSetupExtension {
 
     @Autowired
-    private Repository<GiftCertificate> certificateRepository;
+    private AbstractCertificateRepository certificateRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Test
     public void testAddPositive() {
-        certificateRepository.add(new GiftCertificate.Builder()
+        certificateRepository.save(new GiftCertificate.Builder()
                 .withId(4L)
                 .withName("flowers")
                 .withDescription("one hundred roses")

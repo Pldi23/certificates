@@ -3,7 +3,7 @@ package com.epam.esm.specification;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.criteria.*;
 import com.epam.esm.DatabaseSetupExtension;
-import com.epam.esm.repository.Repository;
+import com.epam.esm.repository.AbstractCertificateRepository;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupExtension {
 
     @Autowired
-    private Repository<GiftCertificate> certificateRepository;
+    private AbstractCertificateRepository certificateRepository;
 
     @Test
     public void testIdCriteria() {
@@ -78,7 +78,7 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
                 .withCriterias(List.of("id"))
                 .build();
 
-        SqlSpecification sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, sortCriteria, limitOffsetCriteria);
+        SqlSpecification<GiftCertificate> sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, sortCriteria, limitOffsetCriteria);
         List<GiftCertificate> actual = certificateRepository.query(sqlSpecification);
         assertEquals(3, actual.size());
     }
@@ -90,8 +90,40 @@ public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupEx
         SearchCriteria searchCriteria = new SearchCriteria.Builder()
                 .withCreationDateCriteria(creationDateCriteria)
                 .build();
-        SqlSpecification<GiftCertificate> sqlSpecification = new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
+        SqlSpecification<GiftCertificate> sqlSpecification =
+                new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
         assertEquals(3, certificateRepository.query(sqlSpecification).size());
+
+    }
+
+    @Test
+    public void testTagCriteria() {
+        TagCriteria tagCriteria = new TagCriteria(ParameterSearchType.IN, List.of(1L));
+        SearchCriteria searchCriteria = new SearchCriteria.Builder()
+                .withTagCriteria(tagCriteria)
+                .build();
+
+        SqlSpecification<GiftCertificate> specification =
+                new FindCertificatesByCriteriaSpecification(searchCriteria, null, null);
+
+        assertEquals(3, certificateRepository.query(specification).size());
+    }
+
+    @Test
+    public void testTagIdAndLimit() {
+        TagCriteria tagCriteria = new TagCriteria(ParameterSearchType.BETWEEN, List.of(1L, 100L));
+        SearchCriteria searchCriteria = new SearchCriteria.Builder()
+                .withTagCriteria(tagCriteria)
+                .build();
+
+        LimitOffsetCriteria limitOffsetCriteria = new LimitOffsetCriteria.Builder()
+                .withLimit(1)
+                .build();
+
+        SqlSpecification<GiftCertificate> specification =
+                new FindCertificatesByCriteriaSpecification(searchCriteria, null, limitOffsetCriteria);
+
+        assertEquals(1, certificateRepository.query(specification).size());
 
     }
 

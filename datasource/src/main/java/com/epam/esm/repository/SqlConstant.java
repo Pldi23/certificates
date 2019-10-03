@@ -29,6 +29,12 @@ class SqlConstant {
                     "left join certificate_tag on certificate.id = certificate_id " +
                     "left join tag on certificate_tag.tag_id = tag.id where certificate.id = ?";
 
+    static final String SQL_SELECT_TAG_ALL = "select id, title from tag";
+    static final String SQL_SELECT_ALL_CERTIFICATES =
+            "select certificate.id, name, description, price, creationdate, modificationdate, expirationdate, certificate_id, " +
+                    "tag_id, tag.id, title from certificate left join certificate_tag on certificate.id = certificate_id " +
+                    "left join tag on certificate_tag.tag_id = tag.id";
+
 
     static final String SQL_TAG_INSERT = "insert into tag (title) values (?)";
     static final String SQL_TAG_DELETE = "delete from tag where id = ?;";

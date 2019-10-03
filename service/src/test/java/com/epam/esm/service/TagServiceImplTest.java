@@ -4,7 +4,7 @@ package com.epam.esm.service;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.Repository;
+import com.epam.esm.repository.AbstractTagRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ public class TagServiceImplTest {
     private TagServiceImpl tagServiceImpl;
 
     @Mock
-    private Repository<Tag> tagRepository;
+    private AbstractTagRepository tagRepository;
 
     @Before
     public void setUp() {
@@ -54,7 +54,7 @@ public class TagServiceImplTest {
         Optional<TagDTO> expected = Optional.of(new TagDTO(1L, "expected"));
 
         //test
-        Optional<TagDTO> actual = tagServiceImpl.getTag(tag.getId());
+        Optional<TagDTO> actual = tagServiceImpl.findOne(tag.getId());
 
         assertEquals(expected, actual);
     }
@@ -64,7 +64,7 @@ public class TagServiceImplTest {
         List<TagDTO> tagDTOS = List.of(new TagDTO(1L, "expected1"), new TagDTO(2L, "expected2"));
         List<Tag> tags = List.of(new Tag(1L, "expected1"), new Tag(2L, "expected2"));
 
-        Mockito.when(tagRepository.query(any())).thenReturn(tags);
+        Mockito.when(tagRepository.findAll()).thenReturn(tags);
 
         List<TagDTO> actual = tagServiceImpl.findAll();
 
@@ -75,9 +75,9 @@ public class TagServiceImplTest {
     public void save() {
         TagDTO tagDTO = new TagDTO(1L, "expected");
 
-        Mockito.when(tagRepository.add(any())).thenReturn(Optional.of(new Tag(8L, tagDTO.getTitle())));
+        Mockito.when(tagRepository.save(any())).thenReturn(Optional.of(new Tag(8L, tagDTO.getTitle())));
         Optional<TagDTO> actual = tagServiceImpl.save(tagDTO);
-        Mockito.verify(tagRepository, times(1)).add(new Tag(1L, "expected"));
+        Mockito.verify(tagRepository, times(1)).save(new Tag(1L, "expected"));
         assertEquals(Optional.of(new TagDTO(8L, tagDTO.getTitle())), actual);
     }
 

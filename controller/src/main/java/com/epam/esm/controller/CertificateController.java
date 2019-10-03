@@ -122,8 +122,9 @@ public class CertificateController {
         SortCriteriaRequestDTO sortCriteriaRequestDTO = dtoParser.parseSortCriteria(criteriaMap);
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
         LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO = dtoParser.parseLimitOffsetCriteria(criteriaMap);
-        return ResponseEntity.ok(certificateServiceImpl
-                .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO));
+        List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl
+                .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO);
+        return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok(giftCertificateDTOS) : ResponseEntity.notFound().build();
 
     }
 

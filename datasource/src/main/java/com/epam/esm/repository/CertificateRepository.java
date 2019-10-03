@@ -21,7 +21,7 @@ import java.util.*;
 import static com.epam.esm.repository.SqlConstant.*;
 
 @Component
-public class CertificateRepository implements Repository<GiftCertificate> {
+public class CertificateRepository implements AbstractCertificateRepository {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -32,7 +32,7 @@ public class CertificateRepository implements Repository<GiftCertificate> {
 
     @Transactional
     @Override
-    public Optional<GiftCertificate> add(GiftCertificate giftCertificate) {
+    public Optional<GiftCertificate> save(GiftCertificate giftCertificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int insertionResult = jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(SQL_INSERT_CERTIFICATE, new String[]{"id"});
@@ -100,6 +100,11 @@ public class CertificateRepository implements Repository<GiftCertificate> {
                 ps -> ps.setLong(1, id),
                 new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN));
         return !certificates.isEmpty() ? Optional.of(certificates.get(0)) : Optional.empty();
+    }
+
+    @Override
+    public List<GiftCertificate> findAll() {
+        return jdbcTemplate.query(SQL_SELECT_ALL_CERTIFICATES, new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN));
     }
 
     @Override

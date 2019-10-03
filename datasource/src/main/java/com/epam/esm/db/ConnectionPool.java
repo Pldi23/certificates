@@ -82,8 +82,8 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
             } catch (SQLException e) {
                 log.error("exception during destroying connection pool", e);
             }
-            this.connections = null;
         }
+        this.connections.clear();
     }
 
     private void releaseConnection(Connection connection) {

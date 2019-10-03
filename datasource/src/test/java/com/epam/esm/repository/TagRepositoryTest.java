@@ -21,14 +21,14 @@ import static org.junit.Assert.assertEquals;
 public class TagRepositoryTest extends DatabaseSetupExtension {
 
     @Autowired
-    private Repository<Tag> tagRepository;
+    private AbstractTagRepository tagRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Test
     public void testAddPositive() {
-        tagRepository.add(new Tag(9L, "test"));
+        tagRepository.save(new Tag(9L, "test"));
         assertEquals(8, (int) jdbcTemplate.queryForObject("select count(*) from tag", Integer.class));
     }
 

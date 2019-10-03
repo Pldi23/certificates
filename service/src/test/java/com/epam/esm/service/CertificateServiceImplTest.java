@@ -5,7 +5,7 @@ import com.epam.esm.converter.CriteriaConverter;
 import com.epam.esm.converter.CriteriaCreatorHelper;
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.repository.Repository;
+import com.epam.esm.repository.AbstractCertificateRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class CertificateServiceImplTest {
     private CertificateServiceImpl service;
 
     @Mock
-    private Repository<GiftCertificate> repository;
+    private AbstractCertificateRepository repository;
 
     private CertificateConverter converter;
     private GiftCertificate giftCertificate;
@@ -81,7 +81,7 @@ public class CertificateServiceImplTest {
 
         List<GiftCertificate> certificates = List.of(giftCertificate);
 
-        Mockito.when(repository.query(any())).thenReturn(certificates);
+        Mockito.when(repository.findAll()).thenReturn(certificates);
 
         List<GiftCertificateDTO> dtos = List.of(converter.convert(giftCertificate));
 
@@ -102,7 +102,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void saveSuccessful() {
-        Mockito.when(repository.add(any())).thenReturn(Optional.of(giftCertificate));
+        Mockito.when(repository.save(any())).thenReturn(Optional.of(giftCertificate));
 
         Optional<GiftCertificateDTO> actual = service.save(giftCertificateDTO);
         giftCertificateDTO.setId(4L);
@@ -113,7 +113,7 @@ public class CertificateServiceImplTest {
     @Test
     public void saveUnSuccessful() {
 
-        Mockito.when(repository.add(any())).thenReturn(Optional.empty());
+        Mockito.when(repository.save(any())).thenReturn(Optional.empty());
         Optional<GiftCertificateDTO> actual = service.save(giftCertificateDTO);
         assertEquals(Optional.empty(), actual);
 

@@ -47,7 +47,7 @@ public class TagController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity getById(@PathVariable("id") @Min(0) long id) {
-        Optional<TagDTO> tagDTOS = tagServiceImpl.getTag(id);
+        Optional<TagDTO> tagDTOS = tagServiceImpl.findOne(id);
         return tagDTOS.isPresent() ? ResponseEntity.ok().body(tagDTOS.get()) : ResponseEntity.notFound().build();
     }
 

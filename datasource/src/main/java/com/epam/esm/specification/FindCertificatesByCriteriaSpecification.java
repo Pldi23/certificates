@@ -55,11 +55,11 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                         buildCreationDateCriteriaSqlSearchClause(),
                         buildModificationDateCriteriaSqlSearchClause(),
                         buildExpirationDateCriteriaSqlSearchClause(),
-                        buildTagIdCriteriaSqlSearchClause(),
-                        buildPriceCriteriaSqlSearchClause()).stream()
+                        buildPriceCriteriaSqlSearchClause(),
+                        buildTagIdCriteriaSqlSearchClause()).stream()
                         .collect(Collectors.filtering(s -> !s.isBlank(), Collectors.joining(SQL_AND))) +
-                buildSortSqlClause() +
-                buildLimitOffsetSqlClause();
+                buildLimitOffsetSqlClause() +
+                buildSortSqlClause();
     }
 
     @Override
@@ -71,10 +71,9 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
             lastSettedField = setPreparedStatementCreationDateCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementModificationDateCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementExpirationDateCriteria(preparedStatement, lastSettedField);
-            lastSettedField = setPreparedStatementTagIdCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementPriceCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementTagIdCriteria(preparedStatement, lastSettedField);
             setPreparedStatementLimitOffsetCriteria(preparedStatement, lastSettedField);
-            log.debug(lastSettedField);
             log.debug(preparedStatement);
         };
     }
@@ -125,12 +124,23 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
     private String buildLimitOffsetSqlClause() {
         StringBuilder sql = new StringBuilder();
         if (limitOffsetCriteria != null) {
+            if (searchCriteria.getIdCriteria() == null &&
+                    searchCriteria.getPriceCriteria() == null && searchCriteria.getExpirationDateCriteria() == null &&
+                    searchCriteria.getModificationDateCriteria() == null && searchCriteria.getCreationDateCriteria() == null &&
+                    searchCriteria.getDescriptionCriteria() == null && searchCriteria.getNameCriteria() == null &&
+                    searchCriteria.getTagCriteria() == null) {
+                sql.append(SQL_LIMIT_OFFSET_WITHOUT_SEARCH);
+            } else if (searchCriteria.getTagCriteria() == null
+                    || searchCriteria.getTagCriteria().getTagIds().isEmpty()){
+                sql.append(SQL_LIMIT_OFFSET_WITH_SEARCH);
+            }
             if (limitOffsetCriteria.getLimit() != 0) {
                 sql.append(SQL_LIMIT);
             }
             sql.append(SQL_OFFSET);
         }
         return sql.toString();
+
     }
 
     private String buildIdCriteriaSqlSearchClause() {
@@ -494,7 +504,7 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                     break;
                 case NOT_IN:
                     tagIdSql = SQL_TAG_ID_NOT_IN + searchCriteria.getTagCriteria().getTagIds().stream()
-                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN + SQL_CLOSE_IN;
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
                     break;
                 case BETWEEN:
                     tagIdSql = SQL_TAG_ID_BETWEEN;
@@ -505,6 +515,9 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                 default:
                     throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
                             + searchCriteria.getTagCriteria().getTagIds());
+            }
+            if (limitOffsetCriteria == null) {
+                tagIdSql += SQL_CLOSE_IN;
             }
         }
         return tagIdSql;

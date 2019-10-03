@@ -17,7 +17,7 @@ import java.util.Optional;
 import static com.epam.esm.repository.SqlConstant.*;
 
 @Component
-public class TagRepository implements Repository<Tag> {
+public class TagRepository implements AbstractTagRepository {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -28,7 +28,7 @@ public class TagRepository implements Repository<Tag> {
 
     @Transactional
     @Override
-    public Optional<Tag> add(Tag tag) {
+    public Optional<Tag> save(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int insertionResult = jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(SQL_TAG_INSERT, new String[]{"id"});
@@ -40,16 +40,16 @@ public class TagRepository implements Repository<Tag> {
     }
 
     @Override
-    public boolean update(Tag tag) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Optional<Tag> findOne(long id) {
         List<Tag> tags = jdbcTemplate.query(SQL_SELECT_TAG_BY_ID,
                 ps -> ps.setLong(1, id),
                 new TagExtractor(SQL_TAG_ID_COLUMN, SQL_TAG_TITLE_COLUMN));
         return !tags.isEmpty() ? Optional.of(tags.get(0)) : Optional.empty();
+    }
+
+    @Override
+    public List<Tag> findAll() {
+        return jdbcTemplate.query(SQL_SELECT_TAG_ALL, new TagExtractor(SQL_TAG_ID_COLUMN, SQL_TAG_TITLE_COLUMN));
     }
 
     @Override
