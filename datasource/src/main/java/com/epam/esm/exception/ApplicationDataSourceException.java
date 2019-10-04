@@ -12,4 +12,7 @@ public class ApplicationDataSourceException extends RuntimeException {
         super(message, cause);
     }
 
+    public ApplicationDataSourceException(String message) {
+        super(message);
+    }
 }

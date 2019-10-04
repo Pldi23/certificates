@@ -31,6 +31,7 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
     private DataSource innerDataSource;
     private DataSourceConfiguration configuration;
     private BlockingQueue<Connection> connections;
+    private BlockingQueue<Connection> usedConnections;
 
     public ConnectionPool() {
     }
@@ -44,6 +45,7 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
     public void init() throws SQLException {
         try {
             Class.forName(configuration.getDbDriver());
+            usedConnections = new ArrayBlockingQueue<>(configuration.getPoolSize());
             connections = new ArrayBlockingQueue<>(configuration.getPoolSize());
             for (int i = 0; i < configuration.getPoolSize(); i++) {
                 connections.add(createConnection());
@@ -63,7 +65,9 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
     public Connection getConnection() {
         log.debug("Connection taken");
         try {
-            return connections.take();
+            Connection connection = connections.take();
+            usedConnections.add(connection);
+            return connection;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ApplicationDataSourceException("Interruption during getting connection", e);
@@ -78,6 +82,9 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
 
     private void releaseConnection(Connection connection) {
         connections.add(connection);
+        if (!usedConnections.remove(connection)) {
+            throw new ApplicationDataSourceException("used connection was not returned to connection pool");
+        }
         log.debug("Connection released, available connections: " + connections.size());
     }
 
@@ -88,18 +95,12 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
 
     @PreDestroy
     public void destroyPool() {
-        if (connections.size() != configuration.getPoolSize()) {
-            int numberOfUsingConnection = configuration.getPoolSize() - connections.size();
-            log.warn("destroying pool, but " + numberOfUsingConnection + " connections processing and not closed");
+        if (!usedConnections.isEmpty()) {
+            usedConnections.forEach(connection ->
+                    log.warn("destroying pool, but " + connection + " currently in progress"));
         }
-        for (Connection connection : connections) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                log.error("exception during destroying connection pool", e);
-            }
-        }
-        this.connections.clear();
+        destroyConnectionPoolQueue(connections);
+        destroyConnectionPoolQueue(usedConnections);
         Collections.list(DriverManager.getDrivers()).forEach(this::deregisterDriver);
     }
 
@@ -109,5 +110,16 @@ public class ConnectionPool extends AbstractDataSource implements SmartDataSourc
         } catch (SQLException e) {
             logger.error("error during deregister driver: ", e);
         }
+    }
+
+    private void destroyConnectionPoolQueue(BlockingQueue<Connection> queue) {
+        for (Connection connection : queue) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                log.error("exception during destroying connection pool", e);
+            }
+        }
+        queue.clear();
     }
 }

@@ -10,5 +10,5 @@ import com.epam.esm.entity.GiftCertificate;
  */
 public interface AbstractCertificateRepository extends FindAllRepository<GiftCertificate>,
         FindOneRepository<GiftCertificate>, QueryRepository<GiftCertificate>, SaveRepository<GiftCertificate>,
-        RemoveRepository<GiftCertificate>, UpdateRepository<GiftCertificate> {
+        RemoveRepository, UpdateRepository<GiftCertificate> {
 }
