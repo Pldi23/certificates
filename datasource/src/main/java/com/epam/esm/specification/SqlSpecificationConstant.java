@@ -11,11 +11,24 @@ class SqlSpecificationConstant {
     private SqlSpecificationConstant() {
     }
 
-    static final String SQL_CERTIFICATE_BY_CRITERIA_SPECIFICATION =
-            "select certificate.id, name, description, price, creationdate," +
-            " modificationdate, expirationdate, certificate_id, tag_id, tag.id, title from certificate " +
-            "join certificate_tag on certificate.id = certificate_id " +
-            "left join tag on certificate_tag.tag_id = tag.id";
+    static final String SQL_CRITERIA_SPECIFICATION = "select c.id," +
+            " name," +
+            " description," +
+            " price," +
+            " creationdate," +
+            " modificationdate," +
+            " expirationdate," +
+            " certificate_id," +
+            " tag_id," +
+            " tag.id," +
+            " title" +
+            " from (select distinct id, name, description, price, creationdate, modificationdate, expirationdate" +
+            " from certificate" +
+            " left join certificate_tag on certificate.id = certificate_tag.certificate_id";
+
+    static final String SQL_CRITERIA_JOIN = ") as c " +
+            " left join certificate_tag on c.id = certificate_tag.certificate_id" +
+            " left join tag on certificate_tag.tag_id = tag.id";
 
     static final String SQL_TAG_BY_TITLE_SPECIFICATION = "select id, title from tag where title like ?";
 
@@ -68,20 +81,16 @@ class SqlSpecificationConstant {
     static final String SQL_PRICE_NOT_IN = "price not in (";
 
     static final String SQL_TAG_ID_BETWEEN =
-            "certificate_id in (select certificate_id from certificate_tag where tag_id between ? and ? ";
+            "certificate_tag.tag_id between ? and ? ";
     static final String SQL_TAG_ID_NOT_BETWEEN =
-            "certificate_id in (select certificate_id from certificate_tag where tag_id not between ? and ? ";
-    static final String SQL_TAG_ID_IN = "certificate_id in (select certificate_id from certificate_tag where tag_id in (";
-    static final String SQL_TAG_ID_NOT_IN = "certificate_id in (select certificate_id from certificate_tag where tag_id not in (";
-    static final String SQL_LIMIT_OFFSET_WITHOUT_SEARCH =
-            " where certificate_id in (select certificate.id from certificate where certificate.id is not null ";
-    static final String SQL_LIMIT_OFFSET_WITH_SEARCH =
-            " and certificate_id in (select certificate.id from certificate where certificate.id is not null ";
+            "certificate_tag.tag_id not between ? and ? ";
+    static final String SQL_TAG_ID_IN = "certificate_tag.tag_id in (";
+    static final String SQL_TAG_ID_NOT_IN = "certificate_tag.tag_id not in (";
 
     static final String ID = "id";
-    static final String CERTIFICATE_ID = "certificate.id";
+    static final String TABLE_C_ID_COLUMN = "c.id";
     static final String SQL_LIMIT = " limit ? ";
-    static final String SQL_OFFSET = " offset ?)";
+    static final String SQL_OFFSET = " offset ?";
     static final String SQL_ORDER_BY = " order by ";
     static final String SQL_DESC = " desc ";
 

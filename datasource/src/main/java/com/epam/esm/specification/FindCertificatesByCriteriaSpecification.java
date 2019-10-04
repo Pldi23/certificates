@@ -47,7 +47,7 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
 
     @Override
     public String sql() {
-        return SQL_CERTIFICATE_BY_CRITERIA_SPECIFICATION + buildSqlWhere() +
+        return SQL_CRITERIA_SPECIFICATION + buildSqlWhere() +
                 List.of(
                         buildIdCriteriaSqlSearchClause(),
                         buildNameCriteriaSqlSearchClause(),
@@ -58,8 +58,10 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                         buildPriceCriteriaSqlSearchClause(),
                         buildTagIdCriteriaSqlSearchClause()).stream()
                         .collect(Collectors.filtering(s -> !s.isBlank(), Collectors.joining(SQL_AND))) +
+                buildSortSqlClause(ID) +
                 buildLimitOffsetSqlClause() +
-                buildSortSqlClause();
+                SQL_CRITERIA_JOIN +
+                buildSortSqlClause(TABLE_C_ID_COLUMN);
     }
 
     @Override
@@ -105,17 +107,17 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
         }
     }
 
-    private String buildSortSqlClause() {
+    private String buildSortSqlClause(String cerificateIdcolumnName) {
         StringBuilder sql = new StringBuilder();
         if (sortCriteria != null && !sortCriteria.getCriteriaList().isEmpty() &&
                 !sortCriteria.getCriteriaList().contains("")) {
             List<String> criteriaList = sortCriteria.getCriteriaList();
-            sql.append(SQL_ORDER_BY).append(criteriaList.get(0).equals(ID) ? CERTIFICATE_ID : criteriaList.get(0));
+            sql.append(SQL_ORDER_BY).append(criteriaList.get(0).equals(ID) ? cerificateIdcolumnName : criteriaList.get(0));
             if (!sortCriteria.isPrimaryAscending()) {
                 sql.append(SQL_DESC);
             }
             for (int i = 1; i < criteriaList.size(); i++) {
-                sql.append(criteriaList.get(i).equals(ID) ? CERTIFICATE_ID : criteriaList.get(i));
+                sql.append(criteriaList.get(i).equals(ID) ? cerificateIdcolumnName : criteriaList.get(i));
             }
         }
         return sql.toString();
@@ -124,16 +126,6 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
     private String buildLimitOffsetSqlClause() {
         StringBuilder sql = new StringBuilder();
         if (limitOffsetCriteria != null) {
-            if (searchCriteria.getIdCriteria() == null &&
-                    searchCriteria.getPriceCriteria() == null && searchCriteria.getExpirationDateCriteria() == null &&
-                    searchCriteria.getModificationDateCriteria() == null && searchCriteria.getCreationDateCriteria() == null &&
-                    searchCriteria.getDescriptionCriteria() == null && searchCriteria.getNameCriteria() == null &&
-                    searchCriteria.getTagCriteria() == null) {
-                sql.append(SQL_LIMIT_OFFSET_WITHOUT_SEARCH);
-            } else if (searchCriteria.getTagCriteria() == null
-                    || searchCriteria.getTagCriteria().getTagIds().isEmpty()){
-                sql.append(SQL_LIMIT_OFFSET_WITH_SEARCH);
-            }
             if (limitOffsetCriteria.getLimit() != 0) {
                 sql.append(SQL_LIMIT);
             }
@@ -515,9 +507,6 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                 default:
                     throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
                             + searchCriteria.getTagCriteria().getTagIds());
-            }
-            if (limitOffsetCriteria == null) {
-                tagIdSql += SQL_CLOSE_IN;
             }
         }
         return tagIdSql;
