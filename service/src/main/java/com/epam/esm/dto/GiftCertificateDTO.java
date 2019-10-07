@@ -26,10 +26,10 @@ import java.util.Set;
  */
 public class GiftCertificateDTO {
 
-    @Min(0)
+    @Min(value = 0, message = "{violation.id}")
     private long id;
 
-    @NotBlank
+    @NotBlank(message = "{violation.name.not.blank}")
     @Size(min = 1, max = 30, message = "{violation.name.size}")
     private String name;
 
@@ -40,14 +40,14 @@ public class GiftCertificateDTO {
     @DecimalMin(value = "0", message = "{violation.price}")
     private BigDecimal price;
 
-    @PastOrPresent
+    @PastOrPresent(message = "{violation.date.past.or.present}")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate creationDate;
 
 
-    @PastOrPresent
+    @PastOrPresent(message = "{violation.date.past.or.present}")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)

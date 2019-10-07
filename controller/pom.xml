@@ -36,12 +36,12 @@
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
-            <version>0.25.1.RELEASE</version>
+            <version>${spring.hateoas.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.plugin</groupId>
             <artifactId>spring-plugin-core</artifactId>
-            <version>1.2.0.RELEASE</version>
+            <version>${spring.core.plugin}</version>
         </dependency>
 
         <dependency>

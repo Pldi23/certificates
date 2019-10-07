@@ -5,15 +5,16 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
-import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.context.MessageSource;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.DataBinder;
+import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,16 +41,16 @@ public class CertificateController {
     private CertificateService certificateServiceImpl;
     private TagService tagService;
     private DtoParser dtoParser;
-    private RequestParametersValidator validator;
+    private Validator validator;
     private EntityLinks entityLinks;
-    private ResourceBundleMessageSource messageSource;
-    private LocalValidatorFactoryBean localValidatorFactoryBean;
+    private MessageSource messageSource;
+    private SpringValidatorAdapter localValidatorFactoryBean;
 
 
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagService tagServiceImpl,
-                                 EntityLinks entityLinks, ResourceBundleMessageSource messageSource,
-                                 LocalValidatorFactoryBean localValidatorFactoryBean) {
+                                 EntityLinks entityLinks, MessageSource messageSource,
+                                 SpringValidatorAdapter localValidatorFactoryBean) {
         this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;

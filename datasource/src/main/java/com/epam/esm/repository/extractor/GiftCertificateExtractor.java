@@ -53,14 +53,16 @@ public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCer
                 giftCertificate.setExpirationDate(extractDate(resultSet, EXPIRATION_DATE_COLUMN));
                 giftCertificate.setTags(new HashSet<>());
 
-                Long tagId = resultSet.getLong(tagIdColumn);
+                long tagId = resultSet.getLong(tagIdColumn);
                 String tagTitle = resultSet.getString(TAG_TITLE_COLUMN);
                 Tag tag = new Tag(tagId, tagTitle);
-                giftCertificate.getTags().add(!resultSet.wasNull() ? tag : null);
+                giftCertificate.getTags().add(tagId != 0 && tagTitle != null ? tag : null);
                 table.put(giftCertificate.getId(), giftCertificate);
             } else {
+                long tagId = resultSet.getLong(tagIdColumn);
+                String tagTitle = resultSet.getString(TAG_TITLE_COLUMN);
                 table.get(resultSet.getLong(ID_COLUMN)).getTags()
-                        .add(new Tag(resultSet.getLong(tagIdColumn), resultSet.getString(TAG_TITLE_COLUMN)));
+                        .add(tagId != 0 && tagTitle != null ? new Tag(tagId, tagTitle) : null);
             }
         }
         table.forEach((id, giftCertificate) -> giftCertificates.add(giftCertificate));

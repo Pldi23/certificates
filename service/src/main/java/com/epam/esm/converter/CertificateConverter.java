@@ -6,7 +6,9 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +35,10 @@ public class CertificateConverter {
     }
 
     public GiftCertificate convert(GiftCertificateDTO giftCertificateDTO) {
+        Set<Tag> tags = giftCertificateDTO.getTags() != null ?
+                giftCertificateDTO.getTags().stream().filter(Objects::nonNull).map(tagDTO ->
+                        new Tag(tagDTO.getId(), tagDTO.getTitle())).collect(Collectors.toSet()) :
+                new HashSet<>();
         return new GiftCertificate.Builder()
                 .withId(giftCertificateDTO.getId())
                 .withName(giftCertificateDTO.getName())
@@ -41,8 +47,7 @@ public class CertificateConverter {
                 .withCreationDate(giftCertificateDTO.getCreationDate())
                 .withModificationDate(giftCertificateDTO.getModificationDate())
                 .withExpirationDate(giftCertificateDTO.getExpirationDate())
-                .withTags(giftCertificateDTO.getTags().stream().filter(Objects::nonNull).map(tagDTO ->
-                        new Tag(tagDTO.getId(), tagDTO.getTitle())).collect(Collectors.toSet()))
+                .withTags(tags)
                 .build();
     }
 }

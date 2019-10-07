@@ -9,6 +9,8 @@ import org.springframework.hateoas.LinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,15 +33,24 @@ public class TagController {
     private TagService tagServiceImpl;
     private CertificateService certificateService;
     private EntityLinks entityLinks;
+    private SpringValidatorAdapter localValidatorFactoryBean;
 
-    public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks) {
+
+    public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks,
+                         SpringValidatorAdapter localValidatorFactoryBean) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateService = certificateServiceImpl;
         this.entityLinks = entityLinks;
+        this.localValidatorFactoryBean = localValidatorFactoryBean;
+    }
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.setValidator(localValidatorFactoryBean);
     }
 
 
-    @GetMapping(value = "/")
+    @GetMapping
     public ResponseEntity getAllTags() {
         List<TagDTO> tagDTOS = tagServiceImpl.findAll();
         return !tagDTOS.isEmpty() ? ResponseEntity.ok().body(tagDTOS) : ResponseEntity.notFound().build();

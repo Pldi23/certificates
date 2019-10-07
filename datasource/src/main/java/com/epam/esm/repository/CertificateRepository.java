@@ -45,7 +45,7 @@ public class CertificateRepository implements AbstractCertificateRepository {
             return ps;
         }, keyHolder);
         giftCertificate.getTags().stream().filter(Objects::nonNull).forEach(tag -> {
-            if (tag.getId() != null && jdbcTemplate.queryForObject(SQL_CERTIFICATE_DETECT_TAG, Integer.class, tag.getId()) == 0) {
+            if (jdbcTemplate.queryForObject(SQL_CERTIFICATE_DETECT_TAG, Integer.class, tag.getId()) == 0) {
                 KeyHolder tagIdHolder = new GeneratedKeyHolder();
                 jdbcTemplate.update(connection -> {
                     PreparedStatement ps = connection.prepareStatement(SQL_CERTIFICATE_INSERT_TAG, new String[]{"id"});
@@ -53,6 +53,7 @@ public class CertificateRepository implements AbstractCertificateRepository {
                     return ps;
                 }, tagIdHolder);
                 jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, keyHolder.getKey(), tagIdHolder.getKey());
+                tag.setId(tagIdHolder.getKey().longValue());
             } else {
                 jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, keyHolder.getKey(), tag.getId());
             }
