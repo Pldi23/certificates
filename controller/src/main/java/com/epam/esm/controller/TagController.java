@@ -4,7 +4,6 @@ import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
-
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;

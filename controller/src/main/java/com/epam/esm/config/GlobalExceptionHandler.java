@@ -81,6 +81,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return ResponseEntity.badRequest()
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));    }
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
 
+    }
 }
