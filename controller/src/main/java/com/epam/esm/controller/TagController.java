@@ -3,6 +3,8 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -29,6 +31,8 @@ import java.util.Optional;
 @Validated
 @ExposesResourceFor(TagDTO.class)
 public class TagController {
+
+    private static final Logger log = LogManager.getLogger();
 
     private TagService tagServiceImpl;
     private CertificateService certificateService;
@@ -57,7 +61,8 @@ public class TagController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity getById(@PathVariable("id") @Min(0) long id) {
+    public ResponseEntity getById(@PathVariable("id")
+                                  @Min(value = 0) long id) {
         Optional<TagDTO> tagDTOS = tagServiceImpl.findOne(id);
         return tagDTOS.isPresent() ? ResponseEntity.ok().body(tagDTOS.get()) : ResponseEntity.notFound().build();
     }
@@ -80,8 +85,8 @@ public class TagController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(0) long id) {
-        tagServiceImpl.delete(id);
-        return ResponseEntity.status(204).build();
+        return tagServiceImpl.delete(id) ? ResponseEntity.status(204).build() :
+                ResponseEntity.notFound().build();
     }
 
     @GetMapping(value = "/{id}/certificates")

@@ -59,8 +59,9 @@ public class TagRepository implements AbstractTagRepository {
 
     @Transactional
     @Override
-    public void remove(long id) {
+    public boolean remove(long id) {
         jdbcTemplate.update(SQL_TAG_DELETE_LINK, id);
-        jdbcTemplate.update(SQL_TAG_DELETE, id);
+        int updatedRows = jdbcTemplate.update(SQL_TAG_DELETE, id);
+        return updatedRows == 1;
     }
 }

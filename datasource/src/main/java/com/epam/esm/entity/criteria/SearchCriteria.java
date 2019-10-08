@@ -16,6 +16,7 @@ public class SearchCriteria {
     private ExpirationDateCriteria expirationDateCriteria;
     private PriceCriteria priceCriteria;
     private TagCriteria tagCriteria;
+    private TagNameCriteria tagNameCriteria;
 
 
     private SearchCriteria() {
@@ -64,6 +65,11 @@ public class SearchCriteria {
             return this;
         }
 
+        public Builder withTagNameCriteria(TagNameCriteria tagNameCriteria) {
+            searchCriteria.tagNameCriteria = tagNameCriteria;
+            return this;
+        }
+
         public SearchCriteria build() {
             return searchCriteria;
         }
@@ -99,5 +105,9 @@ public class SearchCriteria {
 
     public TagCriteria getTagCriteria() {
         return tagCriteria;
+    }
+
+    public TagNameCriteria getTagNameCriteria() {
+        return tagNameCriteria;
     }
 }

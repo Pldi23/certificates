@@ -19,8 +19,11 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +76,10 @@ public class CertificateController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity findOneById(@PathVariable("id") @Min(0) long id) {
+    public ResponseEntity findOneById(@PathVariable("id")
+                                          @Min(value = 0, message = "{violation.id}")
+                                          @Max(value = Long.MAX_VALUE, message = "{violation.long.range}")
+                                                  long id) {
         Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.findOne(id);
         return optionalGiftCertificateDTO.isPresent() ? ResponseEntity.ok().body(optionalGiftCertificateDTO.get())
                 : ResponseEntity.notFound().build();
@@ -108,8 +114,7 @@ public class CertificateController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(0) long id) {
-        certificateServiceImpl.delete(id);
-        return ResponseEntity.status(204).build();
+        return certificateServiceImpl.delete(id) ? ResponseEntity.status(204).build() : ResponseEntity.notFound().build();
     }
 
     @GetMapping
@@ -118,14 +123,21 @@ public class CertificateController {
         dataBinder.addValidators(validator);
         dataBinder.validate();
         if (dataBinder.getBindingResult().hasErrors()) {
-            return ResponseEntity.badRequest().body(dataBinder.getBindingResult().getAllErrors());
+            ViolationDTO violationDTO = new ViolationDTO();
+            List<String> messages = new ArrayList<>();
+            dataBinder.getBindingResult().getAllErrors()
+                    .forEach(objectError -> messages.add(objectError.getCode()));
+            violationDTO.setMessages(messages);
+            violationDTO.setStatus(400);
+            violationDTO.setLocalDate(LocalDateTime.now());
+            return ResponseEntity.badRequest().body(violationDTO);
         }
         SortCriteriaRequestDTO sortCriteriaRequestDTO = dtoParser.parseSortCriteria(criteriaMap);
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
         LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO = dtoParser.parseLimitOffsetCriteria(criteriaMap);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl
                 .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO);
-        return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok(giftCertificateDTOS) : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(giftCertificateDTOS);
 
     }
 

@@ -12,7 +12,8 @@ public class RequestConstant {
     }
 
     public static final String ID = "id";
-    public static final String TAG_ID = "tagid";
+    public static final String TAG_ID = "tag_id";
+    public static final String TAG_NAME = "tag_name";
     public static final String PRICE = "price";
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";

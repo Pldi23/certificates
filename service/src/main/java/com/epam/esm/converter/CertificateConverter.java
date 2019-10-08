@@ -40,7 +40,7 @@ public class CertificateConverter {
                         new Tag(tagDTO.getId(), tagDTO.getTitle())).collect(Collectors.toSet()) :
                 new HashSet<>();
         return new GiftCertificate.Builder()
-                .withId(giftCertificateDTO.getId())
+                .withId(giftCertificateDTO.getId() != null ? giftCertificateDTO.getId() : 0L)
                 .withName(giftCertificateDTO.getName())
                 .withDescription(giftCertificateDTO.getDescription())
                 .withPrice(giftCertificateDTO.getPrice())
