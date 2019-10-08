@@ -33,6 +33,7 @@ public class CriteriaConverter {
                 .withExpirationDateCriteria(new ExpirationDateCriteriaCreator(helper).create(criteriaMap))
                 .withModificationDateCriteria(new ModificationDateCriteriaCreator(helper).create(criteriaMap))
                 .withTagCriteria(new TagIdCriteriaCreator(helper).create(criteriaMap))
+                .withTagNameCriteria(new TagNameCriteriaCreator(helper).create(criteriaMap))
                 .build();
     }
 

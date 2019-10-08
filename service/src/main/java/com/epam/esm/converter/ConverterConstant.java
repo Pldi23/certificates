@@ -9,7 +9,8 @@ package com.epam.esm.converter;
 class ConverterConstant {
 
     static final String ID = "id";
-    static final String TAG_ID = "tagid";
+    static final String TAG_ID = "tag_id";
+    static final String TAG_NAME = "tag_name";
     static final String PRICE = "price";
     static final String NAME = "name";
     static final String DESCRIPTION = "description";

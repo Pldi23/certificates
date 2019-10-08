@@ -22,9 +22,10 @@ class SqlSpecificationConstant {
             " tag_id," +
             " tag.id," +
             " title" +
-            " from (select distinct id, name, description, price, creationdate, modificationdate, expirationdate" +
+            " from (select distinct certificate.id, name, description, price, creationdate, modificationdate, expirationdate" +
             " from certificate" +
-            " left join certificate_tag on certificate.id = certificate_tag.certificate_id";
+            " left join certificate_tag on certificate.id = certificate_tag.certificate_id" +
+            " left join tag t on certificate_tag.tag_id = t.id";
 
     static final String SQL_CRITERIA_JOIN = ") as c " +
             " left join certificate_tag on c.id = certificate_tag.certificate_id" +
@@ -86,6 +87,11 @@ class SqlSpecificationConstant {
             "certificate_tag.tag_id not between ? and ? ";
     static final String SQL_TAG_ID_IN = "certificate_tag.tag_id in (";
     static final String SQL_TAG_ID_NOT_IN = "certificate_tag.tag_id not in (";
+
+    static final String SQL_TAG_TITLE_IN = "title in (";
+    static final String SQL_TAG_TITLE_NOT_IN = "title not in (";
+    static final String SQL_TAG_TITLE_LIKE = "title like lower(?)";
+    static final String SQL_TAG_TITLE_NOT_LIKE = "title not like (?)";
 
     static final String ID = "id";
     static final String TABLE_C_ID_COLUMN = "c.id";

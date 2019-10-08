@@ -56,7 +56,8 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                         buildModificationDateCriteriaSqlSearchClause(),
                         buildExpirationDateCriteriaSqlSearchClause(),
                         buildPriceCriteriaSqlSearchClause(),
-                        buildTagIdCriteriaSqlSearchClause()).stream()
+                        buildTagIdCriteriaSqlSearchClause(),
+                        buildTagNameCriteriaSqlSearchClause()).stream()
                         .collect(Collectors.filtering(s -> !s.isBlank(), Collectors.joining(SQL_AND))) +
                 buildSortSqlClause(ID) +
                 buildLimitOffsetSqlClause() +
@@ -75,6 +76,7 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
             lastSettedField = setPreparedStatementExpirationDateCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementPriceCriteria(preparedStatement, lastSettedField);
             lastSettedField = setPreparedStatementTagIdCriteria(preparedStatement, lastSettedField);
+            lastSettedField = setPreparedStatementTagNameCriteria(preparedStatement, lastSettedField);
             setPreparedStatementLimitOffsetCriteria(preparedStatement, lastSettedField);
             log.debug(preparedStatement);
         };
@@ -90,7 +92,7 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                 searchCriteria.getPriceCriteria() == null && searchCriteria.getExpirationDateCriteria() == null &&
                 searchCriteria.getModificationDateCriteria() == null && searchCriteria.getCreationDateCriteria() == null &&
                 searchCriteria.getDescriptionCriteria() == null && searchCriteria.getNameCriteria() == null &&
-                searchCriteria.getTagCriteria() == null) {
+                searchCriteria.getTagCriteria() == null && searchCriteria.getTagNameCriteria() == null) {
             return "";
         } else {
             return SQL_WHERE;
@@ -531,6 +533,56 @@ public class FindCertificatesByCriteriaSpecification implements SqlSpecification
                 default:
                     throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
                             + searchCriteria.getIdCriteria().getParameterSearchType());
+            }
+        }
+        return lastSettedField;
+    }
+
+    private String buildTagNameCriteriaSqlSearchClause() {
+        String tagNameSql = "";
+        if (searchCriteria != null && searchCriteria.getTagNameCriteria() != null) {
+            switch (searchCriteria.getTagNameCriteria().getTextSearchType()) {
+                case IN:
+                    tagNameSql = SQL_TAG_TITLE_IN + searchCriteria.getTagNameCriteria().getTagNames().stream()
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
+                    break;
+                case NOT_IN:
+                    tagNameSql = SQL_TAG_TITLE_NOT_IN + searchCriteria.getTagNameCriteria().getTagNames().stream()
+                            .map(l -> SQL_PARAMETER).collect(Collectors.joining(",")) + SQL_CLOSE_IN;
+                    break;
+                case LIKE:
+                    tagNameSql = SQL_TAG_TITLE_LIKE;
+                    break;
+                case NOT_LIKE:
+                    tagNameSql = SQL_TAG_TITLE_NOT_LIKE;
+                    break;
+                default:
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getTagNameCriteria().getTagNames());
+            }
+        }
+        return tagNameSql;
+    }
+
+    private int setPreparedStatementTagNameCriteria(PreparedStatement preparedStatement, int lastSettedField) throws SQLException {
+        if (searchCriteria != null && searchCriteria.getTagNameCriteria() != null) {
+            switch (searchCriteria.getTagNameCriteria().getTextSearchType()) {
+                case IN:
+                case NOT_IN:
+                    for (String name : searchCriteria.getTagNameCriteria().getTagNames()) {
+                        lastSettedField++;
+                        preparedStatement.setString(lastSettedField, name);
+                    }
+                    break;
+                case LIKE:
+                case NOT_LIKE:
+                    lastSettedField++;
+                    preparedStatement.setString(lastSettedField,
+                            "%" + searchCriteria.getTagNameCriteria().getTagNames().get(0) + "%");
+                    break;
+                default:
+                    throw new CriteriaSearchTypeException(EXCEPTION_MESSAGE
+                            + searchCriteria.getNameCriteria().getSearchType());
             }
         }
         return lastSettedField;

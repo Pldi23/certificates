@@ -1,22 +1,18 @@
 package com.epam.esm.dto;
 
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-25.
- * @version 0.0.1
- */
 public class TagDTO {
 
-    @Min(0)
+    @Null(message = "{violation.input.tag.id}")
     private Long id;
 
     @NotBlank(message = "{violation.title}")
+    @Size(min = 1, max = 200, message = "{violation.tag.title.length}")
     private String title;
 
     public TagDTO() {

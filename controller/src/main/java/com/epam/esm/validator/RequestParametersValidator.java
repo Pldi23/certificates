@@ -44,6 +44,9 @@ public class RequestParametersValidator implements Validator {
             validateTagIdParameter(parameters, errors);
         }
         if (errors.getAllErrors().isEmpty()) {
+            validateTagNameParameter(parameters, errors);
+        }
+        if (errors.getAllErrors().isEmpty()) {
             validatePriceParameter(parameters, errors);
         }
         if (errors.getAllErrors().isEmpty()) {
@@ -80,7 +83,14 @@ public class RequestParametersValidator implements Validator {
 
     private void validateTagIdParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(TAG_ID) && !parameters.get(TAG_ID).isBlank() && !parameters.get(TAG_ID).matches(TAG_ID_PARAMETER_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.tag", null, null));
+            errors.reject(messageSource.getMessage( "violation.message.tag.id", null, null));
+        }
+    }
+
+    private void validateTagNameParameter(Map<String, String> parameters, Errors errors) {
+        if (parameters.containsKey(TAG_NAME) && !parameters.get(TAG_NAME).isBlank() &&
+                !parameters.get(TAG_NAME).matches(TAG_NAME_REGEX_PATTERN)) {
+            errors.reject(messageSource.getMessage( "violation.message.tag.name", null, null));
         }
     }
 

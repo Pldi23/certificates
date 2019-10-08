@@ -30,13 +30,17 @@ public class TagRepository implements AbstractTagRepository {
     @Override
     public Optional<Tag> save(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        int insertionResult = jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(SQL_TAG_INSERT, new String[]{"id"});
-            ps.setString(1, tag.getTitle());
-            return ps;
-        }, keyHolder);
-        tag.setId(keyHolder.getKey().longValue());
-        return insertionResult != 0 ? Optional.of(tag) : Optional.empty();
+        if (jdbcTemplate.query(SQL_DETECT_TAG, ps -> ps.setString(1, tag.getTitle()),
+                new TagExtractor(SQL_TAG_ID_COLUMN, SQL_TAG_TITLE_COLUMN)).isEmpty()) {
+            int insertionResult = jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(SQL_TAG_INSERT, new String[]{"id"});
+                ps.setString(1, tag.getTitle());
+                return ps;
+            }, keyHolder);
+            tag.setId(keyHolder.getKey().longValue());
+            return insertionResult != 0 ? Optional.of(tag) : Optional.empty();
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -59,8 +63,9 @@ public class TagRepository implements AbstractTagRepository {
 
     @Transactional
     @Override
-    public void remove(long id) {
+    public boolean remove(long id) {
         jdbcTemplate.update(SQL_TAG_DELETE_LINK, id);
-        jdbcTemplate.update(SQL_TAG_DELETE, id);
+        int updatedRows = jdbcTemplate.update(SQL_TAG_DELETE, id);
+        return updatedRows == 1;
     }
 }

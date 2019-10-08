@@ -1,6 +1,7 @@
 package com.epam.esm.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -9,50 +10,49 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import javax.validation.Valid;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-26.
- * @version 0.0.1
- */
 public class GiftCertificateDTO {
 
-    @Min(value = 0, message = "{violation.id}")
-    private long id;
+    @Null(message = "{violation.input.certificate.id}")
+    private Long id;
 
     @NotBlank(message = "{violation.name.not.blank}")
     @Size(min = 1, max = 30, message = "{violation.name.size}")
     private String name;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Size(min = 1, max = 1000, message = "{violation.description}")
     private String description;
 
-
+    @NotNull(message = "{violation.price.not.null}")
     @DecimalMin(value = "0", message = "{violation.price}")
     private BigDecimal price;
 
-    @PastOrPresent(message = "{violation.date.past.or.present}")
+    @Null(message = "{violation.creation.date.input}")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate creationDate;
 
 
-    @PastOrPresent(message = "{violation.date.past.or.present}")
+    @Null(message = "{violation.modification.date.input}")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate modificationDate;
 
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -60,6 +60,7 @@ public class GiftCertificateDTO {
 
     @Valid
     private Set<TagDTO> tags;
+
 
     private GiftCertificateDTO() {
     }

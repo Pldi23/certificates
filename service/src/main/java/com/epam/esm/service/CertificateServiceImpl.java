@@ -9,6 +9,7 @@ import com.epam.esm.specification.FindCertificatesByCriteriaSpecification;
 import com.epam.esm.specification.FindCertificatesByTagSpecification;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,6 +52,8 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Optional<GiftCertificateDTO> save(GiftCertificateDTO giftCertificateDTO) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
+        giftCertificate.setCreationDate(LocalDate.now());
+        giftCertificate.setModificationDate(null);
         Optional<GiftCertificate> optionalGiftCertificate = certificateRepository.save(giftCertificate);
         return optionalGiftCertificate.map(certificate -> certificateConverter.convert(certificate));
     }
@@ -59,13 +62,14 @@ public class CertificateServiceImpl implements CertificateService {
     public boolean update(GiftCertificateDTO giftCertificateDTO, long id) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         giftCertificate.setId(id);
+        giftCertificate.setModificationDate(LocalDate.now());
         return certificateRepository.update(giftCertificate);
 
     }
 
     @Override
-    public void delete(long id) {
-        certificateRepository.remove(id);
+    public boolean delete(long id) {
+        return certificateRepository.remove(id);
     }
 
     @Override

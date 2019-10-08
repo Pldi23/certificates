@@ -123,7 +123,7 @@ public class CertificateServiceImplTest {
     public void updateSuccessful() {
 
 
-        Mockito.when(repository.update(giftCertificate)).thenReturn(true);
+        Mockito.when(repository.update(any())).thenReturn(true);
         boolean actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
         assertTrue(actual);
     }
