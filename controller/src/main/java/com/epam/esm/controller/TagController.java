@@ -2,8 +2,10 @@ package com.epam.esm.controller;
 
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
+import org.springframework.context.MessageSource;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,14 +42,17 @@ public class TagController {
     private CertificateService certificateService;
     private EntityLinks entityLinks;
     private SpringValidatorAdapter localValidatorFactoryBean;
+    private MessageSource messageSource;
+
 
 
     public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks,
-                         SpringValidatorAdapter localValidatorFactoryBean) {
+                         SpringValidatorAdapter localValidatorFactoryBean, MessageSource messageSource) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateService = certificateServiceImpl;
         this.entityLinks = entityLinks;
         this.localValidatorFactoryBean = localValidatorFactoryBean;
+        this.messageSource = messageSource;
     }
 
     @InitBinder
@@ -68,7 +74,7 @@ public class TagController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity getById(@PathVariable("id")
-                                  @Min(value = 0) long id) {
+                                  @Min(value = 0, message = "{violation.id}") long id) {
 
         Optional<TagDTO> optionalTagDTO = tagServiceImpl.findOne(id);
         return optionalTagDTO.isPresent() ?
@@ -94,13 +100,14 @@ public class TagController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity delete(@PathVariable("id") @Min(0) long id) {
+    public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         return tagServiceImpl.delete(id) ? ResponseEntity.status(204).build() :
-                ResponseEntity.notFound().build();
+                ResponseEntity.status(404).body(new ViolationDTO(
+                        List.of(messageSource.getMessage("entity.no.tag", null, null)), 404, LocalDateTime.now()));
     }
 
     @GetMapping(value = "/{id}/certificates")
-    public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(0) long id) {
+    public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         List<GiftCertificateDTO> giftCertificateDTOS = certificateService.getByTag(id);
         if (!giftCertificateDTOS.isEmpty()) {
             List<Resource> resources = new ArrayList<>(giftCertificateDTOS.size());

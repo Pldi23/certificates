@@ -1,7 +1,9 @@
 package com.epam.esm.service;
 
 
+import java.util.Optional;
+
 public interface UpdateService<T> {
 
-    boolean update(T entity, long id);
+    Optional<T> update(T entity, long id);
 }

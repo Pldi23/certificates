@@ -3,6 +3,7 @@ package com.epam.esm.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
@@ -13,6 +14,7 @@ public class TagDTO {
 
     @NotBlank(message = "{violation.title}")
     @Size(min = 1, max = 200, message = "{violation.tag.title.length}")
+    @Pattern(regexp = "([\\w-]+(?: [\\w-]+)+)|([\\w-]+)", message = "{violation.tag.title.pattern}")
     private String title;
 
     public TagDTO() {

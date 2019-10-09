@@ -105,16 +105,21 @@ public class CertificateController {
     @PutMapping(value = "/{id}")
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
-            @PathVariable("id") @Min(0) long id) {
-        MessageDTO messageDTO = certificateServiceImpl.update(giftCertificateDTO, id) ?
-                new MessageDTO(messageSource.getMessage("entity.update", null, null), 200) :
-                new MessageDTO(messageSource.getMessage("entity.no", null, null), 404);
-        return ResponseEntity.status(messageDTO.getStatus()).body(messageDTO);
+            @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
+        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.update(giftCertificateDTO, id);
+        if (optionalGiftCertificateDTO.isPresent()) {
+            return ResponseEntity.ok(optionalGiftCertificateDTO.get());
+        } else {
+            return ResponseEntity.status(404).body(new ViolationDTO(
+                    List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
+        }
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity delete(@PathVariable("id") @Min(0) long id) {
-        return certificateServiceImpl.delete(id) ? ResponseEntity.status(204).build() : ResponseEntity.notFound().build();
+    public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
+        return certificateServiceImpl.delete(id) ? ResponseEntity.status(204).build() :
+                ResponseEntity.status(404).body(new ViolationDTO(
+                List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
     }
 
     @GetMapping
@@ -142,7 +147,7 @@ public class CertificateController {
     }
 
     @GetMapping(value = "/{id}/tags")
-    public ResponseEntity getTagsByCertificate(@PathVariable("id") @Min(0) long id) {
+    public ResponseEntity getTagsByCertificate(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         return ResponseEntity.ok(tagService.getTagsByCertificate(id));
     }
 }

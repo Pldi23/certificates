@@ -3,6 +3,7 @@ package com.epam.esm.config;
 import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.exception.ApplicationDataSourceException;
 import com.epam.esm.exception.CriteriaSearchTypeException;
+import com.epam.esm.exception.DateNotValidException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * gift certificates
+ * class to configure exception handling
  *
  * @author Dzmitry Platonov on 2019-09-27.
  * @version 0.0.1
@@ -80,8 +81,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return ResponseEntity.badRequest()
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
 
+        String message = ex.getLocalizedMessage();
+        return ResponseEntity.badRequest()
+                .body(new ViolationDTO(List.of(message.substring(0, message.indexOf('\n'))), 400, LocalDateTime.now()));
+
+    }
+
+    @ExceptionHandler(DateNotValidException.class)
+    protected ResponseEntity<Object> handleDateNotValidException(DateNotValidException ex, WebRequest request) {
+        return ResponseEntity.badRequest()
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()),
+                        400, LocalDateTime.now()));
     }
 }

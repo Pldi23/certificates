@@ -69,7 +69,7 @@ public class CertificateRepository implements AbstractCertificateRepository {
 
     @Transactional
     @Override
-    public boolean update(GiftCertificate giftCertificate) {
+    public Optional<GiftCertificate> update(GiftCertificate giftCertificate) {
 
         int updateResult = jdbcTemplate.update(SQL_CERTIFICATE_UPDATE,
                 giftCertificate.getName(),
@@ -79,7 +79,7 @@ public class CertificateRepository implements AbstractCertificateRepository {
                 setDate(giftCertificate.getExpirationDate()),
                 giftCertificate.getId());
         if (updateResult == 0) {
-            return false;
+            return Optional.empty();
         }
         jdbcTemplate.update(SQL_CERTIFICATE_DELETE_LINK, giftCertificate.getId());
         giftCertificate.getTags().stream().filter(Objects::nonNull).forEach(tag -> {
@@ -97,8 +97,11 @@ public class CertificateRepository implements AbstractCertificateRepository {
                 jdbcTemplate.update(SQL_CERTIFICATE_INSERT_LINK, giftCertificate.getId(), resultTags.get(0).getId());
             }
         });
+        GiftCertificate resultGiftCertificate = jdbcTemplate.query(SQL_SELECT_CERTIFICATE_BY_ID,
+                ps -> ps.setLong(1, giftCertificate.getId()),
+                new GiftCertificateExtractor(CERTIFICATE_EXTRACTOR_TAG_ID_COLUMN)).get(0);
 
-        return true;
+        return Optional.of(resultGiftCertificate);
     }
 
     @Override

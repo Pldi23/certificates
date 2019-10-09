@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+import javax.validation.constraints.AssertTrue;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -127,6 +128,14 @@ public class GiftCertificate extends Entity {
 
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
+    }
+
+    @AssertTrue(message = "{violation.date.creation.modification}")
+    private boolean isCreationDateBeforeModificationDate() {
+        if (creationDate != null && modificationDate != null) {
+            return this.creationDate.isBefore(this.modificationDate);
+        }
+        return true;
     }
 
     @Override

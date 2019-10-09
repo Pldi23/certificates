@@ -7,7 +7,9 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.specification.FindCertificatesByCriteriaSpecification;
 import com.epam.esm.specification.FindCertificatesByTagSpecification;
+import com.epam.esm.validator.ExpirationDateValidator;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,13 +29,16 @@ public class CertificateServiceImpl implements CertificateService {
     private AbstractCertificateRepository certificateRepository;
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
+    private ExpirationDateValidator validator;
 
     public CertificateServiceImpl(AbstractCertificateRepository certificateRepository,
                                   CertificateConverter certificateConverter,
-                                  CriteriaConverter criteriaConverter) {
+                                  CriteriaConverter criteriaConverter,
+                                  ExpirationDateValidator validator) {
         this.certificateRepository = certificateRepository;
         this.certificateConverter = certificateConverter;
         this.criteriaConverter = criteriaConverter;
+        this.validator = validator;
     }
 
     @Override
@@ -54,17 +59,21 @@ public class CertificateServiceImpl implements CertificateService {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         giftCertificate.setCreationDate(LocalDate.now());
         giftCertificate.setModificationDate(null);
+        validator.isValidDate(giftCertificate.getCreationDate(), giftCertificate.getExpirationDate());
         Optional<GiftCertificate> optionalGiftCertificate = certificateRepository.save(giftCertificate);
         return optionalGiftCertificate.map(certificate -> certificateConverter.convert(certificate));
     }
 
+    @Transactional
     @Override
-    public boolean update(GiftCertificateDTO giftCertificateDTO, long id) {
+    public Optional<GiftCertificateDTO> update(GiftCertificateDTO giftCertificateDTO, long id) {
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         giftCertificate.setId(id);
         giftCertificate.setModificationDate(LocalDate.now());
-        return certificateRepository.update(giftCertificate);
-
+        Optional<GiftCertificate> expectedCertificate = certificateRepository.findOne(id);
+        expectedCertificate.ifPresent(certificate -> validator.isValidDate(certificate.getCreationDate(), giftCertificate.getExpirationDate()));
+        Optional<GiftCertificate> optionalGiftCertificate = certificateRepository.update(giftCertificate);
+        return optionalGiftCertificate.map(certificate -> certificateConverter.convert(certificate));
     }
 
     @Override
@@ -91,4 +100,5 @@ public class CertificateServiceImpl implements CertificateService {
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
+
 }

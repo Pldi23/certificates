@@ -6,6 +6,7 @@ import com.epam.esm.converter.CriteriaCreatorHelper;
 import com.epam.esm.dto.*;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.validator.ExpirationDateValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.support.ResourceBundleMessageSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -45,24 +47,27 @@ public class CertificateServiceImplTest {
     private GiftCertificate giftCertificate;
     private GiftCertificateDTO giftCertificateDTO;
 
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         converter = new CertificateConverter();
         CriteriaCreatorHelper helper = new CriteriaCreatorHelper();
         CriteriaConverter criteriaConverter = new CriteriaConverter(helper);
-        service = new CertificateServiceImpl(repository, converter, criteriaConverter);
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        ExpirationDateValidator validator = new ExpirationDateValidator(messageSource);
+        service = new CertificateServiceImpl(repository, converter, criteriaConverter, validator);
 
         giftCertificate = new GiftCertificate.Builder()
-                        .withId(4L)
-                        .withName("flowers")
-                        .withDescription("one hundred roses")
-                        .withPrice(new BigDecimal(50))
-                        .withCreationDate(LocalDate.of(2019, 1, 1))
-                        .withModificationDate(LocalDate.of(2019, 6, 1))
-                        .withExpirationDate(LocalDate.of(2021, 1, 1))
-                        .withTags(Set.of())
-                        .build();
+                .withId(4L)
+                .withName("flowers")
+                .withDescription("one hundred roses")
+                .withPrice(new BigDecimal(50))
+                .withCreationDate(LocalDate.of(2019, 1, 1))
+                .withModificationDate(LocalDate.of(2019, 6, 1))
+                .withExpirationDate(LocalDate.of(2021, 1, 1))
+                .withTags(Set.of())
+                .build();
 
         giftCertificateDTO = new GiftCertificateDTO.Builder()
                 .withId(4L)
@@ -123,19 +128,19 @@ public class CertificateServiceImplTest {
     public void updateSuccessful() {
 
 
-        Mockito.when(repository.update(any())).thenReturn(true);
-        boolean actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
-        assertTrue(actual);
+        Mockito.when(repository.update(any())).thenReturn(Optional.of(giftCertificate));
+        Optional<GiftCertificateDTO> actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
+        assertEquals(Optional.of(giftCertificateDTO), actual);
     }
 
     @Test
     public void updateUnSuccessful() {
 
-        Mockito.when(repository.update(any())).thenReturn(false);
+        Mockito.when(repository.update(any())).thenReturn(Optional.empty());
 
 
-        boolean actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
-        assertFalse(actual);
+        Optional<GiftCertificateDTO> actual = service.update(giftCertificateDTO, giftCertificateDTO.getId());
+        assertEquals(Optional.empty(), actual);
     }
 
     @Test

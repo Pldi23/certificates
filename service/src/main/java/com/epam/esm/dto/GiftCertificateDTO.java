@@ -13,6 +13,7 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,12 +27,14 @@ public class GiftCertificateDTO {
 
     @NotBlank(message = "{violation.name.not.blank}")
     @Size(min = 1, max = 30, message = "{violation.name.size}")
+    @Pattern(regexp = "([\\w-]+(?: [\\w-]+)+)|([\\w-]+)", message = "{violation.certificate.name.pattern}")
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Size(min = 1, max = 1000, message = "{violation.description}")
     private String description;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @NotNull(message = "{violation.price.not.null}")
     @DecimalMin(value = "0", message = "{violation.price}")
     private BigDecimal price;
@@ -197,7 +200,6 @@ public class GiftCertificateDTO {
         }
         return true;
     }
-
 
     @Override
     public boolean equals(Object o) {

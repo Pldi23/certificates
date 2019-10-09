@@ -1,7 +1,9 @@
 package com.epam.esm.repository;
 
 
+import java.util.Optional;
+
 public interface UpdateRepository<T> {
 
-    boolean update(T entity);
+    Optional<T> update(T entity);
 }
