@@ -8,6 +8,7 @@ import com.epam.esm.service.TagService;
 import org.springframework.context.MessageSource;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.LinkBuilder;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpHeaders;
@@ -124,8 +125,11 @@ public class TagController {
                 linkTo(TagController.class).slash(tagDTO.getId()).withSelfRel());
     }
 
-    private Resource certificateToResource(GiftCertificateDTO giftCertificateDTO) {
-        return new Resource<>(giftCertificateDTO, linkTo(CertificateController.class).slash(giftCertificateDTO.getId()).withSelfRel());
+    private Resource<GiftCertificateDTO> certificateToResource(GiftCertificateDTO giftCertificateDTO) {
+        List<Link> links = new ArrayList<>(giftCertificateDTO.getTags().size() + 1);
+        links.add(linkTo(CertificateController.class).slash(giftCertificateDTO.getId()).withSelfRel());
+        giftCertificateDTO.getTags().forEach(tagDTO -> links.add(linkTo(TagController.class).slash(tagDTO.getId()).withRel("tag")));
+        return new Resource<>(giftCertificateDTO, links);
     }
 
 }
