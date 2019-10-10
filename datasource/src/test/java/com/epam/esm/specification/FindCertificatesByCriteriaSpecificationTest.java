@@ -5,7 +5,9 @@ import com.epam.esm.entity.criteria.*;
 import com.epam.esm.DatabaseSetupExtension;
 import com.epam.esm.repository.AbstractCertificateRepository;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +21,7 @@ import static org.junit.Assert.*;
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
+@RunWith(SpringJUnit4ClassRunner.class)
 public class FindCertificatesByCriteriaSpecificationTest extends DatabaseSetupExtension {
 
     @Autowired
