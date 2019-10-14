@@ -24,12 +24,12 @@ import static com.epam.esm.validator.RegexPatternConstant.*;
 @Component
 public class RequestParametersValidator implements Validator {
 
-    private ResourceBundleMessageSource messageSource;
+//    private ResourceBundleMessageSource messageSource;
 
-    @Autowired
-    public RequestParametersValidator(ResourceBundleMessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
+//    @Autowired
+//    public RequestParametersValidator(ResourceBundleMessageSource messageSource) {
+//        this.messageSource = messageSource;
+//    }
 
     @Override
     public boolean supports(Class<?> aClass) {
@@ -77,76 +77,75 @@ public class RequestParametersValidator implements Validator {
 
     private void validateIdParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(ID) && !parameters.get(ID).isBlank() && !parameters.get(ID).matches(ID_PARAMETER_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.id", null, null));
+            errors.reject("{violation.message.id}");
         }
     }
 
     private void validateTagIdParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(TAG_ID) && !parameters.get(TAG_ID).isBlank() && !parameters.get(TAG_ID).matches(TAG_ID_PARAMETER_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.tag.id", null, null));
+            errors.reject("{violation.message.tag.id}");
         }
     }
 
     private void validateTagNameParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(TAG_NAME) && !parameters.get(TAG_NAME).isBlank() &&
                 !parameters.get(TAG_NAME).matches(TAG_NAME_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.tag.name", null, null));
+            errors.reject("{violation.message.tag.name}");
         }
     }
 
     private void validatePriceParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(PRICE) && !parameters.get(PRICE).isBlank() && !parameters.get(PRICE).matches(PRICE_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.price", null, null));
+            errors.reject("{violation.message.price}");
         }
     }
 
     private void validateNameParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(NAME) && !parameters.get(NAME).isBlank() && !parameters.get(NAME).matches(NAME_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.name", null, null));
+            errors.reject("{violation.message.name}");
         }
     }
 
     private void validateDescriptionParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(DESCRIPTION) && !parameters.get(DESCRIPTION).isBlank()
                 && !parameters.get(DESCRIPTION).matches(DESCRIPTION_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.description", null, null));
+            errors.reject("{violation.message.description}");
         }
     }
     private void validateExpirationDateParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(EXPIRATION_DATE) && !parameters.get(EXPIRATION_DATE).isBlank()) {
             validateDate(parameters.get(EXPIRATION_DATE),
-                    messageSource.getMessage( "violation.message.expirationdate", null, null), errors);
+                    "{violation.message.expirationdate}", errors);
         }
 
     }
     private void validateCreationDateParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(CREATION_DATE) && !parameters.get(CREATION_DATE).isBlank()) {
-            validateDate(parameters.get(CREATION_DATE),
-                    messageSource.getMessage( "violation.message.creationdate", null, null), errors);
+            validateDate(parameters.get(CREATION_DATE),"{violation.message.creationdate}", errors);
         }
     }
     private void validateModificationDateParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(MODIFICATION_DATE) && !parameters.get(MODIFICATION_DATE).isBlank()) {
             validateDate(parameters.get(MODIFICATION_DATE),
-                    messageSource.getMessage( "violation.message.modificationdate", null, null), errors);
+                    "{violation.message.modificationdate}", errors);
         }
     }
     private void validateSortParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(SORT) && !parameters.get(SORT).isBlank()
                 && !parameters.get(SORT).matches(SORT_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.sort", null, null));
+            errors.reject("{violation.message.sort}");
         }
     }
     private void validateLimitParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(LIMIT) && !parameters.get(LIMIT).isBlank()
                 && !parameters.get(LIMIT).matches(LIMIT_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.limit", null, null));
+            errors.reject("{violation.message.limit}");
         }
     }
     private void validateOffsetParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(OFFSET) && !parameters.get(OFFSET).isBlank()
                 && !parameters.get(OFFSET).matches(OFFSET_REGEX_PATTERN)) {
-            errors.reject(messageSource.getMessage( "violation.message.offset", null, null));
+            errors.reject("{violation.message.offset}");
         }
     }
 

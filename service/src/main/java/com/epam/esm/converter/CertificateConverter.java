@@ -39,15 +39,15 @@ public class CertificateConverter {
                 giftCertificateDTO.getTags().stream().filter(Objects::nonNull).map(tagDTO ->
                         new Tag(tagDTO.getId(), tagDTO.getTitle())).collect(Collectors.toSet()) :
                 new HashSet<>();
-        return new GiftCertificate.Builder()
-                .withId(giftCertificateDTO.getId() != null ? giftCertificateDTO.getId() : 0L)
-                .withName(giftCertificateDTO.getName())
-                .withDescription(giftCertificateDTO.getDescription())
-                .withPrice(giftCertificateDTO.getPrice())
-                .withCreationDate(giftCertificateDTO.getCreationDate())
-                .withModificationDate(giftCertificateDTO.getModificationDate())
-                .withExpirationDate(giftCertificateDTO.getExpirationDate())
-                .withTags(tags)
+        return GiftCertificate.builder()
+                .id(giftCertificateDTO.getId() != null ? giftCertificateDTO.getId() : 0L)
+                .name(giftCertificateDTO.getName())
+                .description(giftCertificateDTO.getDescription())
+                .price(giftCertificateDTO.getPrice())
+                .creationDate(giftCertificateDTO.getCreationDate())
+                .modificationDate(giftCertificateDTO.getModificationDate())
+                .expirationDate(giftCertificateDTO.getExpirationDate())
+                .tags(tags)
                 .build();
     }
 }

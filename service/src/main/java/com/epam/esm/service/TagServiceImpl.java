@@ -3,12 +3,16 @@ package com.epam.esm.service;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.AbstractTagRepository;
-import com.epam.esm.specification.FindTagsByCertificateSpecification;
+import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.repository.hibernate.EMCertificateRepository;
+import com.epam.esm.repository.hibernate.EMTagRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -17,22 +21,24 @@ import java.util.stream.Collectors;
  * @author Dzmitry Platonov on 2019-09-25.
  * @version 0.0.1
  */
+@Transactional
 @Service
 public class TagServiceImpl implements TagService {
 
-    private AbstractTagRepository tagRepository;
+    private EMTagRepository tagRepository;
+    private EMCertificateRepository certificateRepository;
 
     private TagConverter tagConverter;
 
-    public TagServiceImpl(AbstractTagRepository tagRepository, TagConverter tagConverter) {
+    public TagServiceImpl(EMTagRepository tagRepository, EMCertificateRepository certificateRepository, TagConverter tagConverter) {
         this.tagRepository = tagRepository;
+        this.certificateRepository = certificateRepository;
         this.tagConverter = tagConverter;
     }
 
     @Override
-    public Optional<TagDTO> findOne(long id) {
-        Optional<Tag> optionalTag = tagRepository.findOne(id);
-        return optionalTag.map(tag -> tagConverter.convert(tag));
+    public TagDTO findOne(long id) {
+        return tagConverter.convert(tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("tag not found")));
     }
 
     @Override
@@ -43,20 +49,41 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Optional<TagDTO> save(TagDTO tagDTO) {
+    public TagDTO save(TagDTO tagDTO) {
         Tag tag = tagConverter.convert(tagDTO);
-        Optional<Tag> optionalTag = tagRepository.save(tag);
-        return optionalTag.map(value -> tagConverter.convert(value));
+        Tag saved;
+        try {
+            saved = tagRepository.save(tag);
+        } catch (DataIntegrityViolationException ex) {
+            throw new EntityAlreadyExistsException("Tag with name '" + tagDTO.getTitle() + "' already exists");
+        }
+        return tagConverter.convert(saved);
+//        return optionalTag.map(value -> tagConverter.convert(value));
     }
 
     @Override
-    public boolean delete(long id) {
-        return tagRepository.remove(id);
+    public void delete(long id) {
+        try {
+            tagRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new EntityNotFoundException("tag not found");
+        }
     }
 
     @Override
     public List<TagDTO> getTagsByCertificate(long id) {
-        return tagRepository.query(new FindTagsByCertificateSpecification(id)).stream()
+        if (certificateRepository.findById(id).isPresent()) {
+            return tagRepository.findTagsByCertificate(id).stream()
+                    .map(tag -> tagConverter.convert(tag))
+                    .collect(Collectors.toList());
+        } else {
+            throw new EntityNotFoundException("certificate not found");
+        }
+    }
+
+    @Override
+    public List<TagDTO> findPaginated(String sort, int page, int size) {
+        return tagRepository.findPaginated(sort, page, size).stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
     }

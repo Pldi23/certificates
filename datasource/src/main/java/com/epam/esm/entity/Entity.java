@@ -1,5 +1,11 @@
 package com.epam.esm.entity;
 
+import lombok.Data;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.Objects;
 
 /**
@@ -8,8 +14,13 @@ import java.util.Objects;
  * @author Dzmitry Platonov on 2019-09-23.
  * @version 0.0.1
  */
+@Data
+@javax.persistence.Entity
 public abstract class Entity {
 
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     Entity() {

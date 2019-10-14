@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
 
 /**
@@ -10,6 +11,6 @@ import com.epam.esm.dto.GiftCertificateDTO;
  */
 public interface CertificateService extends FindAllService<GiftCertificateDTO>, FindOneService<GiftCertificateDTO>,
         SaveService<GiftCertificateDTO>, UpdateService<GiftCertificateDTO>, DeleteService,
-        FindCertificatesByTagService, FindCertificatesByCriteriaService {
+        FindCertificatesByTagService, FindCertificatesByCriteriaService, PatchService<GiftCertificateDTO, CertificatePatchDTO> {
 
 }

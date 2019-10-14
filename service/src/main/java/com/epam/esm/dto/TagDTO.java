@@ -1,12 +1,15 @@
 package com.epam.esm.dto;
 
 
+import lombok.Builder;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
+@Builder
 public class TagDTO {
 
     @Null(message = "{violation.input.tag.id}")

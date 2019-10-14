@@ -21,10 +21,10 @@ import java.util.List;
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
-@Configuration
-@ComponentScan("com.epam.esm")
-@EnableWebMvc
-@EnableEntityLinks
+//@Configuration
+//@ComponentScan("com.epam.esm")
+//@EnableWebMvc
+//@EnableEntityLinks
 public class ApplicationConfig extends WebMvcConfigurerAdapter {
 
     @Bean

@@ -1,7 +1,24 @@
 package com.epam.esm.entity;
 
-import javax.validation.constraints.Size;
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import java.util.Set;
 
 /**
  * giftcertificates
@@ -9,42 +26,24 @@ import java.util.Objects;
  * @author Dzmitry Platonov on 2019-09-23.
  * @version 0.0.1
  */
-public class Tag extends Entity{
+@Entity
+@Table(name = "tag")
+//@Data
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class Tag{
 
-    @Size(min = 1, max = 100, message = "tag title symbols 1-100")
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(unique = true, updatable = false)
     private String title;
 
-    public Tag() {
-    }
-
-    public Tag(Long id, String title) {
-        super(id);
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Tag tag = (Tag) o;
-        return Objects.equals(title, tag.title);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(title);
-    }
-
-    @Override
-    public String toString() {
-        return '<' + title + '>';
-    }
+//    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
+//    private Set<GiftCertificate> giftCertificates;
 }

@@ -4,5 +4,5 @@ import java.util.Optional;
 
 public interface SaveService<T> {
 
-    Optional<T> save(T entity);
+    T save(T entity);
 }

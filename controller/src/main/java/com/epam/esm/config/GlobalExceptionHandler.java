@@ -4,6 +4,8 @@ import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.exception.ApplicationDataSourceException;
 import com.epam.esm.exception.CriteriaSearchTypeException;
 import com.epam.esm.exception.DateNotValidException;
+import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.exception.UserRoleException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -93,5 +96,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()),
                         400, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    protected ResponseEntity<Object> handleTagAlreadyExistsException(EntityAlreadyExistsException ex, WebRequest request) {
+        return ResponseEntity.badRequest()
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        return ResponseEntity.badRequest()
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 404, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(UserRoleException.class)
+    protected ResponseEntity<Object> handleRoleException(UserRoleException ex, WebRequest request) {
+        return ResponseEntity.badRequest()
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
     }
 }

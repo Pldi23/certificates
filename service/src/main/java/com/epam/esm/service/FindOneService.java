@@ -5,5 +5,5 @@ import java.util.Optional;
 
 public interface FindOneService<T> {
 
-    Optional<T> findOne(long id);
+    T findOne(long id);
 }

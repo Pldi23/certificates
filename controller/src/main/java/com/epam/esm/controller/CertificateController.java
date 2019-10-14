@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
@@ -26,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * gift certificates
@@ -40,7 +40,6 @@ import java.util.Optional;
 @ExposesResourceFor(GiftCertificateDTO.class)
 public class CertificateController {
 
-
     private CertificateService certificateServiceImpl;
     private TagService tagService;
     private DtoParser dtoParser;
@@ -48,12 +47,14 @@ public class CertificateController {
     private EntityLinks entityLinks;
     private MessageSource messageSource;
     private SpringValidatorAdapter localValidatorFactoryBean;
+    private LinkCreator linkCreator;
 
 
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagService tagServiceImpl,
                                  EntityLinks entityLinks, MessageSource messageSource,
-                                 SpringValidatorAdapter localValidatorFactoryBean) {
+                                 SpringValidatorAdapter localValidatorFactoryBean,
+                                 LinkCreator linkCreator) {
         this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;
@@ -61,6 +62,7 @@ public class CertificateController {
         this.entityLinks = entityLinks;
         this.messageSource = messageSource;
         this.localValidatorFactoryBean = localValidatorFactoryBean;
+        this.linkCreator = linkCreator;
     }
 
     @InitBinder
@@ -71,55 +73,55 @@ public class CertificateController {
     @GetMapping(value = "/")
     public ResponseEntity findAll() {
         List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findAll();
-        return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok().body(giftCertificateDTOS)
-                : ResponseEntity.notFound().build();
+        return !giftCertificateDTOS.isEmpty() ?
+                ResponseEntity.ok().body(giftCertificateDTOS.stream()
+                .map(giftCertificateDTO -> linkCreator.toResource(giftCertificateDTO))) :
+                ResponseEntity.notFound().build();
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity findOneById(@PathVariable("id")
-                                          @Min(value = 0, message = "{violation.id}")
-                                          @Max(value = Long.MAX_VALUE, message = "{violation.long.range}")
-                                                  long id) {
-        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.findOne(id);
-        return optionalGiftCertificateDTO.isPresent() ? ResponseEntity.ok().body(optionalGiftCertificateDTO.get())
-                : ResponseEntity.notFound().build();
+                                      @Min(value = 0, message = "{violation.id}")
+                                      @Max(value = Long.MAX_VALUE, message = "{violation.long.range}")
+                                              long id) {
+        return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.findOne(id)));
+//        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.findById(id);
+//        return optionalGiftCertificateDTO.isPresent() ? ResponseEntity.ok().body(optionalGiftCertificateDTO.get())
+//                : ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
-        ResponseEntity responseEntity;
+        GiftCertificateDTO dto = certificateServiceImpl.save(giftCertificateDTO);
 
-        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.save(giftCertificateDTO);
-        if (optionalGiftCertificateDTO.isPresent()) {
-            LinkBuilder linkBuilder
-                    = entityLinks.linkForSingleResource(GiftCertificateDTO.class, optionalGiftCertificateDTO.get().getId());
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
-            responseEntity = ResponseEntity.status(201).headers(httpHeaders).body(optionalGiftCertificateDTO.get());
-        } else {
-            responseEntity = ResponseEntity.status(204).build();
-        }
-        return responseEntity;
+        LinkBuilder linkBuilder
+                = entityLinks.linkForSingleResource(GiftCertificateDTO.class, dto.getId());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
+        return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(dto));
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
-        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.update(giftCertificateDTO, id);
-        if (optionalGiftCertificateDTO.isPresent()) {
-            return ResponseEntity.ok(optionalGiftCertificateDTO.get());
-        } else {
-            return ResponseEntity.status(404).body(new ViolationDTO(
-                    List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
-        }
+        return ResponseEntity.ok(certificateServiceImpl.update(giftCertificateDTO, id));
+//        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.update(giftCertificateDTO, id);
+//        if (optionalGiftCertificateDTO.isPresent()) {
+//            return ResponseEntity.ok(optionalGiftCertificateDTO.get());
+//        } else {
+//            return ResponseEntity.status(404).body(new ViolationDTO(
+//                    List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
+//        }
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
-        return certificateServiceImpl.delete(id) ? ResponseEntity.status(204).build() :
-                ResponseEntity.status(404).body(new ViolationDTO(
-                List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
+        certificateServiceImpl.delete(id);
+        return ResponseEntity.status(204).build();
+//        return certificateServiceImpl.delete(id) ? ResponseEntity.status(204).build() :
+//                ResponseEntity.status(404).body(new ViolationDTO(
+//                        List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
     }
 
     @GetMapping
@@ -149,5 +151,11 @@ public class CertificateController {
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByCertificate(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         return ResponseEntity.ok(tagService.getTagsByCertificate(id));
+    }
+
+    @PatchMapping(value = "/{id}")
+    public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
+                                        @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {
+        return ResponseEntity.ok(certificateServiceImpl.patch(certificatePatchDTO, id));
     }
 }

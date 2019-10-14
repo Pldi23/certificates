@@ -5,5 +5,5 @@ import java.util.Optional;
 
 public interface UpdateService<T> {
 
-    Optional<T> update(T entity, long id);
+    T update(T entity, long id);
 }

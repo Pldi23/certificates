@@ -10,16 +10,16 @@ import java.time.LocalDate;
 @Component
 public class ExpirationDateValidator {
 
-    private ResourceBundleMessageSource messageSource;
-
-    @Autowired
-    public ExpirationDateValidator(ResourceBundleMessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
+//    private ResourceBundleMessageSource messageSource;
+//
+//    @Autowired
+//    public ExpirationDateValidator(ResourceBundleMessageSource messageSource) {
+//        this.messageSource = messageSource;
+//    }
 
     public void isValidDate(LocalDate creationDate, LocalDate expirationDate) {
         if (creationDate != null && expirationDate != null && creationDate.isAfter(expirationDate)) {
-            throw new DateNotValidException(messageSource.getMessage("violation.date", null, null));
+            throw new DateNotValidException("validation expiration date failed");
         }
     }
 

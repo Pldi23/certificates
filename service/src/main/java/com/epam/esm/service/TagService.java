@@ -10,6 +10,7 @@ import com.epam.esm.dto.TagDTO;
  * @version 0.0.1
  */
 public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDTO>, SaveService<TagDTO>, DeleteService,
-        FindTagsByCertificateService {
+        FindTagsByCertificateService, FindPaginated<TagDTO> {
+
 
 }
