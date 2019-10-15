@@ -2,6 +2,9 @@ package com.epam.esm.repository.hibernate;
 
 import com.epam.esm.entity.Order;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 /**
  * gift-certificates
  *
@@ -10,4 +13,9 @@ import com.epam.esm.entity.Order;
  */
 public interface AbstractOrderRepository extends SaveRepository<Order>, RemoveRepository, FindOneRepository<Order>,
         FindAllRepository<Order> {
+
+    List<Order> findByCriteria(String sort, int page, int size, String email, Long userId,
+                               List<String> certificateNames, List<Long> certificateIds);
+
+    BigDecimal calculatePrice(Long id);
 }

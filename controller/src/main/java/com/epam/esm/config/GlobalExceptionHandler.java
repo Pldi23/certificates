@@ -5,6 +5,7 @@ import com.epam.esm.exception.ApplicationDataSourceException;
 import com.epam.esm.exception.CriteriaSearchTypeException;
 import com.epam.esm.exception.DateNotValidException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.exception.PaginationException;
 import com.epam.esm.exception.UserRoleException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -112,6 +113,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserRoleException.class)
     protected ResponseEntity<Object> handleRoleException(UserRoleException ex, WebRequest request) {
+        return ResponseEntity.badRequest()
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(PaginationException.class)
+    protected ResponseEntity<Object> handleRoleException(PaginationException ex, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
     }

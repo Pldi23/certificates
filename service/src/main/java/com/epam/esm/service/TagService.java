@@ -1,6 +1,9 @@
 package com.epam.esm.service;
 
+import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
+
+import java.util.List;
 
 
 /**
@@ -12,5 +15,7 @@ import com.epam.esm.dto.TagDTO;
 public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDTO>, SaveService<TagDTO>, DeleteService,
         FindTagsByCertificateService, FindPaginated<TagDTO> {
 
-
+    List<TagDTO> findTagsByOrder(long orderId);
+    List<TagDTO> findTagsByUser(long userId, PageAndSortDTO pageAndSortDTO);
+    List<TagDTO> findPopular(PageAndSortDTO pageAndSortDTO);
 }

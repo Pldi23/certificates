@@ -11,4 +11,8 @@ public interface AbstractTagRepository extends FindAllRepository<Tag>, FindOneRe
 
     List<Tag> findTagsByCertificate(long certificateId);
     Optional<Tag> findByTitle(String title);
+    List<Tag> findPaginated(String sortParam, int page, int size);
+    List<Tag> findTagsByOrder(long orderId);
+    List<Tag> findTagsByUserWithCriteria(long userId, String sortParam, int page, int size);
+    List<Tag> findPopulars(int page, int size);
 }

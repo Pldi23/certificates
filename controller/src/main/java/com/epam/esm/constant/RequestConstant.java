@@ -27,6 +27,8 @@ public class RequestConstant {
     public static final String NOT_BERWEEN = "nbw:";
     public static final String NOT_IN = "-";
     public static final String SORT_PARAMETER = "sort";
+    public static final String SIZE_PARAMETER = "size";
+    public static final String PAGE_PARAMETER = "page";
     public static final String LIMIT_PARAMETER = "limit";
     public static final String OFFSET_PARAMETER = "offset";
 }

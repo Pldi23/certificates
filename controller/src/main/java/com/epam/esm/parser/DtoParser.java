@@ -3,6 +3,7 @@ package com.epam.esm.parser;
 import com.epam.esm.dto.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import static com.epam.esm.constant.RequestConstant.*;
@@ -42,5 +43,26 @@ public class DtoParser {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
         return limitOffsetCriteriaRequestDTO;
+    }
+
+    public PageAndSortDTO parsePageAndSortCriteria(Map<String, String> requestParams) {
+        return PageAndSortDTO.builder()
+                .sortParameter(requestParams.getOrDefault(SORT_PARAMETER, null))
+                .page(requestParams.containsKey(PAGE_PARAMETER) && !requestParams.get(PAGE_PARAMETER).isBlank() ?
+                        Integer.parseInt(requestParams.get(PAGE_PARAMETER)) : 1)
+                .size(requestParams.containsKey(SIZE_PARAMETER) && !requestParams.get(SIZE_PARAMETER).isBlank() ?
+                        Integer.parseInt(requestParams.get(SIZE_PARAMETER)) : Integer.MAX_VALUE)
+                .build();
+    }
+
+    public OrderSearchCriteriaDTO parseOrderSearchDTO(Map<String, String> requestParams) {
+        return OrderSearchCriteriaDTO.builder()
+                .email(requestParams.getOrDefault("email", null))
+                .userId(requestParams.containsKey("user_id") ? Long.parseLong(requestParams.get("user_id")) : null)
+                .certificatesNames(requestParams.containsKey("c_name") ? Arrays.asList(requestParams.get("c_name").split(",")) : null)
+                .certificatesIds(requestParams.containsKey("c_id") ? Arrays.stream(requestParams.get("c_id").split(","))
+                        .map(Long::parseLong)
+                        .collect(Collectors.toList()) : null)
+                .build();
     }
 }

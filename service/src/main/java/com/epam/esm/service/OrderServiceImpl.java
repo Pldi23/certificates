@@ -2,13 +2,13 @@ package com.epam.esm.service;
 
 import com.epam.esm.converter.OrderConverter;
 import com.epam.esm.dto.OrderDTO;
+import com.epam.esm.dto.OrderSearchCriteriaDTO;
+import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.repository.hibernate.EMCertificateRepository;
 import com.epam.esm.repository.hibernate.EMOrderRepository;
-import com.epam.esm.repository.jpa.CertificateRepository;
-import com.epam.esm.repository.jpa.OrderRepository;
 import com.epam.esm.repository.jpa.UserRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -56,13 +56,16 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> findAll() {
         return orderRepository.findAll().stream()
                 .map(order -> orderConverter.convert(order))
+                .peek(orderDTO -> orderDTO.setPrice(orderRepository.calculatePrice(orderDTO.getId())))
                 .collect(Collectors.toList());
     }
 
     @Override
     public OrderDTO findOne(long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("order not found"));
-        return orderConverter.convert(order);
+        OrderDTO orderDTO = orderConverter.convert(order);
+        orderDTO.setPrice(orderRepository.calculatePrice(id));
+        return orderDTO;
     }
 
     @Transactional
@@ -77,7 +80,9 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .giftCertificates(giftCertificates)
                 .build();
-        return orderConverter.convert(orderRepository.save(order));
+        OrderDTO dto = orderConverter.convert(orderRepository.save(order));
+        dto.setPrice(orderRepository.calculatePrice(dto.getId()));
+        return dto;
     }
 
     @Transactional
@@ -92,9 +97,22 @@ public class OrderServiceImpl implements OrderService {
                             .map(name -> certificateRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("certificate '" + name + "' not found")))
                             .collect(Collectors.toSet()))
                     .build();
-            return orderConverter.convert(orderRepository.save(order));
+            OrderDTO dto = orderConverter.convert(orderRepository.save(order));
+            dto.setPrice(orderRepository.calculatePrice(id));
+            return dto;
         } else {
             throw new EntityNotFoundException("order not found");
         }
+    }
+
+    @Override
+    public List<OrderDTO> findByCriteria(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO) {
+
+        return orderRepository.findByCriteria(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
+                pageAndSortDTO.getSize(), criteriaDTO.getEmail(), criteriaDTO.getUserId(),
+                criteriaDTO.getCertificatesNames(), criteriaDTO.getCertificatesIds()).stream()
+                .map(order -> orderConverter.convert(order))
+                .peek(orderDTO -> orderDTO.setPrice(orderRepository.calculatePrice(orderDTO.getId())))
+                .collect(Collectors.toList());
     }
 }

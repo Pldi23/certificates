@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.converter.TagConverter;
+import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
@@ -58,7 +59,6 @@ public class TagServiceImpl implements TagService {
             throw new EntityAlreadyExistsException("Tag with name '" + tagDTO.getTitle() + "' already exists");
         }
         return tagConverter.convert(saved);
-//        return optionalTag.map(value -> tagConverter.convert(value));
     }
 
     @Override
@@ -82,8 +82,29 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> findPaginated(String sort, int page, int size) {
-        return tagRepository.findPaginated(sort, page, size).stream()
+    public List<TagDTO> findPaginated(PageAndSortDTO pageAndSortDTO) {
+        return tagRepository.findPaginated(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
+                .map(tag -> tagConverter.convert(tag))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TagDTO> findTagsByOrder(long orderId) {
+        return tagRepository.findTagsByOrder(orderId).stream()
+                .map(tag -> tagConverter.convert(tag))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TagDTO> findTagsByUser(long userId, PageAndSortDTO pageAndSortDTO) {
+        return tagRepository.findTagsByUserWithCriteria(userId, pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
+                .map(tag -> tagConverter.convert(tag))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TagDTO> findPopular(PageAndSortDTO pageAndSortDTO) {
+        return tagRepository.findPopulars(pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
     }

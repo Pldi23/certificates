@@ -15,10 +15,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +57,9 @@ public class OrderDTO {
 
     @ValidCertificatesSet
     private Set<String> giftCertificatesNames;
+
+    @Null
+    private BigDecimal price;
 
 
     @Null

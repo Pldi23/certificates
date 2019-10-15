@@ -4,6 +4,7 @@ import com.epam.esm.converter.UserConverter;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.User;
+import com.epam.esm.entity.UserDetails;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.hibernate.EMUserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -103,5 +104,9 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new EntityNotFoundException("user not found");
         }
+    }
+
+    public List<UserDetails> getDetails(Long id) {
+        return userRepository.construct(id);
     }
 }

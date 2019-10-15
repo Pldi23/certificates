@@ -1,8 +1,14 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.OrderDTO;
+import com.epam.esm.dto.OrderSearchCriteriaDTO;
+import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.hateoas.LinkCreator;
+import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.OrderService;
+import com.epam.esm.service.TagService;
+import com.epam.esm.validator.OrderSearchCriteriaValid;
+import com.epam.esm.validator.PageAndSizeValid;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,11 +19,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Map;
 
 /**
  * gift-certificates
@@ -33,10 +41,14 @@ public class OrderController {
 
     private OrderService orderService;
     private LinkCreator linkCreator;
+    private DtoParser dtoParser;
+    private TagService tagService;
 
-    public OrderController(OrderService orderService, LinkCreator linkCreator) {
+    public OrderController(OrderService orderService, LinkCreator linkCreator, DtoParser dtoParser, TagService tagService) {
         this.orderService = orderService;
         this.linkCreator = linkCreator;
+        this.dtoParser = dtoParser;
+        this.tagService = tagService;
     }
 
     @PostMapping
@@ -45,10 +57,12 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity findAll() {
-        List<OrderDTO> dtos = orderService.findAll();
+    public ResponseEntity findAll(@PageAndSizeValid @OrderSearchCriteriaValid @RequestParam Map<String,String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        OrderSearchCriteriaDTO orderSearchCriteriaDTO = dtoParser.parseOrderSearchDTO(params);
+        List<OrderDTO> dtos = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
         return !dtos.isEmpty() ? ResponseEntity.ok(dtos.stream().map(orderDTO ->
-                linkCreator.toResource(orderDTO))) : ResponseEntity.notFound().build();
+                linkCreator.toResource(orderDTO))) : ResponseEntity.status(404).body(dtos);
     }
 
     @GetMapping("/{id}")
@@ -65,5 +79,10 @@ public class OrderController {
     @PutMapping("/{id}")
     public ResponseEntity update(@PathVariable @Min(0) Long id, @Valid @RequestBody OrderDTO orderDTO) {
         return ResponseEntity.ok(linkCreator.toResource(orderService.update(orderDTO, id)));
+    }
+
+    @GetMapping(value = "/{id}/tags")
+    public ResponseEntity getTagsByOrder(@PathVariable @Min(0) Long id) {
+        return ResponseEntity.ok(tagService.findTagsByOrder(id));
     }
 }

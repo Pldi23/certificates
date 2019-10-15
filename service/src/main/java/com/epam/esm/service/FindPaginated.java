@@ -1,5 +1,7 @@
 package com.epam.esm.service;
 
+import com.epam.esm.dto.PageAndSortDTO;
+
 import java.util.List;
 
 /**
@@ -10,5 +12,5 @@ import java.util.List;
  */
 public interface FindPaginated<T> {
 
-    List<T> findPaginated(String sort, int page, int size);
+    List<T> findPaginated(PageAndSortDTO pageAndSortDTO);
 }

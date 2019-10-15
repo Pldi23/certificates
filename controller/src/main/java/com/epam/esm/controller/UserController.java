@@ -1,9 +1,16 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.dto.OrderSearchCriteriaDTO;
+import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.hateoas.LinkCreator;
+import com.epam.esm.parser.DtoParser;
+import com.epam.esm.service.OrderService;
+import com.epam.esm.service.TagService;
 import com.epam.esm.service.UserService;
+import com.epam.esm.validator.OrderSortValid;
+import com.epam.esm.validator.PageAndSizeValid;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,11 +22,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Map;
 
 /**
  * gift-certificates
@@ -35,11 +44,17 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
+    private OrderService orderService;
     private LinkCreator linkCreator;
+    private DtoParser dtoParser;
+    private TagService tagService;
 
-    public UserController(UserService userService, LinkCreator linkCreator) {
+    public UserController(UserService userService, OrderService orderService, LinkCreator linkCreator, DtoParser dtoParser, TagService tagService) {
         this.userService = userService;
+        this.orderService = orderService;
         this.linkCreator = linkCreator;
+        this.dtoParser = dtoParser;
+        this.tagService = tagService;
     }
 
     @PostMapping
@@ -59,6 +74,22 @@ public class UserController {
         return ResponseEntity.ok(linkCreator.toResource(userService.findOne(id)));
     }
 
+    @GetMapping("/{id}/details")
+    public ResponseEntity findUserDetails(@PathVariable @Min(0) Long id) {
+        return ResponseEntity.ok(userService.getDetails(id));
+    }
+
+    @GetMapping("/{id}/orders")
+    public ResponseEntity findUserOrders(
+            @PathVariable("id") @Min(0) Long id,
+            @PageAndSizeValid @OrderSortValid @RequestParam Map<String,String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder()
+                .userId(id)
+                .build();
+        return ResponseEntity.ok(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable @Min(0) Long id) {
         userService.delete(id);
@@ -73,5 +104,13 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity patch(@RequestBody @Valid UserPatchDTO userPatchDTO, @PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(linkCreator.toResource(userService.patch(userPatchDTO, id)));
+    }
+
+    @GetMapping(value = "/{id}/tags")
+    public ResponseEntity getTagsByUser(
+            @PathVariable @Min(0) Long id,
+            @PageAndSizeValid @RequestParam Map<String, String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO));
     }
 }
