@@ -23,4 +23,5 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
     boolean existsByTitle(String title);
     Optional<Tag> findByTitle(String title);
+
 }

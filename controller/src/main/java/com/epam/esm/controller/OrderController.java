@@ -9,6 +9,7 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.validator.OrderSearchCriteriaValid;
 import com.epam.esm.validator.PageAndSizeValid;
+import com.epam.esm.validator.TagSortValid;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -82,7 +83,9 @@ public class OrderController {
     }
 
     @GetMapping(value = "/{id}/tags")
-    public ResponseEntity getTagsByOrder(@PathVariable @Min(0) Long id) {
-        return ResponseEntity.ok(tagService.findTagsByOrder(id));
+    public ResponseEntity getTagsByOrder(@PathVariable @Min(0) Long id,
+                                         @RequestParam @TagSortValid @PageAndSizeValid Map<String, String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        return ResponseEntity.ok(tagService.findTagsByOrder(id, pageAndSortDTO));
     }
 }

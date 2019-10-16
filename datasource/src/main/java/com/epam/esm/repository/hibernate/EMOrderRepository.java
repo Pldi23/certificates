@@ -30,7 +30,7 @@ public class EMOrderRepository implements AbstractOrderRepository {
     }
 
     @Override
-    public List<Order> findAll() {
+    public List<Order> findAll(String sortParam, int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> query = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = query.from(Order.class);

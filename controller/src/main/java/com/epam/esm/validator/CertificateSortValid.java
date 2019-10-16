@@ -10,15 +10,15 @@ import java.lang.annotation.Target;
 /**
  * gift-certificates
  *
- * @author Dzmitry Platonov on 2019-10-14.
+ * @author Dzmitry Platonov on 2019-10-15.
  * @version 0.0.1
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PageAndSizeValidator.class)
-public @interface PageAndSizeValid {
-    String message() default
-            "Please provide a valid request... Ex: ?page=1&size=2 . (If size parameter not set - page parameter must be null or 1)";
+@Constraint(validatedBy = CertificateSortValidator.class)
+public @interface CertificateSortValid {
+
+    String message() default "Please provide a valid sort parameter";
 
     Class<?>[] groups() default {};
 

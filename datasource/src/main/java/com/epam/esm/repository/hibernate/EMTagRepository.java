@@ -3,7 +3,6 @@ package com.epam.esm.repository.hibernate;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.PaginationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +36,7 @@ public class EMTagRepository implements AbstractTagRepository {
     }
 
     @Override
-    public List<Tag> findAll() {
+    public List<Tag> findAll(String sortParam, int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> query = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> root = query.from(Tag.class);
@@ -55,27 +54,35 @@ public class EMTagRepository implements AbstractTagRepository {
     }
 
     @Override
-    public List<Tag> findTagsByCertificate(long certificateId) {
+    public List<Tag> findTagsByCertificate(long certificateId, String sortParam, int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<GiftCertificate> certificateRoot = criteriaQuery.from(GiftCertificate.class);
         criteriaQuery.where(criteriaBuilder.equal(certificateRoot.get("id"), certificateId));
         Join<GiftCertificate, Tag> certificates = certificateRoot.join("tags");
         CriteriaQuery<Tag> cq = criteriaQuery.select(certificates).distinct(true);
-        TypedQuery<Tag> q = entityManager.createQuery(cq);
+        if (sortParam != null) {
+                cq.orderBy(sortParam.startsWith("-") ? criteriaBuilder.desc(certificates.get(sortParam.replaceFirst("-", ""))) :
+                        criteriaBuilder.asc(certificates.get(sortParam)));
+        }
+        TypedQuery<Tag> q = entityManager.createQuery(cq).setMaxResults(size).setFirstResult(page * size - size);
         return q.getResultList();
     }
 
     @Override
-    public List<Tag> findTagsByOrder(long orderId) {
+    public List<Tag> findTagsByOrder(long orderId, String sortParam, int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Order> orderRoot = criteriaQuery.from(Order.class);
         criteriaQuery.where(criteriaBuilder.equal(orderRoot.get("id"), orderId));
         Join<Order, Tag> orders = orderRoot.join("giftCertificates").join("tags");
         CriteriaQuery<Tag> cq = criteriaQuery.select(orders).distinct(true);
+        if (sortParam != null) {
+            cq.orderBy(sortParam.startsWith("-") ? criteriaBuilder.desc(orders.get(sortParam.replaceFirst("-", ""))) :
+                    criteriaBuilder.asc(orders.get(sortParam)));
+        }
         TypedQuery<Tag> q = entityManager.createQuery(cq);
-        return q.getResultList();
+        return q.setMaxResults(size).setFirstResult(page * size - size).getResultList();
     }
 
     @Override
@@ -86,19 +93,22 @@ public class EMTagRepository implements AbstractTagRepository {
         criteriaQuery.where(criteriaBuilder.equal(orderRoot.join("user").get("id"), userId));
         Join<Order, Tag> orders = orderRoot.join("giftCertificates").join("tags");
         CriteriaQuery<Tag> cq = criteriaQuery.select(orders)
-                .groupBy(orders.get("id"))
-                .orderBy(criteriaBuilder.desc(criteriaBuilder.sum(orderRoot.join("giftCertificates").get("price"))));
-        TypedQuery<Tag> q = entityManager.createQuery(cq);
+                .groupBy(orders.get("id"));
+        if (sortParam != null && sortParam.equals("cost")) {
+                cq.orderBy(criteriaBuilder.desc(criteriaBuilder.sum(orderRoot.join("giftCertificates").get("price"))));
+        } else if (sortParam != null && sortParam.equals("-cost")) {
+            cq.orderBy(criteriaBuilder.asc(criteriaBuilder.sum(orderRoot.join("giftCertificates").get("price"))));
+        } else if (sortParam != null) {
+            cq.orderBy(sortParam.startsWith("-") ? criteriaBuilder.desc(orders.get(sortParam.replaceFirst("-", ""))) :
+                    criteriaBuilder.asc(orders.get(sortParam)));
+        }
+        TypedQuery<Tag> q = entityManager.createQuery(cq).setMaxResults(size).setFirstResult(page * size - size);
         return q.getResultList();
     }
 
     @Override
     public List<Tag> findPopulars(int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-
-        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        countQuery.select(criteriaBuilder.count(countQuery.from(Tag.class)));
-        Long count = entityManager.createQuery(countQuery).getSingleResult();
 
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Order> orderRoot = criteriaQuery.from(Order.class);
@@ -108,12 +118,10 @@ public class EMTagRepository implements AbstractTagRepository {
                 .orderBy(criteriaBuilder.desc(criteriaBuilder.sum(orderRoot.join("giftCertificates").get("price"))));
 
         TypedQuery<Tag> typedQuery = entityManager.createQuery(cq);
-        if (page * size - size >= count || page * size - size < 0) {
-            throw new PaginationException("pagination page and size parameters incorrect");
-        }
-        typedQuery.setFirstResult(page * size - size);
-        typedQuery.setMaxResults(size);
-        return typedQuery.getResultList();
+//        if (page * size - size >= count || page * size - size < 0) {
+//            throw new PaginationException("pagination page and size parameters incorrect");
+//        }
+        return typedQuery.setFirstResult(page * size - size).setMaxResults(size).getResultList();
     }
 
     @Override
@@ -136,26 +144,15 @@ public class EMTagRepository implements AbstractTagRepository {
     @Override
     public List<Tag> findPaginated(String sort, int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-
-        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        countQuery.select(criteriaBuilder.count(countQuery.from(Tag.class)));
-        Long count = entityManager.createQuery(countQuery).getSingleResult();
-
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         Root<Tag> from = criteriaQuery.from(Tag.class);
         CriteriaQuery<Tag> select = criteriaQuery.select(from);
-//                .where(criteriaBuilder.like(from.get("title"), "bike"))
         if (sort != null) {
             select.orderBy(sort.startsWith("-") ? criteriaBuilder.desc(from.get(sort.replaceFirst("-", ""))) :
                     criteriaBuilder.asc(from.get(sort)));
         }
 
-        TypedQuery<Tag> typedQuery = entityManager.createQuery(select);
-        if (page * size - size >= count || page * size - size < 0) {
-            throw new PaginationException("pagination page and size parameters incorrect");
-        }
-        typedQuery.setFirstResult(page * size - size);
-        typedQuery.setMaxResults(size);
+        TypedQuery<Tag> typedQuery = entityManager.createQuery(select).setFirstResult(page * size - size).setMaxResults(size);
         return typedQuery.getResultList();
     }
 }

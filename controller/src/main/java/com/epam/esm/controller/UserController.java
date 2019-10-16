@@ -9,8 +9,11 @@ import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.UserService;
+import com.epam.esm.validator.TagCostSortValid;
 import com.epam.esm.validator.OrderSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
+import com.epam.esm.validator.TagSortValid;
+import com.epam.esm.validator.UserSortValid;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -63,8 +66,9 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity getAll() {
-        List<UserDTO> users = userService.findAll();
+    public ResponseEntity getAll(@RequestParam @PageAndSizeValid @UserSortValid Map<String, String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        List<UserDTO> users = userService.findAll(pageAndSortDTO);
         return ResponseEntity.ok(!users.isEmpty() ? users.stream().map(userDTO -> linkCreator.toResource(userDTO)) :
                 ResponseEntity.notFound().build());
     }
@@ -72,11 +76,6 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity findOne(@PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(linkCreator.toResource(userService.findOne(id)));
-    }
-
-    @GetMapping("/{id}/details")
-    public ResponseEntity findUserDetails(@PathVariable @Min(0) Long id) {
-        return ResponseEntity.ok(userService.getDetails(id));
     }
 
     @GetMapping("/{id}/orders")
@@ -109,7 +108,7 @@ public class UserController {
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByUser(
             @PathVariable @Min(0) Long id,
-            @PageAndSizeValid @RequestParam Map<String, String> params) {
+            @PageAndSizeValid @TagCostSortValid @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO));
     }

@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.converter.CertificateConverter;
 import com.epam.esm.converter.OrderConverter;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
@@ -33,13 +34,16 @@ public class OrderServiceImpl implements OrderService {
     private EMCertificateRepository certificateRepository;
     private UserRepository userRepository;
     private OrderConverter orderConverter;
+    private CertificateConverter certificateConverter;
 
     public OrderServiceImpl(EMOrderRepository orderRepository, EMCertificateRepository certificateRepository,
-                            UserRepository userRepository, OrderConverter orderConverter) {
+                            UserRepository userRepository, OrderConverter orderConverter,
+                            CertificateConverter certificateConverter) {
         this.orderRepository = orderRepository;
         this.certificateRepository = certificateRepository;
         this.userRepository = userRepository;
         this.orderConverter = orderConverter;
+        this.certificateConverter = certificateConverter;
     }
 
     @Transactional
@@ -53,8 +57,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDTO> findAll() {
-        return orderRepository.findAll().stream()
+    public List<OrderDTO> findAll(PageAndSortDTO pageAndSortDTO) {
+        return orderRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
                 .map(order -> orderConverter.convert(order))
                 .peek(orderDTO -> orderDTO.setPrice(orderRepository.calculatePrice(orderDTO.getId())))
                 .collect(Collectors.toList());
@@ -72,8 +76,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO save(OrderDTO orderDTO) {
         User user = userRepository.findByEmail(orderDTO.getUserEmail()).orElseThrow(() -> new EntityNotFoundException("user not found"));
-        Set<GiftCertificate> giftCertificates = orderDTO.getGiftCertificatesNames().stream()
-                .map(name -> certificateRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("certificate '" + name + "' not found")))
+//        Set<GiftCertificate> giftCertificates = orderDTO.getGiftCertificatesNames().stream()
+//                .map(name -> certificateRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("certificate '" + name + "' not found")))
+//                .collect(Collectors.toSet());
+        Set<GiftCertificate> giftCertificates = orderDTO.getGiftCertificates().stream()
+                .map(giftCertificateDTO -> giftCertificateDTO.getId() == null ?
+                        certificateRepository.findByName(giftCertificateDTO.getName()).orElseThrow(() ->
+                                new EntityNotFoundException("certificate '" + giftCertificateDTO.getName() + "' not found"))
+                        : certificateRepository.findById(giftCertificateDTO.getId()).orElseThrow(() ->
+                        new EntityNotFoundException("certificate '" + giftCertificateDTO.getName() + "' not found")))
                 .collect(Collectors.toSet());
         Order order = Order.builder()
                 .createdAt(LocalDateTime.now())
@@ -93,10 +104,20 @@ public class OrderServiceImpl implements OrderService {
                     .id(id)
                     .createdAt(LocalDateTime.now())
                     .user(userRepository.findByEmail(orderDTO.getUserEmail()).orElseThrow(() -> new EntityNotFoundException("user not found")))
-                    .giftCertificates(orderDTO.getGiftCertificatesNames().stream()
-                            .map(name -> certificateRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("certificate '" + name + "' not found")))
+                    .giftCertificates(orderDTO.getGiftCertificates().stream()
+                            .map(giftCertificateDTO -> giftCertificateDTO.getId() == null ?
+                                    certificateRepository.findByName(giftCertificateDTO.getName()).orElseThrow(() ->
+                                            new EntityNotFoundException("certificate '" + giftCertificateDTO.getName() + "' not found"))
+                                    : certificateRepository.findById(giftCertificateDTO.getId()).orElseThrow(() ->
+                                    new EntityNotFoundException("certificate '" + giftCertificateDTO.getName() + "' not found")))
                             .collect(Collectors.toSet()))
+//                    .giftCertificates(orderDTO.getGiftCertificates().stream()
+//                            .map(giftCertificateDTO -> certificateConverter.convert(giftCertificateDTO))
+//                            .peek(giftCertificate -> certificateRepository.findById(giftCertificate.getId())
+//                                    .orElseThrow(() -> new EntityNotFoundException("certificate '" + giftCertificate.getId() + "' not found")))
+//                            .collect(Collectors.toSet()))
                     .build();
+
             OrderDTO dto = orderConverter.convert(orderRepository.save(order));
             dto.setPrice(orderRepository.calculatePrice(id));
             return dto;

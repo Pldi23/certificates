@@ -43,8 +43,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> findAll() {
-        return tagRepository.findAll().stream()
+    public List<TagDTO> findAll(PageAndSortDTO pageAndSortDTO) {
+        return tagRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
     }
@@ -71,9 +71,10 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> getTagsByCertificate(long id) {
+    public List<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO) {
         if (certificateRepository.findById(id).isPresent()) {
-            return tagRepository.findTagsByCertificate(id).stream()
+            return tagRepository.findTagsByCertificate(id, pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
+                    pageAndSortDTO.getSize()).stream()
                     .map(tag -> tagConverter.convert(tag))
                     .collect(Collectors.toList());
         } else {
@@ -89,8 +90,9 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> findTagsByOrder(long orderId) {
-        return tagRepository.findTagsByOrder(orderId).stream()
+    public List<TagDTO> findTagsByOrder(long orderId, PageAndSortDTO pageAndSortDTO) {
+        return tagRepository.findTagsByOrder(orderId, pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
+                pageAndSortDTO.getSize()).stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
     }

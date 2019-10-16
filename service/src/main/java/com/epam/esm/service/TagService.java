@@ -12,10 +12,15 @@ import java.util.List;
  * @author Dzmitry Platonov on 2019-10-01.
  * @version 0.0.1
  */
-public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDTO>, SaveService<TagDTO>, DeleteService,
-        FindTagsByCertificateService, FindPaginated<TagDTO> {
+public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDTO>, SaveService<TagDTO>, DeleteService{
 
-    List<TagDTO> findTagsByOrder(long orderId);
+    List<TagDTO> findTagsByOrder(long orderId, PageAndSortDTO pageAndSortDTO);
+
     List<TagDTO> findTagsByUser(long userId, PageAndSortDTO pageAndSortDTO);
+
     List<TagDTO> findPopular(PageAndSortDTO pageAndSortDTO);
+
+    List<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO);
+
+    List<TagDTO> findPaginated(PageAndSortDTO pageAndSortDTO);
 }

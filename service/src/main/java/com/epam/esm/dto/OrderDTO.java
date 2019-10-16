@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -25,13 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-12.
- * @version 0.0.1
- */
-//@Data
 @Builder
 @Getter
 @Setter
@@ -43,6 +35,11 @@ public class OrderDTO {
     @Null(message = "{violation.input.id.should.be.null}")
     private Long id;
 
+    @Email
+    @NotNull
+    @NotBlank
+    private String userEmail;
+
     @Null(message = "{violation.creation.at.should.be.null}")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -50,13 +47,8 @@ public class OrderDTO {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime createdAt;
 
-    @Email
-    @NotNull
-    @NotBlank
-    private String userEmail;
-
     @ValidCertificatesSet
-    private Set<String> giftCertificatesNames;
+    private Set<GiftCertificateDTO> giftCertificates;
 
     @Null
     private BigDecimal price;

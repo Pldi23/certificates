@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.converter.UserConverter;
+import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.User;
@@ -44,8 +45,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> findAll() {
-        return userRepository.findAll().stream()
+    public List<UserDTO> findAll(PageAndSortDTO pageAndSortDTO) {
+        return userRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
                 .map(user -> userConverter.convert(user))
                 .collect(Collectors.toList());
     }
@@ -106,7 +107,4 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public List<UserDetails> getDetails(Long id) {
-        return userRepository.construct(id);
-    }
 }

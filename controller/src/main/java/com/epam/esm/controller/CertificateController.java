@@ -4,9 +4,11 @@ import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
+import com.epam.esm.validator.CertificateSortValid;
+import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.dto.*;
-import org.springframework.context.MessageSource;
+import com.epam.esm.validator.TagSortValid;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -45,14 +47,13 @@ public class CertificateController {
     private DtoParser dtoParser;
     private Validator validator;
     private EntityLinks entityLinks;
-    private MessageSource messageSource;
     private SpringValidatorAdapter localValidatorFactoryBean;
     private LinkCreator linkCreator;
 
 
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagService tagServiceImpl,
-                                 EntityLinks entityLinks, MessageSource messageSource,
+                                 EntityLinks entityLinks,
                                  SpringValidatorAdapter localValidatorFactoryBean,
                                  LinkCreator linkCreator) {
         this.certificateServiceImpl = certificateServiceImpl;
@@ -60,7 +61,6 @@ public class CertificateController {
         this.validator = validator;
         this.tagService = tagServiceImpl;
         this.entityLinks = entityLinks;
-        this.messageSource = messageSource;
         this.localValidatorFactoryBean = localValidatorFactoryBean;
         this.linkCreator = linkCreator;
     }
@@ -71,8 +71,9 @@ public class CertificateController {
     }
 
     @GetMapping(value = "/")
-    public ResponseEntity findAll() {
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findAll();
+    public ResponseEntity findAll(@PageAndSizeValid @RequestParam @CertificateSortValid Map<String, String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findAll(pageAndSortDTO);
         return !giftCertificateDTOS.isEmpty() ?
                 ResponseEntity.ok().body(giftCertificateDTOS.stream()
                 .map(giftCertificateDTO -> linkCreator.toResource(giftCertificateDTO))) :
@@ -85,9 +86,6 @@ public class CertificateController {
                                       @Max(value = Long.MAX_VALUE, message = "{violation.long.range}")
                                               long id) {
         return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.findOne(id)));
-//        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.findById(id);
-//        return optionalGiftCertificateDTO.isPresent() ? ResponseEntity.ok().body(optionalGiftCertificateDTO.get())
-//                : ResponseEntity.notFound().build();
     }
 
     @PostMapping
@@ -106,26 +104,16 @@ public class CertificateController {
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         return ResponseEntity.ok(certificateServiceImpl.update(giftCertificateDTO, id));
-//        Optional<GiftCertificateDTO> optionalGiftCertificateDTO = certificateServiceImpl.update(giftCertificateDTO, id);
-//        if (optionalGiftCertificateDTO.isPresent()) {
-//            return ResponseEntity.ok(optionalGiftCertificateDTO.get());
-//        } else {
-//            return ResponseEntity.status(404).body(new ViolationDTO(
-//                    List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
-//        }
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         certificateServiceImpl.delete(id);
         return ResponseEntity.status(204).build();
-//        return certificateServiceImpl.delete(id) ? ResponseEntity.status(204).build() :
-//                ResponseEntity.status(404).body(new ViolationDTO(
-//                        List.of(messageSource.getMessage("entity.no", null, null)), 404, LocalDateTime.now()));
     }
 
     @GetMapping
-    public ResponseEntity findByCriteria(@RequestParam Map<String, String> criteriaMap) {
+    public ResponseEntity findByCriteria(@RequestParam @PageAndSizeValid @CertificateSortValid Map<String, String> criteriaMap) {
         DataBinder dataBinder = new DataBinder(criteriaMap);
         dataBinder.addValidators(validator);
         dataBinder.validate();
@@ -139,18 +127,20 @@ public class CertificateController {
             violationDTO.setLocalDate(LocalDateTime.now());
             return ResponseEntity.badRequest().body(violationDTO);
         }
-        SortCriteriaRequestDTO sortCriteriaRequestDTO = dtoParser.parseSortCriteria(criteriaMap);
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(criteriaMap);
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
-        LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO = dtoParser.parseLimitOffsetCriteria(criteriaMap);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl
-                .findByCriteria(searchCriteriaRequestDTO, sortCriteriaRequestDTO, limitOffsetCriteriaRequestDTO);
+                .findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
         return ResponseEntity.ok(giftCertificateDTOS);
 
     }
 
     @GetMapping(value = "/{id}/tags")
-    public ResponseEntity getTagsByCertificate(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
-        return ResponseEntity.ok(tagService.getTagsByCertificate(id));
+    public ResponseEntity getTagsByCertificate(
+            @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
+            @PageAndSizeValid @TagSortValid @RequestParam Map<String, String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO));
     }
 
     @PatchMapping(value = "/{id}")

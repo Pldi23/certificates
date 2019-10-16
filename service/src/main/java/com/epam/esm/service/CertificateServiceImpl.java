@@ -5,16 +5,13 @@ import com.epam.esm.converter.CriteriaConverter;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.dto.LimitOffsetCriteriaRequestDTO;
+import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
-import com.epam.esm.dto.SortCriteriaRequestDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.hibernate.EMCertificateRepository;
 import com.epam.esm.repository.hibernate.EMTagRepository;
-import com.epam.esm.repository.jpa.CertificateRepository;
-import com.epam.esm.repository.jpa.TagRepository;
 import com.epam.esm.validator.ExpirationDateValidator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -59,8 +56,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public List<GiftCertificateDTO> findAll() {
-        return certificateRepository.findAll().stream()
+    public List<GiftCertificateDTO> findAll(PageAndSortDTO pageAndSortDTO) {
+        return certificateRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
@@ -120,31 +117,22 @@ public class CertificateServiceImpl implements CertificateService {
 
 
     @Override
-    public List<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO,
-                                                   SortCriteriaRequestDTO sortCriteriaDTO,
-                                                   LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO) {
-//        int size = criteriaConverter.convertLimitOffsetCriteria(limitOffsetCriteriaRequestDTO).getLimit();
-//        long offset = criteriaConverter.convertLimitOffsetCriteria(limitOffsetCriteriaRequestDTO).getOffset();
-//        int page = (int) (offset / size);
-//        SortCriteria sortCriteria = criteriaConverter.convertSortCriteria(sortCriteriaDTO);
-//        Sort.Direction direction = sortCriteria.isPrimaryAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
-//
-//        return certificateRepository.findAll(PageRequest.of(page, size,
-//                Sort.by(direction, String.valueOf(sortCriteria.getCriteriaList())))).map();
-        return List.of();
-//        return certificateRepository.query(
-//                new FindCertificatesByCriteriaSpecification(
-//                        criteriaConverter.convertSearchCriteria(searchCriteriaDTO),
-//                        criteriaConverter.convertSortCriteria(sortCriteriaDTO),
-//                        criteriaConverter.convertLimitOffsetCriteria(limitOffsetCriteriaRequestDTO))).stream()
-//                .map(giftCertificate -> certificateConverter.convert(giftCertificate))
-//                .collect(Collectors.toList());
+    public List<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO, PageAndSortDTO pageAndSortDTO) {
+
+
+//        return List.of();
+        return certificateRepository.findByCriteria(
+                        criteriaConverter.convertSearchCriteria(searchCriteriaDTO), pageAndSortDTO.getSortParameter(),
+                pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
+                .map(giftCertificate -> certificateConverter.convert(giftCertificate))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<GiftCertificateDTO> getByTag(long id) {
+    public List<GiftCertificateDTO> getByTag(long id, PageAndSortDTO pageAndSortDTO) {
         if (tagRepository.findById(id).isPresent()) {
-            return certificateRepository.findByTagsId(id).stream()
+            return certificateRepository.findByTagsId(id, pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
+                    pageAndSortDTO.getSize()).stream()
                     .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                     .collect(Collectors.toList());
         } else {

@@ -58,14 +58,4 @@ public class GiftCertificate {
             inverseJoinColumns=@JoinColumn(name="tag_id"))
     private Set<Tag> tags;
 
-//    public void addTag(Tag tag) {
-//        tags.add(tag);
-//        tag.getGiftCertificates().add(this);
-//    }
-//
-//    public void removeTag(Tag tag) {
-//        tags.deleteById(tag);
-//        tag.getGiftCertificates().deleteById(this);
-//    }
-
 }

@@ -1,6 +1,8 @@
 package com.epam.esm.repository.hibernate;
 
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.criteria.SearchCriteria;
+import com.epam.esm.entity.criteria.SortCriteria;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +18,6 @@ public interface AbstractCertificateRepository extends FindAllRepository<GiftCer
         RemoveRepository {
 
     Optional<GiftCertificate> findByName(String name);
-    List<GiftCertificate> findByTagsId(long tagId);
+    List<GiftCertificate> findByTagsId(long tagId, String sortParam, int page, int size);
+    List<GiftCertificate> findByCriteria(SearchCriteria searchCriteria, String sortParameter, int page, int size);
 }

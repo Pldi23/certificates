@@ -15,11 +15,10 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = NotEmptySetValidator.class)
+@Constraint(validatedBy = GiftCertificateSetValidator.class)
 public @interface ValidCertificatesSet {
 
-    String message() default "certificate names should not be null or empty and should contain letters, spaces or -," +
-            " size should be up to 30 symbols";
+    String message() default "certificates input parameters should contain either id or name";
 
     Class<?>[] groups() default {};
 

@@ -7,9 +7,9 @@ import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
+import com.epam.esm.validator.CertificateSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.TagSortValid;
-import org.springframework.context.MessageSource;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -43,19 +43,17 @@ public class TagController {
     private CertificateService certificateService;
     private EntityLinks entityLinks;
     private SpringValidatorAdapter localValidatorFactoryBean;
-    private MessageSource messageSource;
     private LinkCreator linkCreator;
     private DtoParser dtoParser;
 
 
     public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks,
-                         SpringValidatorAdapter localValidatorFactoryBean, MessageSource messageSource,
+                         SpringValidatorAdapter localValidatorFactoryBean,
                          LinkCreator linkCreator, DtoParser dtoParser) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateService = certificateServiceImpl;
         this.entityLinks = entityLinks;
         this.localValidatorFactoryBean = localValidatorFactoryBean;
-        this.messageSource = messageSource;
         this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
     }
@@ -101,8 +99,10 @@ public class TagController {
     }
 
     @GetMapping(value = "/{id}/certificates")
-    public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.getByTag(id);
+    public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
+                                               @RequestParam @PageAndSizeValid @CertificateSortValid Map<String, String> params) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.getByTag(id, pageAndSortDTO);
         if (!giftCertificateDTOS.isEmpty()) {
             List<Resource> resources = new ArrayList<>(giftCertificateDTOS.size());
             giftCertificateDTOS.forEach(giftCertificateDTO ->
@@ -110,7 +110,7 @@ public class TagController {
 
             return ResponseEntity.ok(resources);
         }
-        return ResponseEntity.ok(certificateService.getByTag(id));
+        return ResponseEntity.ok(giftCertificateDTOS);
     }
 
     @GetMapping("/populars")
