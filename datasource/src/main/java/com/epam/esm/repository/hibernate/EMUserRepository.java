@@ -69,4 +69,38 @@ public class EMUserRepository implements AbstractUserRepository {
             return entityManager.merge(user);
         }
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+        query.select(root);
+        query.where(
+                criteriaBuilder.equal(
+                        root.get("email"), email
+                )
+        );
+
+        return !entityManager.createQuery(query).getResultList().isEmpty() ?
+                Optional.of(entityManager.createQuery(query).getSingleResult()) :
+                Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByEmailPassword(String email, String password) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+        query.select(root);
+        query.where(criteriaBuilder.and(criteriaBuilder.equal(
+                root.get("email"), email
+                ), criteriaBuilder.equal(root.get("password"), password))
+
+        );
+
+        return !entityManager.createQuery(query).getResultList().isEmpty() ?
+                Optional.of(entityManager.createQuery(query).getSingleResult()) :
+                Optional.empty();
+    }
 }

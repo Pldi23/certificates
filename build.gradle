@@ -48,6 +48,21 @@ subprojects {
         compile 'org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE'
         compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.1.9.RELEASE'
         compile 'org.springframework.boot:spring-boot-starter-web:2.1.9.RELEASE'
+        compile 'org.springframework.boot:spring-boot-starter-security:2.1.9.RELEASE'
+        compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.9.RELEASE'
+        // https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-client
+        compile group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: '5.1.6.RELEASE'
+        // https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-jose
+        compile group: 'org.springframework.security', name: 'spring-security-oauth2-jose', version: '5.1.6.RELEASE'
+        compile group: 'org.springframework.security', name: 'spring-security-openid', version: '5.2.0.RELEASE'
+        // https://mvnrepository.com/artifact/com.auth0/jwks-rsa
+        compile group: 'com.auth0', name: 'jwks-rsa', version: '0.9.0'
+
+        compile 'io.jsonwebtoken:jjwt:0.9.1'
+        runtime 'io.jsonwebtoken:jjwt-impl:0.10.7'
+        runtime 'io.jsonwebtoken:jjwt-jackson:0.10.7'
+
+
 
         testCompile 'org.springframework:spring-test:4.3.8.RELEASE'
         testCompile 'junit:junit:4.12'

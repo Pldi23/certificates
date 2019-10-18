@@ -6,16 +6,19 @@ import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
+import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.validator.TagCostSortValid;
 import com.epam.esm.validator.OrderSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
-import com.epam.esm.validator.TagSortValid;
 import com.epam.esm.validator.UserSortValid;
 import org.springframework.hateoas.ExposesResourceFor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,18 +54,24 @@ public class UserController {
     private LinkCreator linkCreator;
     private DtoParser dtoParser;
     private TagService tagService;
+    private TokenCreator tokenCreator;
 
-    public UserController(UserService userService, OrderService orderService, LinkCreator linkCreator, DtoParser dtoParser, TagService tagService) {
+    public UserController(UserService userService, OrderService orderService, LinkCreator linkCreator,
+                          DtoParser dtoParser, TagService tagService, TokenCreator tokenCreator) {
         this.userService = userService;
         this.orderService = orderService;
         this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
         this.tagService = tagService;
+        this.tokenCreator = tokenCreator;
     }
 
     @PostMapping
     public ResponseEntity save(@RequestBody @Valid UserDTO userDTO) {
-        return ResponseEntity.ok(linkCreator.toResource(userService.save(userDTO)));
+        UserDTO saved = userService.save(userDTO);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("AUTHORIZATION", tokenCreator.create(saved.getEmail(), List.of(saved.getRole())));
+        return new ResponseEntity<>(linkCreator.toResource(saved), httpHeaders, HttpStatus.OK);
     }
 
     @GetMapping
@@ -73,6 +82,7 @@ public class UserController {
                 ResponseEntity.notFound().build());
     }
 
+    @Secured({"ADMIN", "USER"})
     @GetMapping("/{id}")
     public ResponseEntity findOne(@PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(linkCreator.toResource(userService.findOne(id)));
@@ -112,4 +122,14 @@ public class UserController {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO));
     }
+
+    @GetMapping(value = "/{id}/tags/popular")
+    public ResponseEntity getTagsByUser(
+            @PathVariable @Min(0) Long id) {
+        return ResponseEntity.ok(tagService.findMostCostEffectiveTag(id));
+    }
+
+
+
+
 }

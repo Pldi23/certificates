@@ -3,10 +3,12 @@ package com.epam.esm.repository.hibernate;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
+import org.hibernate.transform.Transformers;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -107,6 +109,23 @@ public class EMTagRepository implements AbstractTagRepository {
     }
 
     @Override
+    public List<Tag> findMostCostEffectiveTagByUser(long userId) {
+
+        Query q = entityManager.createNativeQuery("select tag.id, tag.title from tag " +
+                "join certificate_tag on tag.id = tag_id "  +
+                "join certificate c on certificate_tag.certificate_id = c.id " +
+                "join order_certificate oc on c.id = oc.certificate_id " +
+                "join application_order ao on oc.order_id = ao.id " +
+                "where ao.user_id = ? " +
+                "group by tag.id, tag.title " +
+                "order by sum(c.price) desc limit 1", Tag.class);
+
+        q.setParameter(1, userId);
+
+        return (List<Tag>) q.getResultList();
+    }
+
+    @Override
     public List<Tag> findPopulars(int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 
@@ -118,9 +137,6 @@ public class EMTagRepository implements AbstractTagRepository {
                 .orderBy(criteriaBuilder.desc(criteriaBuilder.sum(orderRoot.join("giftCertificates").get("price"))));
 
         TypedQuery<Tag> typedQuery = entityManager.createQuery(cq);
-//        if (page * size - size >= count || page * size - size < 0) {
-//            throw new PaginationException("pagination page and size parameters incorrect");
-//        }
         return typedQuery.setFirstResult(page * size - size).setMaxResults(size).getResultList();
     }
 

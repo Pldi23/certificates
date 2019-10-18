@@ -53,14 +53,14 @@ public class UserConverter {
     public Role convertRole(String role) {
         Role convertedRole;
         switch (role) {
-            case "admin":
-                convertedRole = Role.builder().id(1L).value("admin").build();
+            case "ROLE_ADMIN":
+                convertedRole = Role.builder().id(1L).value("ROLE_ADMIN").build();
                 break;
-            case "user":
-                convertedRole = Role.builder().id(2L).value("user").build();
+            case "ROLE_USER":
+                convertedRole = Role.builder().id(2L).value("ROLE_USER").build();
                 break;
-            case "guest":
-                convertedRole = Role.builder().id(3L).value("guest").build();
+            case "ROLE_GUEST":
+                convertedRole = Role.builder().id(3L).value("ROLE_GUEST").build();
                 break;
             default:
                 throw new UserRoleException("unexpected role");

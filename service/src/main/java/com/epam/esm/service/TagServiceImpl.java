@@ -90,6 +90,14 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public List<TagDTO> findMostCostEffectiveTag(Long userId) {
+        List<Tag> tags = tagRepository.findMostCostEffectiveTagByUser(userId);
+        return tags.stream()
+                .map(tag -> tagConverter.convert(tag))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<TagDTO> findTagsByOrder(long orderId, PageAndSortDTO pageAndSortDTO) {
         return tagRepository.findTagsByOrder(orderId, pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
                 pageAndSortDTO.getSize()).stream()

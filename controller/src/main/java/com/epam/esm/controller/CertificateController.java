@@ -14,6 +14,7 @@ import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
@@ -88,6 +89,7 @@ public class CertificateController {
         return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.findOne(id)));
     }
 
+    @Secured("ADMIN")
     @PostMapping
     public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
         GiftCertificateDTO dto = certificateServiceImpl.save(giftCertificateDTO);
@@ -99,6 +101,7 @@ public class CertificateController {
         return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(dto));
     }
 
+    @Secured("ADMIN")
     @PutMapping(value = "/{id}")
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
@@ -106,6 +109,7 @@ public class CertificateController {
         return ResponseEntity.ok(certificateServiceImpl.update(giftCertificateDTO, id));
     }
 
+    @Secured("ADMIN")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         certificateServiceImpl.delete(id);
@@ -135,6 +139,7 @@ public class CertificateController {
 
     }
 
+    @Secured({"USER", "ADMIN"})
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByCertificate(
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
@@ -143,6 +148,7 @@ public class CertificateController {
         return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO));
     }
 
+    @Secured("ADMIN")
     @PatchMapping(value = "/{id}")
     public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
                                         @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {

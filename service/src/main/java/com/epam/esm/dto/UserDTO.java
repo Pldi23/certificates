@@ -46,7 +46,7 @@ public class UserDTO {
     private String password;
 
     @NotNull
-    @Pattern(regexp = "admin|user|guest")
+    @Pattern(regexp = "ROLE_ADMIN|ROLE_USER|ROLE_GUEST")
     private String role;
 
     @Null

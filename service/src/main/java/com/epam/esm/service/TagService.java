@@ -23,4 +23,6 @@ public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDT
     List<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO);
 
     List<TagDTO> findPaginated(PageAndSortDTO pageAndSortDTO);
+
+    List<TagDTO> findMostCostEffectiveTag(Long userId);
 }

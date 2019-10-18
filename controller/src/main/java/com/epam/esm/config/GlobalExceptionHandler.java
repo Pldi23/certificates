@@ -5,6 +5,7 @@ import com.epam.esm.exception.ApplicationDataSourceException;
 import com.epam.esm.exception.CriteriaSearchTypeException;
 import com.epam.esm.exception.DateNotValidException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.exception.InvalidUserException;
 import com.epam.esm.exception.PaginationException;
 import com.epam.esm.exception.UserRoleException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -118,8 +121,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(PaginationException.class)
-    protected ResponseEntity<Object> handleRoleException(PaginationException ex, WebRequest request) {
+    protected ResponseEntity<Object> handlePaginationException(PaginationException ex, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    protected ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
+        return ResponseEntity.badRequest()
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
     }
 }

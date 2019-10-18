@@ -15,4 +15,5 @@ public interface AbstractTagRepository extends FindAllRepository<Tag>, FindOneRe
     List<Tag> findTagsByOrder(long orderId, String sortParam, int page, int size);
     List<Tag> findTagsByUserWithCriteria(long userId, String sortParam, int page, int size);
     List<Tag> findPopulars(int page, int size);
+    List<Tag> findMostCostEffectiveTagByUser(long userId);
 }

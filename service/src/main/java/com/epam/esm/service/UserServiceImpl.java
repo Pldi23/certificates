@@ -10,11 +10,13 @@ import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.hibernate.EMUserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,10 +30,12 @@ public class UserServiceImpl implements UserService {
 
     private EMUserRepository userRepository;
     private UserConverter userConverter;
+    private PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(EMUserRepository userRepository, UserConverter userConverter) {
+    public UserServiceImpl(EMUserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userConverter = userConverter;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -82,6 +86,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO save(UserDTO userDTO) {
         User user = userConverter.convert(userDTO);
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         User saved;
         try {
             saved = userRepository.save(user);
@@ -107,4 +114,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }
