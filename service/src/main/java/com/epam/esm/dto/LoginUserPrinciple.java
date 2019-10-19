@@ -24,6 +24,10 @@ public class LoginUserPrinciple implements UserDetails  {
 
     }
 
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(user.getRole().getValue()));

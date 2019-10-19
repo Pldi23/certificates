@@ -3,7 +3,6 @@ package com.epam.esm.repository.hibernate;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
-import org.hibernate.transform.Transformers;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 

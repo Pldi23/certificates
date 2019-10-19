@@ -35,6 +35,7 @@ public class User {
     private Long id;
     private String email;
     private String password;
+    private String refreshToken;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "role_id")

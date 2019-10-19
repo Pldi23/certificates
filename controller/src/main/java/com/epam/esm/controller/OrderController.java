@@ -12,6 +12,7 @@ import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.TagSortValid;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,11 +53,13 @@ public class OrderController {
         this.tagService = tagService;
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @PostMapping
     public ResponseEntity save(@Valid @RequestBody OrderDTO orderDTO) {
         return ResponseEntity.ok(linkCreator.toResource(orderService.save(orderDTO)));
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping
     public ResponseEntity findAll(@PageAndSizeValid @OrderSearchCriteriaValid @RequestParam Map<String,String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
@@ -66,22 +69,26 @@ public class OrderController {
                 linkCreator.toResource(orderDTO))) : ResponseEntity.status(404).body(dtos);
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping("/{id}")
     public ResponseEntity findOne(@PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(linkCreator.toResource(orderService.findOne(id)));
     }
 
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable @Min(0) Long id) {
         orderService.delete(id);
         return ResponseEntity.status(204).build();
     }
 
+    @Secured("ROLE_ADMIN")
     @PutMapping("/{id}")
     public ResponseEntity update(@PathVariable @Min(0) Long id, @Valid @RequestBody OrderDTO orderDTO) {
         return ResponseEntity.ok(linkCreator.toResource(orderService.update(orderDTO, id)));
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByOrder(@PathVariable @Min(0) Long id,
                                          @RequestParam @TagSortValid @PageAndSizeValid Map<String, String> params) {

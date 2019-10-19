@@ -1,6 +1,5 @@
 package com.epam.esm.security;
 
-import com.epam.esm.exception.InvalidUserException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -9,24 +8,20 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.util.WebUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,17 +42,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter  {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
 
-//        CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-//        System.out.println("csrf :: " + csrf);
-//        if (csrf != null) {
-//            Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
-//            String token = csrf.getToken();
-//            if (cookie == null || token != null && !token.equals(cookie.getValue())) {
-//                cookie = new Cookie("XSRF-TOKEN", token);
-//                cookie.setPath("/");
-//                response.addCookie(cookie);
-//            }
-//        }
+        request.getParameterMap().forEach((k,v) -> log.info("key :: " + k + " value :: " + Arrays.toString(v)));
 
         UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
         if (authentication == null) {
@@ -65,7 +50,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter  {
             filterChain.doFilter(request, response);
             return;
         }
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }

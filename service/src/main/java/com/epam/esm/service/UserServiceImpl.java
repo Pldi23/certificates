@@ -5,7 +5,6 @@ import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.User;
-import com.epam.esm.entity.UserDetails;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.hibernate.EMUserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -70,7 +69,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userPatchDTO.getEmail());
         }
         if (userPatchDTO.getPassword() != null) {
-            user.setPassword(userPatchDTO.getPassword());
+            user.setPassword(passwordEncoder.encode(userPatchDTO.getPassword()));
         }
         if (userPatchDTO.getRole() != null) {
             user.setRole(userConverter.convertRole(userPatchDTO.getRole()));
@@ -104,6 +103,9 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findById(id).isPresent()) {
             User user = userConverter.convert(userDTO);
             user.setId(id);
+            if (userDTO.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            }
             try {
                 return userConverter.convert(userRepository.save(user));
             } catch (DataIntegrityViolationException ex) {

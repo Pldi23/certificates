@@ -16,6 +16,7 @@ import org.springframework.hateoas.LinkBuilder;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.WebDataBinder;
@@ -64,6 +65,7 @@ public class TagController {
     }
 
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping
     public ResponseEntity getAllTags(@PageAndSizeValid @TagSortValid @RequestParam Map<String, String> pageAndSortParameters) {
 
@@ -82,6 +84,7 @@ public class TagController {
         return ResponseEntity.ok(linkCreator.toResource(tagServiceImpl.findOne(id)));
     }
 
+    @Secured("ROLE_ADMIN")
     @PostMapping
     public ResponseEntity add(@Valid @RequestBody TagDTO tagDTO) {
         TagDTO saved = tagServiceImpl.save(tagDTO);
@@ -92,12 +95,14 @@ public class TagController {
         return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(saved));
     }
 
+    @Secured("ROLE_ADMIN")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         tagServiceImpl.delete(id);
         return ResponseEntity.status(204).build();
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping(value = "/{id}/certificates")
     public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
                                                @RequestParam @PageAndSizeValid @CertificateSortValid Map<String, String> params) {
@@ -113,6 +118,7 @@ public class TagController {
         return ResponseEntity.ok(giftCertificateDTOS);
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping("/populars")
     public ResponseEntity getMostPopulars(@PageAndSizeValid @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);

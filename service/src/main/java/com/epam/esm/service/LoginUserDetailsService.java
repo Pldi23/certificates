@@ -2,14 +2,13 @@ package com.epam.esm.service;
 
 import com.epam.esm.dto.LoginUserPrinciple;
 import com.epam.esm.entity.User;
-import com.epam.esm.exception.InvalidUserException;
 import com.epam.esm.repository.hibernate.EMUserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -20,6 +19,7 @@ import java.util.Optional;
  * @version 0.0.1
  */
 @Service
+@Log4j2
 public class LoginUserDetailsService implements UserDetailsService {
 
     private EMUserRepository userRepository;
@@ -37,4 +37,26 @@ public class LoginUserDetailsService implements UserDetailsService {
 
     }
 
+    @Transactional
+    public UserDetails update(LoginUserPrinciple principle, String refreshToken) {
+        if (principle != null) {
+            User user = principle.getUser();
+            user.setRefreshToken(refreshToken);
+            return new LoginUserPrinciple(userRepository.save(user));
+        } else {
+            throw new UsernameNotFoundException("invalid principle provided");
+        }
+    }
+
+    @Transactional
+    public UserDetails update(String email, String refreshToken) {
+        LoginUserPrinciple principle = (LoginUserPrinciple) loadUserByUsername(email);
+        if (principle != null) {
+            User user = principle.getUser();
+            user.setRefreshToken(refreshToken);
+            return new LoginUserPrinciple(userRepository.save(user));
+        } else {
+            throw new UsernameNotFoundException("invalid principle provided");
+        }
+    }
 }

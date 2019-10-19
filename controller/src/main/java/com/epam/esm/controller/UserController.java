@@ -6,6 +6,7 @@ import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
+import com.epam.esm.security.SecurityChecker;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,14 +68,16 @@ public class UserController {
         this.tokenCreator = tokenCreator;
     }
 
+
     @PostMapping
     public ResponseEntity save(@RequestBody @Valid UserDTO userDTO) {
         UserDTO saved = userService.save(userDTO);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("AUTHORIZATION", tokenCreator.create(saved.getEmail(), List.of(saved.getRole())));
+        httpHeaders.add("AUTHORIZATION", tokenCreator.createJwt(saved.getEmail(), List.of(saved.getRole())));
         return new ResponseEntity<>(linkCreator.toResource(saved), httpHeaders, HttpStatus.OK);
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping
     public ResponseEntity getAll(@RequestParam @PageAndSizeValid @UserSortValid Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
@@ -82,12 +86,13 @@ public class UserController {
                 ResponseEntity.notFound().build());
     }
 
-    @Secured({"ADMIN", "USER"})
+    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity findOne(@PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(linkCreator.toResource(userService.findOne(id)));
     }
 
+    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}/orders")
     public ResponseEntity findUserOrders(
             @PathVariable("id") @Min(0) Long id,
@@ -99,22 +104,26 @@ public class UserController {
         return ResponseEntity.ok(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO));
     }
 
+    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable @Min(0) Long id) {
         userService.delete(id);
         return ResponseEntity.status(204).build();
     }
 
+    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity update(@RequestBody @Valid UserDTO userDTO, @PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(linkCreator.toResource(userService.update(userDTO, id)));
     }
 
+    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity patch(@RequestBody @Valid UserPatchDTO userPatchDTO, @PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(linkCreator.toResource(userService.patch(userPatchDTO, id)));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByUser(
             @PathVariable @Min(0) Long id,
@@ -123,8 +132,9 @@ public class UserController {
         return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/tags/popular")
-    public ResponseEntity getTagsByUser(
+    public ResponseEntity getMostPopularTagsByUser(
             @PathVariable @Min(0) Long id) {
         return ResponseEntity.ok(tagService.findMostCostEffectiveTag(id));
     }

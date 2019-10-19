@@ -89,7 +89,7 @@ public class CertificateController {
         return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.findOne(id)));
     }
 
-    @Secured("ADMIN")
+    @Secured("ROLE_ADMIN")
     @PostMapping
     public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
         GiftCertificateDTO dto = certificateServiceImpl.save(giftCertificateDTO);
@@ -101,7 +101,7 @@ public class CertificateController {
         return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(dto));
     }
 
-    @Secured("ADMIN")
+    @Secured("ROLE_ADMIN")
     @PutMapping(value = "/{id}")
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
@@ -109,7 +109,7 @@ public class CertificateController {
         return ResponseEntity.ok(certificateServiceImpl.update(giftCertificateDTO, id));
     }
 
-    @Secured("ADMIN")
+    @Secured("ROLE_ADMIN")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         certificateServiceImpl.delete(id);
@@ -139,7 +139,7 @@ public class CertificateController {
 
     }
 
-    @Secured({"USER", "ADMIN"})
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByCertificate(
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
@@ -148,7 +148,7 @@ public class CertificateController {
         return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO));
     }
 
-    @Secured("ADMIN")
+    @Secured("ROLE_ADMIN")
     @PatchMapping(value = "/{id}")
     public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
                                         @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {
