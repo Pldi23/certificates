@@ -1,13 +1,12 @@
 package com.epam.esm.security;
 
-import com.epam.esm.dto.LoginUserPrinciple;
+import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.UserDTO;
-import com.epam.esm.service.LoginUserDetailsService;
+import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -30,11 +29,11 @@ import java.util.stream.Collectors;
 @Component
 public class OpenIdSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private LoginUserDetailsService detailsService;
+    private AppUserDetailsService detailsService;
     private UserService userService;
     private TokenCreator tokenCreator;
 
-    public OpenIdSuccessHandler(LoginUserDetailsService detailsService, UserService userService, TokenCreator tokenCreator) {
+    public OpenIdSuccessHandler(AppUserDetailsService detailsService, UserService userService, TokenCreator tokenCreator) {
         this.detailsService = detailsService;
         this.userService = userService;
         this.tokenCreator = tokenCreator;
@@ -45,9 +44,9 @@ public class OpenIdSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User user = (OAuth2User) authentication.getPrincipal();
         String email = (String) user.getAttributes().get("email");
         List<String> roles;
-        LoginUserPrinciple principle;
+        AppUserPrinciple principle;
         try {
-            principle = (LoginUserPrinciple) detailsService.loadUserByUsername(email);
+            principle = (AppUserPrinciple) detailsService.loadUserByUsername(email);
              roles = principle.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());

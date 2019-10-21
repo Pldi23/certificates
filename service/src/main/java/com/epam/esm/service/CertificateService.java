@@ -4,6 +4,7 @@ import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
+import org.springframework.security.access.method.P;
 
 import java.util.List;
 
@@ -19,5 +20,9 @@ public interface CertificateService extends FindAllService<GiftCertificateDTO>, 
     List<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO, PageAndSortDTO pageAndSortDTO);
 
     List<GiftCertificateDTO> getByTag(long id, PageAndSortDTO pageAndSortDTO);
+
+    List<GiftCertificateDTO> findByOrder(Long orderId, PageAndSortDTO pageAndSortDTO);
+
+    long count();
 
 }

@@ -16,5 +16,6 @@ public interface UserService extends UpdateService<UserDTO>, SaveService<UserDTO
 FindOneService<UserDTO>, FindAllService<UserDTO>, DeleteService {
 
     Optional<User> findByEmail(String email);
+    long count();
 //    Optional<UserDTO> findByEmail(String email);
 }

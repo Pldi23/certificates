@@ -6,7 +6,8 @@ import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityAlreadyExistsException;
-import com.epam.esm.repository.hibernate.EMUserRepository;
+import com.epam.esm.repository.EMUserRepository;
+import com.epam.esm.util.Translator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,7 +44,7 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException("user not found");
+            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id));
         }
     }
 
@@ -57,14 +58,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO findOne(long id) {
         return userConverter.convert(userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("user not found")));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id))));
     }
 
     @Transactional
     @Override
     public UserDTO patch(UserPatchDTO userPatchDTO, Long id) {
         User user = userRepository.findById(id).orElseThrow(()
-                -> new EntityNotFoundException("user not found"));
+                -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id)));
         if (userPatchDTO.getEmail() != null) {
             user.setEmail(userPatchDTO.getEmail());
         }
@@ -77,7 +78,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userConverter.convert(userRepository.save(user));
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException("User with email '" + userPatchDTO.getEmail() + "' already exists");
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.user.exist}"), userPatchDTO.getEmail()));
         }
     }
 
@@ -92,7 +93,7 @@ public class UserServiceImpl implements UserService {
         try {
             saved = userRepository.save(user);
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException("User with email '" + userDTO.getEmail() + "' already exists");
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.user.exist}"), userDTO.getEmail()));
         }
         return userConverter.convert(saved);
     }
@@ -109,15 +110,20 @@ public class UserServiceImpl implements UserService {
             try {
                 return userConverter.convert(userRepository.save(user));
             } catch (DataIntegrityViolationException ex) {
-                throw new EntityAlreadyExistsException("User with email '" + userDTO.getEmail() + "' already exists");
+                throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.user.exist}"), userDTO.getEmail()));
             }
         } else {
-            throw new EntityNotFoundException("user not found");
+            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id));
         }
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public long count() {
+        return userRepository.count();
     }
 }

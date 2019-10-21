@@ -47,12 +47,11 @@ public class OrderDTO {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime createdAt;
 
-    @ValidCertificatesSet
-    private Set<GiftCertificateDTO> giftCertificates;
-
     @Null
     private BigDecimal price;
 
+    @ValidCertificatesSet(message = "{violation.certificate.set}")
+    private Set<GiftCertificateDTO> giftCertificates;
 
     @Null
     @JsonIgnore

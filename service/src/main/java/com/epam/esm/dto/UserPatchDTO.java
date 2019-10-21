@@ -23,9 +23,9 @@ public class UserPatchDTO {
     @Email
     private String email;
 
-    @Pattern(regexp = "^(?=.*\\d)(?=.*\\p{Lower})(?=.*\\p{Upper})(?=.*\\p{Punct})(?=\\S+$).{8,20}$")
+    @Pattern(regexp = "^(?=.*\\d)(?=.*\\p{Lower})(?=.*\\p{Upper})(?=.*\\p{Punct})(?=\\S+$).{8,20}$", message = "{violation.password}")
     private String password;
 
-    @Pattern(regexp = "admin|user|guest")
+    @Pattern(regexp = "ROLE_ADMIN|ROLE_USER|ROLE_GUEST", message = "{violation.role}")
     private String role;
 }

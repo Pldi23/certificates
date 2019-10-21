@@ -48,31 +48,32 @@ public class CertificateController {
     private DtoParser dtoParser;
     private Validator validator;
     private EntityLinks entityLinks;
-    private SpringValidatorAdapter localValidatorFactoryBean;
+//    private SpringValidatorAdapter localValidatorFactoryBean;
     private LinkCreator linkCreator;
 
 
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagService tagServiceImpl,
                                  EntityLinks entityLinks,
-                                 SpringValidatorAdapter localValidatorFactoryBean,
+//                                 SpringValidatorAdapter localValidatorFactoryBean,
                                  LinkCreator linkCreator) {
         this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;
         this.tagService = tagServiceImpl;
         this.entityLinks = entityLinks;
-        this.localValidatorFactoryBean = localValidatorFactoryBean;
+//        this.localValidatorFactoryBean = localValidatorFactoryBean;
         this.linkCreator = linkCreator;
     }
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
-        binder.setValidator(localValidatorFactoryBean);
+        binder.setValidator(validator);
     }
 
     @GetMapping(value = "/")
-    public ResponseEntity findAll(@PageAndSizeValid @RequestParam @CertificateSortValid Map<String, String> params) {
+    public ResponseEntity findAll(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam
+                                      @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findAll(pageAndSortDTO);
         return !giftCertificateDTOS.isEmpty() ?
@@ -117,7 +118,9 @@ public class CertificateController {
     }
 
     @GetMapping
-    public ResponseEntity findByCriteria(@RequestParam @PageAndSizeValid @CertificateSortValid Map<String, String> criteriaMap) {
+    public ResponseEntity findByCriteria(@RequestParam
+                                             @PageAndSizeValid(message = "{violation.page.size}")
+                                             @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> criteriaMap) {
         DataBinder dataBinder = new DataBinder(criteriaMap);
         dataBinder.addValidators(validator);
         dataBinder.validate();
@@ -143,7 +146,8 @@ public class CertificateController {
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByCertificate(
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
-            @PageAndSizeValid @TagSortValid @RequestParam Map<String, String> params) {
+            @PageAndSizeValid(message = "{violation.page.size}")
+            @TagSortValid(message = "{violation.tag.sort}") @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO));
     }

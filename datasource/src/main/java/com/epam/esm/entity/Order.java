@@ -1,16 +1,18 @@
 package com.epam.esm.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,6 +20,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -30,10 +33,14 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "application_order")
-@Data
+//@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(exclude = "user")
 public class Order {
 
     @Id
@@ -47,10 +54,10 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany
-    @JoinTable(name="order_certificate",
-            joinColumns=@JoinColumn(name="order_id"),
-            inverseJoinColumns=@JoinColumn(name="certificate_id"))
-    private Set<GiftCertificate> giftCertificates;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
+    private Set<OrderCertificate> orderCertificates;
+
+    private Boolean activeStatus;
 
 }

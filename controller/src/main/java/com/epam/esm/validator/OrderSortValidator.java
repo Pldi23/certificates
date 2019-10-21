@@ -16,6 +16,6 @@ public class OrderSortValidator implements ConstraintValidator<OrderSortValid, M
     @Override
     public boolean isValid(Map<String, String> stringStringMap, ConstraintValidatorContext constraintValidatorContext) {
         return !stringStringMap.containsKey(SORT_PARAMETER) ||
-                stringStringMap.get(SORT_PARAMETER).matches("(^(-)?price)");
+                stringStringMap.get(SORT_PARAMETER).matches("(^(-)?price)|(^(-)?id)");
     }
 }

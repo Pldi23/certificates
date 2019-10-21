@@ -1,8 +1,8 @@
 package com.epam.esm.security;
 
 
-import com.epam.esm.dto.LoginUserPrinciple;
-import com.epam.esm.service.LoginUserDetailsService;
+import com.epam.esm.dto.AppUserPrinciple;
+import com.epam.esm.service.AppUserDetailsService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -18,12 +18,13 @@ public class SecurityChecker {
 
     private UserDetailsService userDetailsService;
 
-    public SecurityChecker(LoginUserDetailsService userDetailsService) {
+    public SecurityChecker(AppUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
     public boolean check(Long id) {
-        LoginUserPrinciple principle = (LoginUserPrinciple) userDetailsService.loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return id.equals(principle.getUser().getId());
     }
 }

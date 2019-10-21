@@ -57,10 +57,10 @@ public class DtoParser {
 
     public OrderSearchCriteriaDTO parseOrderSearchDTO(Map<String, String> requestParams) {
         return OrderSearchCriteriaDTO.builder()
-                .email(requestParams.getOrDefault("email", null))
-                .userId(requestParams.containsKey("user_id") ? Long.parseLong(requestParams.get("user_id")) : null)
-                .certificatesNames(requestParams.containsKey("c_name") ? Arrays.asList(requestParams.get("c_name").split(",")) : null)
-                .certificatesIds(requestParams.containsKey("c_id") ? Arrays.stream(requestParams.get("c_id").split(","))
+                .email(requestParams.getOrDefault(EMAIL, null))
+                .userId(requestParams.containsKey(USER_ID) ? Long.parseLong(requestParams.get(USER_ID)) : null)
+                .certificatesNames(requestParams.containsKey(CERTIFICATE_NAME) ? Arrays.asList(requestParams.get(CERTIFICATE_NAME).split(",")) : null)
+                .certificatesIds(requestParams.containsKey(CERTIFICATE_ID) ? Arrays.stream(requestParams.get(CERTIFICATE_ID).split(","))
                         .map(Long::parseLong)
                         .collect(Collectors.toList()) : null)
                 .build();

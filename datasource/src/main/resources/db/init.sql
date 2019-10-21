@@ -7,6 +7,9 @@ create table certificate
     creationDate     date,
     modificationDate date,
     expirationDate   date,
+--
+    active_status    boolean,
+--
 
     constraint certificate_pkey1 PRIMARY KEY (id)
 );
@@ -41,11 +44,11 @@ create table application_role
 
 create table application_user
 (
-    id       serial,
-    email    varchar(200),
-    password varchar(200),
-    role_id  integer,
---     money
+    id            serial,
+    email         varchar(200),
+    password      varchar(200),
+    role_id       integer,
+    refresh_token varchar(200),
 
     constraint user_pkey1 primary key (id),
     CONSTRAINT foreign_key_role_id FOREIGN KEY (role_id)
@@ -54,10 +57,12 @@ create table application_user
 
 CREATE TABLE application_order
 (
-    id         serial,
---     amount     numeric,
-    user_id    integer,
-    created_at timestamp,
+    id          serial,
+    user_id     integer,
+    created_at  timestamp,
+--
+    paid_status boolean,
+--
 
     constraint order_pkey1 PRIMARY KEY (id),
     constraint foreign_key_user_email foreign key (user_id) references application_user (id)
@@ -68,8 +73,12 @@ CREATE TABLE application_order
 
 create table order_certificate
 (
-    order_id       integer,
-    certificate_id integer,
+    order_id        integer,
+    certificate_id  integer,
+--
+    fixed_price     numeric,
+    expiration_date date,
+--
 
     constraint foreign_key_certificate_id foreign key (certificate_id)
         references certificate (id),
@@ -78,6 +87,6 @@ create table order_certificate
 );
 
 insert into application_role (role)
-values ('admin'),
-       ('user'),
-       ('guest');
+values ('ROLE_ADMIN'),
+       ('ROLE_USER'),
+       ('ROLE_GUEST');

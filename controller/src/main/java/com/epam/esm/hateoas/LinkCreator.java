@@ -31,8 +31,8 @@ public class LinkCreator {
     public Resource<OrderDTO> toResource(OrderDTO orderDTO) {
         List<Link> links = new ArrayList<>();
         links.add(linkTo(OrderController.class).slash(orderDTO.getId()).withSelfRel());
-        orderDTO.getCertificatesIds()
-                .forEach(i -> links.add(linkTo(CertificateController.class).slash(i).withRel("gift certificates")));
+        orderDTO.getGiftCertificates()
+                .forEach(i -> links.add(linkTo(CertificateController.class).slash(i.getId()).withRel("gift certificates")));
         return new Resource<>(orderDTO, links);
     }
 

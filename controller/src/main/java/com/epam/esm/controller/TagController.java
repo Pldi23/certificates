@@ -17,8 +17,8 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,31 +43,37 @@ public class TagController {
     private TagService tagServiceImpl;
     private CertificateService certificateService;
     private EntityLinks entityLinks;
-    private SpringValidatorAdapter localValidatorFactoryBean;
+//    private SpringValidatorAdapter localValidatorFactoryBean;
+//    private Validator validator;
     private LinkCreator linkCreator;
     private DtoParser dtoParser;
 
 
     public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks,
-                         SpringValidatorAdapter localValidatorFactoryBean,
+//                         SpringValidatorAdapter localValidatorFactoryBean,
+//                         Validator validator,
                          LinkCreator linkCreator, DtoParser dtoParser) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateService = certificateServiceImpl;
         this.entityLinks = entityLinks;
-        this.localValidatorFactoryBean = localValidatorFactoryBean;
+//        this.localValidatorFactoryBean = localValidatorFactoryBean;
+//        this.validator = validator;
         this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
     }
 
-    @InitBinder
-    protected void initBinder(WebDataBinder binder) {
-        binder.setValidator(localValidatorFactoryBean);
-    }
+//    @InitBinder
+//    protected void initBinder(WebDataBinder binder) {
+//        binder.setValidator(validator);
+////        binder.setValidator(localValidatorFactoryBean);
+//    }
 
 
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping
-    public ResponseEntity getAllTags(@PageAndSizeValid @TagSortValid @RequestParam Map<String, String> pageAndSortParameters) {
+    public ResponseEntity getAllTags(@PageAndSizeValid(message = "{violation.page.size}")
+                                         @TagSortValid(message = "{violation.tag.sort.cost}")
+                                         @RequestParam Map<String, String> pageAndSortParameters) {
 
         List<TagDTO> tagDTOS = tagServiceImpl.findPaginated(dtoParser.parsePageAndSortCriteria(pageAndSortParameters));
         if (!tagDTOS.isEmpty()) {
@@ -105,7 +111,9 @@ public class TagController {
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping(value = "/{id}/certificates")
     public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
-                                               @RequestParam @PageAndSizeValid @CertificateSortValid Map<String, String> params) {
+                                               @RequestParam
+                                               @PageAndSizeValid(message = "{violation.page.size}")
+                                               @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateService.getByTag(id, pageAndSortDTO);
         if (!giftCertificateDTOS.isEmpty()) {
@@ -120,7 +128,7 @@ public class TagController {
 
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping("/populars")
-    public ResponseEntity getMostPopulars(@PageAndSizeValid @RequestParam Map<String, String> requestParams) {
+    public ResponseEntity getMostPopulars(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
         return ResponseEntity.ok(tagServiceImpl.findPopular(pageAndSortDTO));
     }

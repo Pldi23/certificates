@@ -36,6 +36,7 @@ import java.util.Set;
 @ToString
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Role {
 
     @Id
@@ -45,8 +46,10 @@ public class Role {
 
     private String value;
 
-    @OneToMany(mappedBy = "role")
-    @JsonBackReference(value="user-role")
-    private Set<User> users;
+//    @OneToMany(mappedBy = "role")
+//    @JsonBackReference(value="user-role")
+//    private Set<User> users;
+
+
 
 }

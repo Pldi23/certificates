@@ -1,7 +1,7 @@
 package com.epam.esm.security;
 
-import com.epam.esm.dto.LoginUserPrinciple;
-import com.epam.esm.service.LoginUserDetailsService;
+import com.epam.esm.dto.AppUserPrinciple;
+import com.epam.esm.service.AppUserDetailsService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,10 +27,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private AuthenticationManager authenticationManager;
     private TokenCreator tokenCreator;
-    private LoginUserDetailsService detailsService;
+    private AppUserDetailsService detailsService;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, TokenCreator tokenCreator,
-                                   LoginUserDetailsService detailsService) {
+                                   AppUserDetailsService detailsService) {
         this.authenticationManager = authenticationManager;
         this.tokenCreator = tokenCreator;
         this.detailsService = detailsService;
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain filterChain, Authentication authentication) {
-        LoginUserPrinciple user = ((LoginUserPrinciple) authentication.getPrincipal());
+        AppUserPrinciple user = ((AppUserPrinciple) authentication.getPrincipal());
         List<String> roles = user.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)

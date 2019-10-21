@@ -31,4 +31,8 @@ public class RequestConstant {
     public static final String PAGE_PARAMETER = "page";
     public static final String LIMIT_PARAMETER = "limit";
     public static final String OFFSET_PARAMETER = "offset";
+    public static final String EMAIL = "email";
+    public static final String USER_ID = "user_id";
+    public static final String CERTIFICATE_NAME = "c_name";
+    public static final String CERTIFICATE_ID = "c_id";
 }

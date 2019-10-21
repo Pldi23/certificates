@@ -1,5 +1,7 @@
 package com.epam.esm.validator;
 
+import com.epam.esm.util.Translator;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -20,14 +22,8 @@ import static com.epam.esm.validator.RegexPatternConstant.*;
  * @version 0.0.1
  */
 @Component
+@Log4j2
 public class RequestParametersValidator implements Validator {
-
-//    private ResourceBundleMessageSource messageSource;
-
-//    @Autowired
-//    public RequestParametersValidator(ResourceBundleMessageSource messageSource) {
-//        this.messageSource = messageSource;
-//    }
 
     @Override
     public boolean supports(Class<?> aClass) {
@@ -75,75 +71,76 @@ public class RequestParametersValidator implements Validator {
 
     private void validateIdParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(ID) && !parameters.get(ID).isBlank() && !parameters.get(ID).matches(ID_PARAMETER_REGEX_PATTERN)) {
-            errors.reject("{violation.message.id}");
+            errors.reject(Translator.toLocale("violation.message.id"));
         }
     }
 
     private void validateTagIdParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(TAG_ID) && !parameters.get(TAG_ID).isBlank() && !parameters.get(TAG_ID).matches(TAG_ID_PARAMETER_REGEX_PATTERN)) {
-            errors.reject("{violation.message.tag.id}");
+            log.info(parameters.get(TAG_ID));
+            errors.reject(Translator.toLocale("violation.message.tag.id"));
         }
     }
 
     private void validateTagNameParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(TAG_NAME) && !parameters.get(TAG_NAME).isBlank() &&
                 !parameters.get(TAG_NAME).matches(TAG_NAME_REGEX_PATTERN)) {
-            errors.reject("{violation.message.tag.name}");
+            errors.reject(Translator.toLocale(Translator.toLocale("violation.message.tag.name")));
         }
     }
 
     private void validatePriceParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(PRICE) && !parameters.get(PRICE).isBlank() && !parameters.get(PRICE).matches(PRICE_REGEX_PATTERN)) {
-            errors.reject("{violation.message.price}");
+            errors.reject(Translator.toLocale("violation.message.price"));
         }
     }
 
     private void validateNameParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(NAME) && !parameters.get(NAME).isBlank() && !parameters.get(NAME).matches(NAME_REGEX_PATTERN)) {
-            errors.reject("{violation.message.name}");
+            errors.reject(Translator.toLocale("violation.message.name"));
         }
     }
 
     private void validateDescriptionParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(DESCRIPTION) && !parameters.get(DESCRIPTION).isBlank()
                 && !parameters.get(DESCRIPTION).matches(DESCRIPTION_REGEX_PATTERN)) {
-            errors.reject("{violation.message.description}");
+            errors.reject(Translator.toLocale("violation.message.description"));
         }
     }
     private void validateExpirationDateParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(EXPIRATION_DATE) && !parameters.get(EXPIRATION_DATE).isBlank()) {
             validateDate(parameters.get(EXPIRATION_DATE),
-                    "{violation.message.expirationdate}", errors);
+                    Translator.toLocale("violation.message.expirationdate"), errors);
         }
 
     }
     private void validateCreationDateParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(CREATION_DATE) && !parameters.get(CREATION_DATE).isBlank()) {
-            validateDate(parameters.get(CREATION_DATE),"{violation.message.creationdate}", errors);
+            validateDate(parameters.get(CREATION_DATE),Translator.toLocale("violation.message.creationdate"), errors);
         }
     }
     private void validateModificationDateParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(MODIFICATION_DATE) && !parameters.get(MODIFICATION_DATE).isBlank()) {
             validateDate(parameters.get(MODIFICATION_DATE),
-                    "{violation.message.modificationdate}", errors);
+                    Translator.toLocale("violation.message.modificationdate"), errors);
         }
     }
     private void validateSortParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(SORT) && !parameters.get(SORT).isBlank()
                 && !parameters.get(SORT).matches(SORT_REGEX_PATTERN)) {
-            errors.reject("{violation.message.sort}");
+            errors.reject(Translator.toLocale("violation.message.sort"));
         }
     }
     private void validateLimitParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(LIMIT) && !parameters.get(LIMIT).isBlank()
                 && !parameters.get(LIMIT).matches(LIMIT_REGEX_PATTERN)) {
-            errors.reject("{violation.message.limit}");
+            errors.reject(Translator.toLocale("violation.message.limit"));
         }
     }
     private void validateOffsetParameter(Map<String, String> parameters, Errors errors) {
         if (parameters.containsKey(OFFSET) && !parameters.get(OFFSET).isBlank()
                 && !parameters.get(OFFSET).matches(OFFSET_REGEX_PATTERN)) {
-            errors.reject("{violation.message.offset}");
+            errors.reject(Translator.toLocale("violation.message.offset"));
         }
     }
 

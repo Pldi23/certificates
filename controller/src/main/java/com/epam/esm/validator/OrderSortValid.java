@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = OrderSortValidator.class)
 public @interface OrderSortValid {
-    String message() default "Please provide a valid sort parameter";
+    String message() default "Please provide a valid sort parameter. sort by id/price acceptable";
 
     Class<?>[] groups() default {};
 

@@ -2,14 +2,15 @@ package com.epam.esm.converter;
 
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
-import com.epam.esm.dto.TagDTO;
-import com.epam.esm.dto.UserDTO;
-import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
-import com.epam.esm.entity.Tag;
-import com.epam.esm.entity.User;
+import com.epam.esm.entity.OrderCertificate;
+import com.epam.esm.repository.AbstractOrderRepository;
+import com.epam.esm.repository.AbstractUserRepository;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityNotFoundException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -22,48 +23,46 @@ import java.util.stream.Collectors;
 public class OrderConverter {
 
     private UserConverter userConverter;
+    private AbstractUserRepository userRepository;
+    private AbstractOrderRepository orderRepository;
+    private CertificateConverter certificateConverter;
 
-    public OrderConverter(UserConverter userConverter) {
+    public OrderConverter(UserConverter userConverter, AbstractUserRepository userRepository,
+                          AbstractOrderRepository orderRepository, CertificateConverter certificateConverter) {
         this.userConverter = userConverter;
+        this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
+        this.certificateConverter = certificateConverter;
+    }
+
+    public Order convert(OrderDTO orderDTO) {
+        Set<OrderCertificate> orderCertificates = orderDTO.getGiftCertificates().stream()
+                .map(giftCertificateDTO -> OrderCertificate.builder()
+                        .order(orderRepository.findById(orderDTO.getId()).orElseThrow(() -> new EntityNotFoundException("user not found")))
+                        .certificate(certificateConverter.convert(giftCertificateDTO))
+                        .fixedPrice(orderDTO.getPrice())
+                        .build())
+                .collect(Collectors.toSet());
+        return Order.builder()
+                .id(orderDTO.getId())
+                .user(userRepository.findById(orderDTO.getUserId()).orElseThrow(() -> new EntityNotFoundException("user not found")))
+                .orderCertificates(orderCertificates)
+                .createdAt(orderDTO.getCreatedAt())
+                .build();
     }
 
     public OrderDTO convert(Order order) {
-//        return OrderDTO.builder()
-//                .id(order.getId())
-//                .createdAt(order.getCreatedAt())
-////                .user(UserDTO.builder()
-////                        .id(order.getUser().getId())
-////                        .email(order.getUser().getEmail())
-////                        .password(order.getUser().getPassword())
-////                        .role(order.getUser().getRole().getValue())
-////                        .build())
-//                .user(userConverter.convert(order.getUser()))
+        Set<OrderCertificate> orderCertificates = order.getOrderCertificates();
+        Set<GiftCertificateDTO> giftCertificateDTOS = orderCertificates == null || orderCertificates.isEmpty() ? new HashSet<>() :
+                orderCertificates.stream()
+                .map(orderCertificate -> certificateConverter.convert(orderCertificate.getCertificate()))
+                .collect(Collectors.toSet());
 
-//                .build();
         return OrderDTO.builder()
                 .id(order.getId())
                 .createdAt(order.getCreatedAt())
                 .userEmail(order.getUser().getEmail())
-                .giftCertificates(order.getGiftCertificates().stream()
-                        .map(giftCertificate -> new GiftCertificateDTO.Builder()
-                                .withId(giftCertificate.getId())
-                                .withName(giftCertificate.getName())
-                                .withDescription(giftCertificate.getName())
-                                .withPrice(giftCertificate.getPrice())
-                                .withCreationDate(giftCertificate.getCreationDate())
-                                .withModificationDate(giftCertificate.getModificationDate())
-                                .withExpirationDate(giftCertificate.getExpirationDate())
-                                .withTags(giftCertificate.getTags().stream().map(tag -> TagDTO.builder()
-                                        .id(tag.getId())
-                                        .title(tag.getTitle())
-                                        .build()).collect(Collectors.toSet()))
-                                .build()).collect(Collectors.toSet()))
-//                .giftCertificatesNames(order.getGiftCertificates().stream()
-//                        .map(GiftCertificate::getName)
-//                        .collect(Collectors.toSet()))
-                .certificatesIds(order.getGiftCertificates().stream()
-                        .map(GiftCertificate::getId).collect(Collectors.toList()))
-                .userId(order.getUser().getId())
+                .giftCertificates(giftCertificateDTOS)
                 .build();
     }
 }

@@ -17,7 +17,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = OrderSearchCriteriaValidator.class)
 public @interface OrderSearchCriteriaValid {
-    String message() default "Please provide a valid request... Ex: ?email=pldi@mail.ru&c_id=1&page=1&size=2";
+    String message() default "Please provide a valid request... Ex: ?email=pldi@mail.ru&c_id=1&page=1&size=2. " +
+            "search by user email/id (user_id/email) and by certificate name/id acceptable (c_name/c_id)";
 
     Class<?>[] groups() default {};
 

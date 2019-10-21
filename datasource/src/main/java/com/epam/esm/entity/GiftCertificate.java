@@ -19,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -51,11 +52,21 @@ public class GiftCertificate {
     private LocalDate creationDate;
     private LocalDate modificationDate;
     private LocalDate expirationDate;
+    private Boolean activeStatus;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(name="certificate_tag",
             joinColumns=@JoinColumn(name="certificate_id"),
             inverseJoinColumns=@JoinColumn(name="tag_id"))
     private Set<Tag> tags;
+
+
+
+    @OneToMany(mappedBy = "certificate", cascade = CascadeType.ALL)
+    private Set<OrderCertificate> orderCertificates;
+
+    public void addOrderCertificate(OrderCertificate orderCertificate) {
+        orderCertificates.add(orderCertificate);
+    }
 
 }

@@ -1,6 +1,6 @@
 package com.epam.esm.security;
 
-import com.epam.esm.dto.LoginUserPrinciple;
+import com.epam.esm.dto.AppUserPrinciple;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -14,9 +14,9 @@ import java.util.Collection;
  */
 public class RefreshTokenAuthentication implements Authentication {
 
-    private LoginUserPrinciple principle;
+    private AppUserPrinciple principle;
 
-    public RefreshTokenAuthentication(LoginUserPrinciple principle) {
+    public RefreshTokenAuthentication(AppUserPrinciple principle) {
         this.principle = principle;
     }
 

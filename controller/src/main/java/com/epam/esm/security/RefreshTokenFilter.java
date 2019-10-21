@@ -1,14 +1,9 @@
 package com.epam.esm.security;
 
-import com.epam.esm.dto.LoginUserPrinciple;
-import com.epam.esm.service.LoginUserDetailsService;
+import com.epam.esm.dto.AppUserPrinciple;
+import com.epam.esm.service.AppUserDetailsService;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -31,10 +26,10 @@ import java.util.stream.Collectors;
 public class RefreshTokenFilter extends UsernamePasswordAuthenticationFilter {
 
     private TokenCreator tokenCreator;
-    private LoginUserDetailsService detailsService;
+    private AppUserDetailsService detailsService;
 
     public RefreshTokenFilter(TokenCreator tokenCreator,
-                              LoginUserDetailsService detailsService) {
+                              AppUserDetailsService detailsService) {
         this.tokenCreator = tokenCreator;
         this.detailsService = detailsService;
         setFilterProcessesUrl(SecurityConstants.AUTH_REFRESH_TOKEN_URL);
@@ -48,7 +43,7 @@ public class RefreshTokenFilter extends UsernamePasswordAuthenticationFilter {
         String refreshToken = request.getHeader(SecurityConstants.REFRESH_TOKEN_HEADER);
         log.info("'/authenticate/refresh-token' authentication attempt by " + username);
         if (username != null && refreshToken != null) {
-            LoginUserPrinciple principle = (LoginUserPrinciple) detailsService.loadUserByUsername(username);
+            AppUserPrinciple principle = (AppUserPrinciple) detailsService.loadUserByUsername(username);
             if (principle != null && principle.getUser() != null && principle.getUser().getRefreshToken() != null
                     && principle.getUser().getRefreshToken().equals(refreshToken)) {
                 log.info("'/authenticate/refresh-token' refresh token equals " + username);
@@ -76,7 +71,7 @@ public class RefreshTokenFilter extends UsernamePasswordAuthenticationFilter {
 //        String username = request.getParameter("username");
 //        log.info("'/authenticate/refresh-token' authentication attempt by " + username);
 //        String refreshToken = request.getHeader(SecurityConstants.REFRESH_TOKEN_HEADER);
-//        LoginUserPrinciple userDetails = (LoginUserPrinciple) detailsService.loadUserByUsername(username);
+//        AppUserPrinciple userDetails = (AppUserPrinciple) detailsService.loadUserByUsername(username);
 //        if (userDetails != null && userDetails.getUser() != null && userDetails.getUser().getRefreshToken() != null
 //                && userDetails.getUser().getRefreshToken().equals(refreshToken)) {
 //            String pass = userDetails.getUser().getPassword();
@@ -96,7 +91,7 @@ public class RefreshTokenFilter extends UsernamePasswordAuthenticationFilter {
 //    @Override
 //    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 //                                            FilterChain filterChain, Authentication authentication) {
-//        LoginUserPrinciple user = ((LoginUserPrinciple) authentication.getPrincipal());
+//        AppUserPrinciple user = ((AppUserPrinciple) authentication.getPrincipal());
 //        List<String> roles = user.getAuthorities()
 //                .stream()
 //                .map(GrantedAuthority::getAuthority)

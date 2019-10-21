@@ -5,8 +5,9 @@ import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
-import com.epam.esm.repository.hibernate.EMCertificateRepository;
-import com.epam.esm.repository.hibernate.EMTagRepository;
+import com.epam.esm.repository.EMCertificateRepository;
+import com.epam.esm.repository.EMTagRepository;
+import com.epam.esm.util.Translator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDTO findOne(long id) {
-        return tagConverter.convert(tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("tag not found")));
+        return tagConverter.convert(tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.tag.not.found}"), id))));
     }
 
     @Override
@@ -56,7 +57,7 @@ public class TagServiceImpl implements TagService {
         try {
             saved = tagRepository.save(tag);
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException("Tag with name '" + tagDTO.getTitle() + "' already exists");
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.tag.exist}"), tagDTO.getTitle()));
         }
         return tagConverter.convert(saved);
     }
@@ -66,19 +67,19 @@ public class TagServiceImpl implements TagService {
         try {
             tagRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException("tag not found");
+            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.tag.not.found}"), id));
         }
     }
 
     @Override
     public List<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO) {
-        if (certificateRepository.findById(id).isPresent()) {
+        if (certificateRepository.findById(id, true).isPresent()) {
             return tagRepository.findTagsByCertificate(id, pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
                     pageAndSortDTO.getSize()).stream()
                     .map(tag -> tagConverter.convert(tag))
                     .collect(Collectors.toList());
         } else {
-            throw new EntityNotFoundException("certificate not found");
+            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), id));
         }
     }
 
@@ -95,6 +96,11 @@ public class TagServiceImpl implements TagService {
         return tags.stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public long count() {
+        return tagRepository.count();
     }
 
     @Override
