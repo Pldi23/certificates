@@ -5,38 +5,32 @@ import com.epam.esm.converter.CriteriaConverter;
 import com.epam.esm.converter.CriteriaCreatorHelper;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.dto.LimitOffsetCriteriaRequestDTO;
-import com.epam.esm.dto.PageAndSortDTO;
-import com.epam.esm.dto.SearchCriteriaRequestDTO;
-import com.epam.esm.dto.SortCriteriaRequestDTO;
+
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.criteria.SearchCriteria;
-import com.epam.esm.exception.EntityAlreadyExistsException;
+
 import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.repository.AbstractTagRepository;
 import com.epam.esm.util.Translator;
 import com.epam.esm.validator.ExpirationDateValidator;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 
@@ -46,7 +40,7 @@ import static org.mockito.Mockito.times;
  * @author Dzmitry Platonov on 2019-09-29.
  * @version 0.0.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CertificateServiceImplTest {
 
     @InjectMocks
@@ -70,7 +64,7 @@ public class CertificateServiceImplTest {
     private TagConverter tagConverter;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         converter = new CertificateConverter();

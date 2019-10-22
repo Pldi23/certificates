@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * gift-certificates
+ * to handle Jwt exceptions
  *
  * @author Dzmitry Platonov on 2019-10-22.
  * @version 0.0.1
@@ -44,13 +44,6 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             response.getWriter().write(convertObjectToJson(
                     new ViolationDTO(List.of(Translator.toLocale("violation.jwt")), 401, LocalDateTime.now())));
         }
-
-//        catch (AccessDeniedException e) {
-//            response.setContentType("application/json;charset=UTF-8");
-//            response.setStatus(403);
-//            response.getWriter().write(convertObjectToJson(
-//                    new ViolationDTO(List.of(Translator.toLocale("violation.csrf")), 403, LocalDateTime.now())));
-//        }
     }
 
     private String convertObjectToJson(Object object) throws JsonProcessingException {

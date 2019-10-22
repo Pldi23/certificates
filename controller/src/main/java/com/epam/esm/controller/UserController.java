@@ -127,14 +127,14 @@ public class UserController {
         return ResponseEntity.ok(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO));
     }
 
-    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("@securityChecker.check(#id) or @securityChecker.checkUser(#id)")
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         userService.delete(id);
         return ResponseEntity.status(204).build();
     }
 
-    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize(value = "@securityChecker.check(#id) or @securityChecker.checkUser(#id)")
     @PutMapping("/{id}")
     public ResponseEntity update(@RequestBody @Valid UserDTO userDTO,
                                  @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
@@ -145,7 +145,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("@securityChecker.check(#id) or @securityChecker.checkUser(#id)")
     @PatchMapping("/{id}")
     public ResponseEntity patch(@RequestBody @Valid UserPatchDTO userPatchDTO,
                                 @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
@@ -156,7 +156,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByUser(
             @PathVariable @Min(value = 0, message = "{violation.id}") Long id,
@@ -167,7 +167,7 @@ public class UserController {
         return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/tags/popular")
     public ResponseEntity getMostPopularTagsByUser(
             @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {

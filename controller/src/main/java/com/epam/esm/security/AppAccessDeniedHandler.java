@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * gift-certificates
+ * to handle non-Authorized access (@PreAuthorize, @Security)
  *
  * @author Dzmitry Platonov on 2019-10-22.
  * @version 0.0.1
@@ -40,8 +40,8 @@ public class AppAccessDeniedHandler implements AccessDeniedHandler {
         }
         ObjectMapper mapper = new ObjectMapper();
         response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(401);
+        response.setStatus(403);
         response.getWriter().write(mapper.writeValueAsString(
-                new ViolationDTO(List.of(Translator.toLocale("exception.forbidden")), 401, LocalDateTime.now())));
+                new ViolationDTO(List.of(Translator.toLocale("exception.forbidden")), 403, LocalDateTime.now())));
     }
 }

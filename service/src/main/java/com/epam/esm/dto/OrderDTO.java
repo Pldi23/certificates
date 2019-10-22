@@ -35,9 +35,7 @@ public class OrderDTO {
     @Null(message = "{violation.input.id.should.be.null}")
     private Long id;
 
-    @Email
-    @NotNull
-    @NotBlank
+    @Null(message = "{violation.user.email}")
     private String userEmail;
 
     @Null(message = "{violation.creation.at.should.be.null}")

@@ -58,11 +58,15 @@ subprojects {
         runtime 'io.jsonwebtoken:jjwt-jackson:0.10.7'
 
 
-
-        testCompile 'org.springframework:spring-test:4.3.8.RELEASE'
-        testCompile 'junit:junit:4.12'
-        testCompile 'org.mockito:mockito-core:2.28.2'
-        testCompile 'org.mockito:mockito-inline:2.28.2'
+        testImplementation('org.junit.jupiter:junit-jupiter-api:5.2.0')
+        testCompile('org.junit.jupiter:junit-jupiter-params:5.2.0')
+        testRuntime('org.junit.jupiter:junit-jupiter-engine:5.2.0')
+        testCompile "org.mockito:mockito-core:2.+"
+        testCompile('org.mockito:mockito-junit-jupiter:2.18.3')
+//        testCompile 'org.springframework:spring-test:4.3.8.RELEASE'
+//        testCompile 'junit:junit:4.12'
+//        testCompile 'org.mockito:mockito-core:2.28.2'
+//        testCompile 'org.mockito:mockito-inline:2.28.2'
         compileOnly 'org.projectlombok:lombok:1.18.10'
         annotationProcessor 'org.projectlombok:lombok:1.18.10'
 

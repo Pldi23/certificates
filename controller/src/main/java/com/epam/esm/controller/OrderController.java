@@ -1,11 +1,13 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
+import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
@@ -18,7 +20,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,56 +59,70 @@ public class OrderController {
     private DtoParser dtoParser;
     private TagService tagService;
     private CertificateService certificateService;
+    private AppUserDetailsService userDetailsService;
 
-    public OrderController(OrderService orderService, LinkCreator linkCreator, DtoParser dtoParser, TagService tagService,
-                           CertificateService certificateService) {
+    public OrderController(OrderService orderService, LinkCreator linkCreator, DtoParser dtoParser,
+                           TagService tagService, CertificateService certificateService,
+                           AppUserDetailsService userDetailsService) {
         this.orderService = orderService;
         this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
         this.tagService = tagService;
         this.certificateService = certificateService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @PostMapping
     public ResponseEntity save(@Valid @RequestBody OrderDTO orderDTO) {
-        log.info(orderDTO);
+        String principleEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderDTO.setUserEmail(principleEmail);
         return ResponseEntity.ok(linkCreator.toResource(orderService.save(orderDTO)));
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping
     public ResponseEntity findAll(@PageAndSizeValid(message = "{violation.page.size}")
-                                      @OrderSortValid(message = "{violation.order.sort}")
-                                      @OrderSearchCriteriaValid(message = "{violation.order.search}")
-                                      @RequestParam Map<String, String> params) {
+                                  @OrderSortValid(message = "{violation.order.sort}")
+                                  @OrderSearchCriteriaValid(message = "{violation.order.search}")
+                                  @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         OrderSearchCriteriaDTO orderSearchCriteriaDTO = dtoParser.parseOrderSearchDTO(params);
+        AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        if (principle.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(s -> s.equals("ROLE_USER"))) {
+            orderSearchCriteriaDTO.setEmail(principle.getUsername());
+            orderSearchCriteriaDTO.setUserId(null);
+        }
         List<OrderDTO> dtos = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
         return !dtos.isEmpty() ? ResponseEntity.ok(dtos.stream().map(orderDTO ->
                 linkCreator.toResource(orderDTO))) : ResponseEntity.status(404).body(dtos);
     }
 
-    @Secured("ROLE_ADMIN")
+    @PostAuthorize("@securityChecker.checkOrder(returnObject) or hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity findOne(@PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         return ResponseEntity.ok(linkCreator.toResource(orderService.findOne(id)));
     }
 
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         orderService.delete(id);
         return ResponseEntity.status(204).build();
     }
 
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity update(@PathVariable @Min(value = 0, message = "{violation.id}") Long id, @Valid @RequestBody OrderDTO orderDTO) {
+        String principleEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderDTO.setUserEmail(principleEmail);
         return ResponseEntity.ok(linkCreator.toResource(orderService.update(orderDTO, id)));
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByOrder(@PathVariable @Min(value = 0, message = "{violation.id}") Long id,
                                          @RequestParam
