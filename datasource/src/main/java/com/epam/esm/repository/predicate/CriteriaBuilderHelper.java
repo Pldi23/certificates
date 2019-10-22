@@ -254,9 +254,31 @@ public class CriteriaBuilderHelper {
     private void buildTagNamePredicates(List<Predicate> predicates, SearchCriteria searchCriteria,
                                         CriteriaBuilder criteriaBuilder, Root<GiftCertificate> rootQuery) {
         if (searchCriteria.getTagNameCriteria() != null) {
-            for (String tagName : searchCriteria.getTagNameCriteria().getTagNames()) {
-                Join<GiftCertificate, Tag> join = rootQuery.join(TAGS);
-                predicates.add(criteriaBuilder.equal(join.get(TITLE), tagName));
+            switch (searchCriteria.getTagNameCriteria().getTextSearchType()) {
+                case IN:
+                    for (String tagName : searchCriteria.getTagNameCriteria().getTagNames()) {
+                        Join<GiftCertificate, Tag> join = rootQuery.join(TAGS);
+                        predicates.add(criteriaBuilder.equal(join.get(TITLE), tagName));
+                    }
+                    break;
+                case NOT_IN:
+                    for (String tagName : searchCriteria.getTagNameCriteria().getTagNames()) {
+                        Join<GiftCertificate, Tag> join = rootQuery.join(TAGS);
+                        predicates.add(criteriaBuilder.notEqual(join.get(TITLE), tagName));
+                    }
+                    break;
+                case LIKE:
+                    for (String tagName : searchCriteria.getTagNameCriteria().getTagNames()) {
+                        Join<GiftCertificate, Tag> join = rootQuery.join(TAGS);
+                        predicates.add(criteriaBuilder.like(join.get(TITLE), "%" + tagName + "%"));
+                    }
+                    break;
+                case NOT_LIKE:
+                    for (String tagName : searchCriteria.getTagNameCriteria().getTagNames()) {
+                        Join<GiftCertificate, Tag> join = rootQuery.join(TAGS);
+                        predicates.add(criteriaBuilder.notLike(join.get(TITLE), "%" + tagName + "%"));
+                    }
+                    break;
             }
         }
     }

@@ -48,27 +48,27 @@ public class CertificateController {
     private DtoParser dtoParser;
     private Validator validator;
     private EntityLinks entityLinks;
-//    private SpringValidatorAdapter localValidatorFactoryBean;
+    private SpringValidatorAdapter localValidatorFactoryBean;
     private LinkCreator linkCreator;
 
 
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagService tagServiceImpl,
                                  EntityLinks entityLinks,
-//                                 SpringValidatorAdapter localValidatorFactoryBean,
+                                 SpringValidatorAdapter localValidatorFactoryBean,
                                  LinkCreator linkCreator) {
         this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;
         this.tagService = tagServiceImpl;
         this.entityLinks = entityLinks;
-//        this.localValidatorFactoryBean = localValidatorFactoryBean;
+        this.localValidatorFactoryBean = localValidatorFactoryBean;
         this.linkCreator = linkCreator;
     }
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
-        binder.setValidator(validator);
+        binder.setValidator(localValidatorFactoryBean);
     }
 
     @GetMapping(value = "/")

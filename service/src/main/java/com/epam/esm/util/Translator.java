@@ -17,7 +17,7 @@ public class Translator {
 
     private static ResourceBundleMessageSource messageSource;
 
-    Translator(ResourceBundleMessageSource messageSource) {
+    public Translator(ResourceBundleMessageSource messageSource) {
         Translator.messageSource = messageSource;
     }
 

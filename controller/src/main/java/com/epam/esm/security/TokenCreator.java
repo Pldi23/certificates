@@ -21,13 +21,13 @@ import java.util.List;
 public class TokenCreator {
 
     public String createJwt(String username, List<String> roles) {
-        return Jwts.builder()
+        return SecurityConstants.TOKEN_PREFIX + Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET.getBytes())
                 .setHeaderParam("typ", SecurityConstants.TOKEN_TYPE)
                 .setIssuer(SecurityConstants.TOKEN_ISSUER)
                 .setAudience(SecurityConstants.TOKEN_AUDIENCE)
                 .setSubject(username)
-                .setExpiration(Date.from(LocalDateTime.now().plusHours(24).atZone(ZoneId.systemDefault()).toInstant()))
+                .setExpiration(Date.from(LocalDateTime.now().plusHours(SecurityConstants.JWT_TOKEN_DURATION_HOURS).atZone(ZoneId.systemDefault()).toInstant()))
                 .claim("rol", roles)
                 .compact();
     }
@@ -36,7 +36,7 @@ public class TokenCreator {
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET.getBytes())
                 .setSubject(username)
-                .setExpiration(Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant()))
+                .setExpiration(Date.from(LocalDateTime.now().plusDays(SecurityConstants.REFRESH_TOKEN_DURATION_DAYS).atZone(ZoneId.systemDefault()).toInstant()))
                 .claim("rol", roles)
                 .compact();
 

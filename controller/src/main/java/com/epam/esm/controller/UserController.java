@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.UserDTO;
@@ -9,6 +10,7 @@ import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.security.SecurityConstants;
 import com.epam.esm.security.TokenCreator;
+import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.UserService;
@@ -24,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,6 +43,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * gift-certificates
@@ -60,23 +64,36 @@ public class UserController {
     private DtoParser dtoParser;
     private TagService tagService;
     private TokenCreator tokenCreator;
+    private AppUserDetailsService detailsService;
 
     public UserController(UserService userService, OrderService orderService, LinkCreator linkCreator,
-                          DtoParser dtoParser, TagService tagService, TokenCreator tokenCreator) {
+                          DtoParser dtoParser, TagService tagService, TokenCreator tokenCreator,
+                          AppUserDetailsService detailsService) {
         this.userService = userService;
         this.orderService = orderService;
         this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
         this.tagService = tagService;
         this.tokenCreator = tokenCreator;
+        this.detailsService = detailsService;
     }
 
 
     @PostMapping
     public ResponseEntity save(@RequestBody @Valid UserDTO userDTO) {
         UserDTO saved = userService.save(userDTO);
+        AppUserPrinciple principle = (AppUserPrinciple) detailsService.loadUserByUsername(saved.getEmail());
+        List<String> roles = principle.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        String token = tokenCreator.createJwt(principle.getUsername(), roles);
+        String refreshToken = tokenCreator.createRefreshToken(principle.getUsername(), roles);
+        detailsService.update(principle, refreshToken);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(SecurityConstants.TOKEN_HEADER, tokenCreator.createJwt(saved.getEmail(), List.of(saved.getRole())));
+        httpHeaders.add(SecurityConstants.ACCESS_TOKEN_EXPIRATION, String.valueOf(tokenCreator.getJwtTokenExpirationTimestamp(token)));
+        httpHeaders.add(SecurityConstants.REFRESH_TOKEN_HEADER, refreshToken);
         return new ResponseEntity<>(linkCreator.toResource(saved), httpHeaders, HttpStatus.OK);
     }
 

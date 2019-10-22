@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found.id"), id));
         }
     }
 
@@ -58,14 +58,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO findOne(long id) {
         return userConverter.convert(userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id))));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found.id"), id))));
     }
 
     @Transactional
     @Override
     public UserDTO patch(UserPatchDTO userPatchDTO, Long id) {
         User user = userRepository.findById(id).orElseThrow(()
-                -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id)));
+                -> new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found.id"), id)));
         if (userPatchDTO.getEmail() != null) {
             user.setEmail(userPatchDTO.getEmail());
         }
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userConverter.convert(userRepository.save(user));
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.user.exist}"), userPatchDTO.getEmail()));
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"), userPatchDTO.getEmail()));
         }
     }
 
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
         try {
             saved = userRepository.save(user);
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.user.exist}"), userDTO.getEmail()));
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"), userDTO.getEmail()));
         }
         return userConverter.convert(saved);
     }
@@ -110,10 +110,10 @@ public class UserServiceImpl implements UserService {
             try {
                 return userConverter.convert(userRepository.save(user));
             } catch (DataIntegrityViolationException ex) {
-                throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.user.exist}"), userDTO.getEmail()));
+                throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"), userDTO.getEmail()));
             }
         } else {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found.id}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found.id"), id));
         }
     }
 

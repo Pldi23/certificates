@@ -48,7 +48,7 @@ create table application_user
     email         varchar(200),
     password      varchar(200),
     role_id       integer,
-    refresh_token varchar(200),
+    refresh_token varchar(1000),
 
     constraint user_pkey1 primary key (id),
     CONSTRAINT foreign_key_role_id FOREIGN KEY (role_id)

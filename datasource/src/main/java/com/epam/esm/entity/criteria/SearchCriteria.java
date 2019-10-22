@@ -110,4 +110,19 @@ public class SearchCriteria {
     public TagNameCriteria getTagNameCriteria() {
         return tagNameCriteria;
     }
+
+    @Override
+    public String toString() {
+        return "SearchCriteria{" +
+                "idCriteria=" + idCriteria +
+                ", nameCriteria=" + nameCriteria +
+                ", descriptionCriteria=" + descriptionCriteria +
+                ", creationDateCriteria=" + creationDateCriteria +
+                ", modificationDateCriteria=" + modificationDateCriteria +
+                ", expirationDateCriteria=" + expirationDateCriteria +
+                ", priceCriteria=" + priceCriteria +
+                ", tagCriteria=" + tagCriteria +
+                ", tagNameCriteria=" + tagNameCriteria +
+                '}';
+    }
 }

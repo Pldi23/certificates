@@ -8,11 +8,14 @@ import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.PaginationException;
 import com.epam.esm.exception.UserRoleException;
 import com.epam.esm.exception.GenerateDataException;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -136,4 +139,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
     }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        return ResponseEntity.status(401)
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    protected ResponseEntity<Object> handleDisabledException(DisabledException ex, WebRequest request) {
+        return ResponseEntity.status(401)
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
+    }
+
 }

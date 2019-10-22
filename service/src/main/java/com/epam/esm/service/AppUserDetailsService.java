@@ -34,7 +34,7 @@ public class AppUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         Optional<User> optionalUser = userRepository.findByEmail(username);
-        return new AppUserPrinciple(optionalUser.orElseThrow(() -> new UsernameNotFoundException(Translator.toLocale("{exception.credentials}"))));
+        return new AppUserPrinciple(optionalUser.orElseThrow(() -> new UsernameNotFoundException(Translator.toLocale("exception.credentials"))));
 
     }
 
@@ -45,7 +45,7 @@ public class AppUserDetailsService implements UserDetailsService {
             user.setRefreshToken(refreshToken);
             return new AppUserPrinciple(userRepository.save(user));
         } else {
-            throw new UsernameNotFoundException(Translator.toLocale("{exception.invalid.principle}"));
+            throw new UsernameNotFoundException(Translator.toLocale("exception.invalid.principle"));
         }
     }
 
@@ -57,7 +57,7 @@ public class AppUserDetailsService implements UserDetailsService {
             user.setRefreshToken(refreshToken);
             return new AppUserPrinciple(userRepository.save(user));
         } else {
-            throw new UsernameNotFoundException(Translator.toLocale("{exception.invalid.principle}"));
+            throw new UsernameNotFoundException(Translator.toLocale("exception.invalid.principle"));
         }
     }
 }

@@ -10,6 +10,8 @@ import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.repository.AbstractTagRepository;
 import com.epam.esm.repository.EMCertificateRepository;
 import com.epam.esm.repository.EMTagRepository;
 import com.epam.esm.util.Translator;
@@ -35,15 +37,15 @@ import java.util.stream.Collectors;
 public class CertificateServiceImpl implements CertificateService {
 
 
-    private EMCertificateRepository certificateRepository;
-    private EMTagRepository tagRepository;
+    private AbstractCertificateRepository certificateRepository;
+    private AbstractTagRepository tagRepository;
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
     private ExpirationDateValidator validator;
     private TagConverter tagConverter;
 
-    public CertificateServiceImpl(EMCertificateRepository certificateRepository,
-                                  EMTagRepository tagRepository,
+    public CertificateServiceImpl(AbstractCertificateRepository certificateRepository,
+                                  AbstractTagRepository tagRepository,
                                   CertificateConverter certificateConverter,
                                   CriteriaConverter criteriaConverter,
                                   ExpirationDateValidator validator,
@@ -67,7 +69,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public GiftCertificateDTO findOne(long id) {
         return certificateConverter.convert(certificateRepository.findById(id, true).orElseThrow(() ->
-                new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), id))));
+                new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), id))));
     }
 
     @Transactional
@@ -85,7 +87,7 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             return certificateConverter.convert(certificateRepository.save(giftCertificate));
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.certificate.exist}"), giftCertificateDTO.getName()));
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.certificate.exist"), giftCertificateDTO.getName()));
         }
     }
 
@@ -100,7 +102,7 @@ public class CertificateServiceImpl implements CertificateService {
         giftCertificate.setId(id);
         giftCertificate.setModificationDate(LocalDate.now());
         GiftCertificate expectedCertificate = certificateRepository.findById(id, true).orElseThrow(() ->
-                new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), id)));
+                new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), id)));
         validator.isValidDate(expectedCertificate.getCreationDate(), giftCertificate.getExpirationDate());
         giftCertificate.setCreationDate(expectedCertificate.getCreationDate());
         giftCertificate.setTags(tags);
@@ -113,7 +115,7 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             certificateRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), id));
         }
     }
 
@@ -137,7 +139,7 @@ public class CertificateServiceImpl implements CertificateService {
                     .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                     .collect(Collectors.toList());
         } else {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.tag.not.found}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id));
         }
     }
 
@@ -158,7 +160,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public GiftCertificateDTO patch(CertificatePatchDTO certificatePatchDTO, Long id) {
         GiftCertificate giftCertificate = certificateRepository.findById(id, true).orElseThrow(()
-                -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), id)));
+                -> new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), id)));
         if (certificatePatchDTO.getName() != null) {
             giftCertificate.setName(certificatePatchDTO.getName());
         }

@@ -20,6 +20,8 @@ public class SecurityConstants {
     public static final String TOKEN_TYPE = "JWT";
     public static final String TOKEN_ISSUER = "secure-api";
     public static final String TOKEN_AUDIENCE = "secure-app";
+    public static final int JWT_TOKEN_DURATION_HOURS = 2;
+    public static final int REFRESH_TOKEN_DURATION_DAYS = 60;
 
     private SecurityConstants() {
         throw new IllegalStateException("Cannot createJwt instance of static util class");

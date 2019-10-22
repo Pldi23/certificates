@@ -2,12 +2,13 @@ package com.epam.esm.converter;
 
 import com.epam.esm.entity.criteria.TagNameCriteria;
 import com.epam.esm.entity.criteria.TextSearchType;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-
+@Log4j2
 public class TagNameCriteriaCreator implements CriteriaCreator<TagNameCriteria> {
 
     private CriteriaCreatorHelper<TagNameCriteria> helper;

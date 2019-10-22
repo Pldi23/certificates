@@ -43,34 +43,4 @@ public class CriteriaConverter {
                 .withTagNameCriteria(new TagNameCriteriaCreator(helper).create(criteriaMap))
                 .build();
     }
-
-    public LimitOffsetCriteria convertLimitOffsetCriteria(LimitOffsetCriteriaRequestDTO limitOffsetCriteriaRequestDTO) {
-        Map<String, String> criteriaMap = limitOffsetCriteriaRequestDTO.getParameters();
-        int limit = 0;
-        long offset = 0;
-        if (criteriaMap.containsKey(LIMIT) && criteriaMap.get(LIMIT) != null && !criteriaMap.get(LIMIT).isBlank()) {
-            limit = Integer.parseInt(criteriaMap.get(LIMIT));
-        }
-        if (criteriaMap.containsKey(OFFSET) && criteriaMap.get(OFFSET) != null && !criteriaMap.get(OFFSET).isBlank()) {
-            offset = Long.parseLong(criteriaMap.get(OFFSET));
-        }
-        return new LimitOffsetCriteria.Builder()
-                .withLimit(limit)
-                .withOffset(offset)
-                .build();
-    }
-
-    public SortCriteria convertSortCriteria(SortCriteriaRequestDTO sortCriteriaRequestDTO) {
-        String criteria = sortCriteriaRequestDTO.getParameters().get(SORT);
-        if (criteria == null) {
-            return null;
-        }
-        boolean isAscending = !criteria.startsWith(SORT_DESCENDING_KEY);
-        criteria = criteria.replaceFirst(SORT_DESCENDING_KEY, "");
-        List<String> criteriaList = Arrays.asList(criteria.split(","));
-        return new SortCriteria.Builder()
-                .withIsAscending(isAscending)
-                .withCriterias(criteriaList)
-                .build();
-    }
 }

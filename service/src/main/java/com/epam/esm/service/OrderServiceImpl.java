@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
             orderCertificateRepository.deleteByOrderId(id);
             orderRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.order.not.found}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), id));
         }
     }
 
@@ -74,7 +74,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO findOne(long id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.order.not.found}"), id)));
+        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), id)));
         OrderDTO orderDTO = orderConverter.convert(order);
         orderDTO.setPrice(orderCertificateRepository.calculateOrderFixedPrice(id));
         return orderDTO;
@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO save(OrderDTO orderDTO) {
         Order saved = orderRepository.save(Order.builder()
                 .createdAt(LocalDateTime.now())
-                .user(userRepository.findByEmail(orderDTO.getUserEmail()).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.user.not.found}"), orderDTO.getUserEmail()))))
+                .user(userRepository.findByEmail(orderDTO.getUserEmail()).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found"), orderDTO.getUserEmail()))))
                 .build());
         saveOrderCertificates(saved, orderDTO.getGiftCertificates());
 
@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setPrice(orderCertificateRepository.calculateOrderFixedPrice(updated.getId()));
             return dto;
         } else {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.order.not.found}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), id));
         }
     }
 
@@ -133,9 +133,9 @@ public class OrderServiceImpl implements OrderService {
     private void saveOrderCertificates(Order order, List<GiftCertificateDTO> giftCertificates) {
         List<GiftCertificate> certificates = giftCertificates.stream().map(giftCertificateDTO -> giftCertificateDTO.getId() == null ?
                 certificateRepository.findByName(giftCertificateDTO.getName()).orElseThrow(() ->
-                        new EntityNotFoundException(String.format(Translator.toLocale("{certificate.not.found.by.name}"), giftCertificateDTO.getName()))) :
+                        new EntityNotFoundException(String.format(Translator.toLocale("certificate.not.found.by.name"), giftCertificateDTO.getName()))) :
                 certificateRepository.findById(giftCertificateDTO.getId(), false).orElseThrow(() ->
-                        new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), giftCertificateDTO.getId()))))
+                        new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), giftCertificateDTO.getId()))))
                 .collect(Collectors.toList());
 
         certificates.forEach(certificate -> orderCertificateRepository.save(OrderCertificate.builder()

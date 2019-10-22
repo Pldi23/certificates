@@ -1,5 +1,8 @@
 package com.epam.esm.security;
 
+import com.epam.esm.dto.ViolationDTO;
+import com.epam.esm.util.Translator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -22,7 +25,11 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +39,16 @@ import java.util.stream.Collectors;
  * @version 0.0.1
  */
 @Log4j2
-public class JwtAuthorizationFilter extends BasicAuthenticationFilter  {
+public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+
+    private static final Map<String, String> SAFE_ENDPOINTS =
+            Map.of("/", "GET",
+                    "/authenticate", "POST",
+                    "/authenticate/refresh-token", "POST",
+                    "/login", "GET",
+                    "/error", "GET",
+                    "/certificates", "GET",
+                    "/users", "POST");
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
@@ -41,59 +57,64 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter  {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-
-        request.getParameterMap().forEach((k,v) -> log.info("key :: " + k + " value :: " + Arrays.toString(v)));
-
+        log.info("authorization");
         UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
-        if (authentication == null) {
+        if (authentication == null && !verifyNullToken(request)) {
+            ObjectMapper mapper = new ObjectMapper();
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(401);
+            response.getWriter().write(mapper.writeValueAsString(
+                    new ViolationDTO(List.of(Translator.toLocale("violation.autorization")), 401, LocalDateTime.now())));
+        } else if (authentication == null) {
             log.info("authentication is null ");
             filterChain.doFilter(request, response);
-            return;
+        } else {
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            filterChain.doFilter(request, response);
+
         }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        filterChain.doFilter(request, response);
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.TOKEN_HEADER);
         if (token != null && !token.isEmpty() && token.startsWith(SecurityConstants.TOKEN_PREFIX)) {
-            try {
 
-                Jws<Claims> parsedToken = Jwts.parser()
-                        .setSigningKey(SecurityConstants.JWT_SECRET.getBytes())
-                        .parseClaimsJws(token.replace("Bearer ", ""));
+            Jws<Claims> parsedToken = Jwts.parser()
+                    .setSigningKey(SecurityConstants.JWT_SECRET.getBytes())
+                    .parseClaimsJws(token.replace("Bearer ", ""));
 
-                String username = parsedToken
-                        .getBody()
-                        .getSubject();
+            String username = parsedToken
+                    .getBody()
+                    .getSubject();
+            log.info(username);
 
-                LocalDateTime expiration =
-                        LocalDateTime.ofInstant(parsedToken.getBody().getExpiration().toInstant(), ZoneId.systemDefault());
+            LocalDateTime expiration =
+                    LocalDateTime.ofInstant(parsedToken.getBody().getExpiration().toInstant(), ZoneId.systemDefault());
 
 
-                List<SimpleGrantedAuthority> authorities = ((List<?>) parsedToken.getBody()
-                        .get("rol")).stream()
-                        .map(authority -> new SimpleGrantedAuthority((String) authority))
-                        .collect(Collectors.toList());
+            List<SimpleGrantedAuthority> authorities = ((List<?>) parsedToken.getBody()
+                    .get("rol")).stream()
+                    .map(authority -> new SimpleGrantedAuthority((String) authority))
+                    .collect(Collectors.toList());
 
-                log.info(username + " authorized as " + authorities);
+            log.info(username + " authorized as " + authorities);
 
-                if (username != null && !username.isEmpty() && expiration.isAfter(LocalDateTime.now())) {
-                    return new UsernamePasswordAuthenticationToken(username, null, authorities);
-                }
-            } catch (ExpiredJwtException exception) {
-                log.warn("Request to parse expired JWT : {} failed : {}", token, exception.getMessage());
-            } catch (UnsupportedJwtException exception) {
-                log.warn("Request to parse unsupported JWT : {} failed : {}", token, exception.getMessage());
-            } catch (MalformedJwtException exception) {
-                log.warn("Request to parse invalid JWT : {} failed : {}", token, exception.getMessage());
-            } catch (SignatureException exception) {
-                log.warn("Request to parse JWT with invalid signature : {} failed : {}", token, exception.getMessage());
-            } catch (IllegalArgumentException exception) {
-                log.warn("Request to parse empty or null JWT : {} failed : {}", token, exception.getMessage());
+            if (username != null && !username.isEmpty() && expiration.isAfter(LocalDateTime.now())) {
+                log.info("to verify principle");
+                return new UsernamePasswordAuthenticationToken(username, null, authorities);
             }
+
         }
 
         return null;
     }
+
+    private boolean verifyNullToken(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        log.info(uri);
+        boolean result = SAFE_ENDPOINTS.containsKey(uri) && SAFE_ENDPOINTS.get(uri).equals(request.getMethod());
+        log.info(result);
+        return result;
+    }
+
 }

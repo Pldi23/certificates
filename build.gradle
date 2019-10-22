@@ -33,12 +33,9 @@ subprojects {
     }
 
     dependencies {
-//        compile 'org.springframework:spring-core:4.3.8.RELEASE'
-//        compile 'org.springframework:spring-context:4.3.8.RELEASE'
         compile 'org.apache.logging.log4j:log4j-api:2.11.2'
         compile 'org.apache.logging.log4j:log4j-core:2.11.2'
         compile 'org.apache.logging.log4j:log4j-web:2.11.2'
-//        compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.2'
         compile 'javax.validation:validation-api:2.0.1.Final'
         compile 'org.hibernate.validator:hibernate-validator:6.0.16.Final'
         compile 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
@@ -50,14 +47,10 @@ subprojects {
         compile 'org.springframework.boot:spring-boot-starter-web:2.1.9.RELEASE'
         compile 'org.springframework.boot:spring-boot-starter-security:2.1.9.RELEASE'
         compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.9.RELEASE'
-        // https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-client
         compile group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: '5.1.6.RELEASE'
-        // https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-jose
         compile group: 'org.springframework.security', name: 'spring-security-oauth2-jose', version: '5.1.6.RELEASE'
         compile group: 'org.springframework.security', name: 'spring-security-openid', version: '5.2.0.RELEASE'
-        // https://mvnrepository.com/artifact/com.auth0/jwks-rsa
         compile group: 'com.auth0', name: 'jwks-rsa', version: '0.9.0'
-//        compile 'com.maximeroussy.invitrode:invitrode:2.0.1'
         
 
         compile 'io.jsonwebtoken:jjwt:0.9.1'

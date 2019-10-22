@@ -5,6 +5,8 @@ import com.epam.esm.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -49,25 +50,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .and()
                 .cors()
+//                .and()
+//                .exceptionHandling()
+//                .accessDeniedHandler(new AppAccessDeniedHandler())
                 .and()
                 .csrf().disable()
                 .addFilterBefore(new StatelessCsrfFilter(), CsrfFilter.class)
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), tokenCreator, userDetailsService))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager()))
-                .addFilter(new OpenIdAuthentificationFilter())
+                .addFilterBefore(new ExceptionHandlerFilter(), JwtAuthorizationFilter.class)
+//                .addFilter(new ExceptionHandlerFilter(), StatelessCsrfFilter.class)
                 .authorizeRequests()
-                .antMatchers("/", "/authenticate", "/login", "/login/openid", "/error").permitAll()
-//                .antMatchers(HttpMethod.GET, "/certificates/**").permitAll()
+                .antMatchers("/", "/authenticate", "/authenticate/refresh-token", "/login", "/error").permitAll()
+                .antMatchers(HttpMethod.GET, "/certificates").permitAll()
+                .antMatchers(HttpMethod.POST, "/users").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-//                .addFilter(new RefreshTokenFilter(tokenCreator, userDetailsService))
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .openidLogin().loginProcessingUrl("https://accounts.google.com/o/oauth2/v2/auth?client_id=630015231507-386p2hh0v8ejnsjbh4jhkp2p4earq3vt.apps.googleusercontent.com&response_type=code&scope=openid%20email&redirect_uri=http://localhost:8080/login/openid")
-                .successHandler(new OpenIdSuccessHandler(userDetailsService, userService, tokenCreator))
-                .failureHandler(new FailedHandler())
                 .and()
                 .oauth2Login()
                 .successHandler(new OpenIdSuccessHandler(userDetailsService, userService, tokenCreator));
@@ -77,16 +77,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
-    }
-
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new FailedHandler();
-    }
-
-    @Bean
-    public AppAuthenticationEntryPoint appAuthenticationEntryPoint() {
-        return new AppAuthenticationEntryPoint();
     }
 
 
@@ -103,11 +93,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         return source;
     }
-//
-//    @Bean
-//    public PrincipalExtractor principalExtractor(LoginUserDetailsService userDetailsService) {
-//        return map -> userDetailsService.loadUserByUsername((String) map.get("email"));
-//    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
 
 }

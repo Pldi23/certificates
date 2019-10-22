@@ -5,6 +5,8 @@ import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.repository.AbstractTagRepository;
 import com.epam.esm.repository.EMCertificateRepository;
 import com.epam.esm.repository.EMTagRepository;
 import com.epam.esm.util.Translator;
@@ -27,12 +29,12 @@ import java.util.stream.Collectors;
 @Service
 public class TagServiceImpl implements TagService {
 
-    private EMTagRepository tagRepository;
-    private EMCertificateRepository certificateRepository;
+    private AbstractTagRepository tagRepository;
+    private AbstractCertificateRepository certificateRepository;
 
     private TagConverter tagConverter;
 
-    public TagServiceImpl(EMTagRepository tagRepository, EMCertificateRepository certificateRepository, TagConverter tagConverter) {
+    public TagServiceImpl(AbstractTagRepository tagRepository, AbstractCertificateRepository certificateRepository, TagConverter tagConverter) {
         this.tagRepository = tagRepository;
         this.certificateRepository = certificateRepository;
         this.tagConverter = tagConverter;
@@ -40,7 +42,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDTO findOne(long id) {
-        return tagConverter.convert(tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("{entity.tag.not.found}"), id))));
+        return tagConverter.convert(tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id))));
     }
 
     @Override
@@ -57,7 +59,7 @@ public class TagServiceImpl implements TagService {
         try {
             saved = tagRepository.save(tag);
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("{exception.tag.exist}"), tagDTO.getTitle()));
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.tag.exist"), tagDTO.getTitle()));
         }
         return tagConverter.convert(saved);
     }
@@ -67,7 +69,7 @@ public class TagServiceImpl implements TagService {
         try {
             tagRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.tag.not.found}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id));
         }
     }
 
@@ -79,7 +81,7 @@ public class TagServiceImpl implements TagService {
                     .map(tag -> tagConverter.convert(tag))
                     .collect(Collectors.toList());
         } else {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), id));
         }
     }
 
