@@ -14,6 +14,7 @@ import com.epam.esm.validator.OrderSearchCriteriaValid;
 import com.epam.esm.validator.OrderSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.TagSortValid;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -44,6 +45,7 @@ import java.util.Map;
 @RequestMapping("/orders")
 @Validated
 @ExposesResourceFor(OrderDTO.class)
+@Log4j2
 public class OrderController {
 
     private OrderService orderService;
@@ -64,6 +66,7 @@ public class OrderController {
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @PostMapping
     public ResponseEntity save(@Valid @RequestBody OrderDTO orderDTO) {
+        log.info(orderDTO);
         return ResponseEntity.ok(linkCreator.toResource(orderService.save(orderDTO)));
     }
 

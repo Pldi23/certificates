@@ -51,7 +51,7 @@ public class OrderDTO {
     private BigDecimal price;
 
     @ValidCertificatesSet(message = "{violation.certificate.set}")
-    private Set<GiftCertificateDTO> giftCertificates;
+    private List<GiftCertificateDTO> giftCertificates;
 
     @Null
     @JsonIgnore

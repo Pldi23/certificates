@@ -68,11 +68,11 @@ public class RandomDataGenerator {
     }
 
     public void generate(int tagsQuantity, int certificatesQuantity, int usersQuantity, int ordersQuantity) {
-        generateTags(tagsQuantity);
-        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO());
-        generateCertificates(certificatesQuantity, tags);
+//        generateTags(tagsQuantity);
+//        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO());
+//        generateCertificates(certificatesQuantity, tags);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
-        generateUsers(usersQuantity);
+//        generateUsers(usersQuantity);
         List<UserDTO> userDTOS = userService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
         generateOrders(ordersQuantity, userDTOS, giftCertificateDTOS);
 
@@ -154,8 +154,8 @@ public class RandomDataGenerator {
         return userDTO.getEmail();
     }
 
-    private Set<GiftCertificateDTO> getRandomGiftCetificateSet(List<GiftCertificateDTO> allGiftCertificateDTOS) {
-        Set<GiftCertificateDTO> certificateDTOSet = new HashSet<>();
+    private List<GiftCertificateDTO> getRandomGiftCetificateSet(List<GiftCertificateDTO> allGiftCertificateDTOS) {
+        List<GiftCertificateDTO> certificateDTOSet = new ArrayList<>();
 //        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll(new PageAndSortDTO());
         for (int i = 0; i < random.nextInt(10); i++) {
             certificateDTOSet.add(allGiftCertificateDTOS.get(random.nextInt(allGiftCertificateDTOS.size())));

@@ -89,7 +89,7 @@ public class OrderServiceImpl implements OrderService {
                 .build());
         saveOrderCertificates(saved, orderDTO.getGiftCertificates());
 
-        saved.setOrderCertificates(new HashSet<>(orderCertificateRepository.findAllByOrderId(saved.getId())));
+        saved.setOrderCertificates(orderCertificateRepository.findAllByOrderId(saved.getId()));
 
         OrderDTO dto = orderConverter.convert(saved);
         dto.setPrice(orderCertificateRepository.calculateOrderFixedPrice(saved.getId()));
@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
             orderCertificateRepository.deleteByOrderId(id);
             saveOrderCertificates(order, orderDTO.getGiftCertificates());
             Order updated = orderRepository.save(order);
-            updated.setOrderCertificates(new HashSet<>(orderCertificateRepository.findAllByOrderId(updated.getId())));
+            updated.setOrderCertificates(orderCertificateRepository.findAllByOrderId(updated.getId()));
             OrderDTO dto = orderConverter.convert(updated);
             dto.setPrice(orderCertificateRepository.calculateOrderFixedPrice(updated.getId()));
             return dto;
@@ -130,14 +130,13 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-    private void saveOrderCertificates(Order order, Set<GiftCertificateDTO> giftCertificates) {
-        Set<GiftCertificate> certificates = giftCertificates.stream().map(giftCertificateDTO -> giftCertificateDTO.getId() == null ?
+    private void saveOrderCertificates(Order order, List<GiftCertificateDTO> giftCertificates) {
+        List<GiftCertificate> certificates = giftCertificates.stream().map(giftCertificateDTO -> giftCertificateDTO.getId() == null ?
                 certificateRepository.findByName(giftCertificateDTO.getName()).orElseThrow(() ->
                         new EntityNotFoundException(String.format(Translator.toLocale("{certificate.not.found.by.name}"), giftCertificateDTO.getName()))) :
                 certificateRepository.findById(giftCertificateDTO.getId(), false).orElseThrow(() ->
                         new EntityNotFoundException(String.format(Translator.toLocale("{entity.certificate.not.found}"), giftCertificateDTO.getId()))))
-                .collect(Collectors.toSet());
-
+                .collect(Collectors.toList());
 
         certificates.forEach(certificate -> orderCertificateRepository.save(OrderCertificate.builder()
                 .order(order)

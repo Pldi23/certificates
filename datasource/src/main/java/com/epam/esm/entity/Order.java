@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -39,7 +40,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"user"})
 @EqualsAndHashCode(exclude = "user")
 public class Order {
 
@@ -56,7 +57,7 @@ public class Order {
 
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    private Set<OrderCertificate> orderCertificates;
+    private List<OrderCertificate> orderCertificates;
 
     private Boolean activeStatus;
 

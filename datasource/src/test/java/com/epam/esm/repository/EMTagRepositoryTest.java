@@ -24,7 +24,6 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER
 @Transactional
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 class EMTagRepositoryTest {
 
     @Autowired

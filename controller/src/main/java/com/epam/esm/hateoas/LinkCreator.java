@@ -10,12 +10,10 @@ import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.UserDTO;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -33,6 +31,7 @@ public class LinkCreator {
         links.add(linkTo(OrderController.class).slash(orderDTO.getId()).withSelfRel());
         orderDTO.getGiftCertificates()
                 .forEach(i -> links.add(linkTo(CertificateController.class).slash(i.getId()).withRel("gift certificates")));
+        links.add(linkTo(UserController.class).slash(orderDTO.getUserId()).withRel("user"));
         return new Resource<>(orderDTO, links);
     }
 

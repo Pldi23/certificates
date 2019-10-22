@@ -23,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -63,10 +64,6 @@ public class GiftCertificate {
 
 
     @OneToMany(mappedBy = "certificate", cascade = CascadeType.ALL)
-    private Set<OrderCertificate> orderCertificates;
-
-    public void addOrderCertificate(OrderCertificate orderCertificate) {
-        orderCertificates.add(orderCertificate);
-    }
+    private List<OrderCertificate> orderCertificates;
 
 }

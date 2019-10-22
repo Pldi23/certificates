@@ -1,7 +1,6 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Order;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +22,6 @@ import static com.epam.esm.repository.constant.JpaConstant.*;
  * @version 0.0.1
  */
 @Repository
-@Log4j2
 public class EMOrderRepository implements AbstractOrderRepository {
 
     private EntityManager entityManager;
@@ -73,7 +71,6 @@ public class EMOrderRepository implements AbstractOrderRepository {
         Root<Order> from = criteriaQuery.from(Order.class);
         CriteriaQuery<Order> select = criteriaQuery.select(from);
         if (email != null) {
-            log.info(email);
             select.where(criteriaBuilder.like(from.get(USER).get(EMAIL), email));
         }
         if (userId != null) {

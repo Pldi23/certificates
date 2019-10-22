@@ -4,6 +4,7 @@ import com.epam.esm.dto.GiftCertificateDTO;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -13,10 +14,10 @@ import java.util.Set;
  * @author Dzmitry Platonov on 2019-10-13.
  * @version 0.0.1
  */
-public class GiftCertificateSetValidator implements ConstraintValidator<ValidCertificatesSet, Set<GiftCertificateDTO>> {
+public class GiftCertificateSetValidator implements ConstraintValidator<ValidCertificatesSet, List<GiftCertificateDTO>> {
 
     @Override
-    public boolean isValid(Set<GiftCertificateDTO> giftCertificateDTOS, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(List<GiftCertificateDTO> giftCertificateDTOS, ConstraintValidatorContext constraintValidatorContext) {
         return giftCertificateDTOS.stream()
                 .allMatch(giftCertificateDTO -> isValidFields(giftCertificateDTO) && isValidId(giftCertificateDTO)
                         && isValidName(giftCertificateDTO));

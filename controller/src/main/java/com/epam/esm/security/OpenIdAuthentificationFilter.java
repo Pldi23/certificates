@@ -26,7 +26,7 @@ public class OpenIdAuthentificationFilter extends OpenIDAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info(request.getUserPrincipal());
-        request.getParameterMap().forEach((k,v) -> log.info("key :: " + k + " value :: " + Arrays.toString(v)));
+//        request.getParameterMap().forEach((k,v) -> log.info("key :: " + k + " value :: " + Arrays.toString(v)));
 
         return null;
     }
