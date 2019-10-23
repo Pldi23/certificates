@@ -130,7 +130,8 @@ public class OrderController {
                                          @TagSortValid(message = "{violation.tag.sort}")
                                          @PageAndSizeValid(message = "{violation.page.size}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(tagService.findTagsByOrder(id, pageAndSortDTO));
+        return ResponseEntity.ok(tagService.findTagsByOrder(id, pageAndSortDTO).stream()
+                .map(tagDTO -> linkCreator.toResource(tagDTO)));
     }
 
     @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")

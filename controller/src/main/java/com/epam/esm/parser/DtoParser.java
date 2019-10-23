@@ -64,7 +64,7 @@ public class DtoParser {
                 .page(requestParams.containsKey(PAGE_PARAMETER) && !requestParams.get(PAGE_PARAMETER).isBlank() ?
                         Integer.parseInt(requestParams.get(PAGE_PARAMETER)) : 1)
                 .size(requestParams.containsKey(SIZE_PARAMETER) && !requestParams.get(SIZE_PARAMETER).isBlank() ?
-                        Integer.parseInt(requestParams.get(SIZE_PARAMETER)) : Integer.MAX_VALUE)
+                        Integer.parseInt(requestParams.get(SIZE_PARAMETER)) : 5)
                 .build();
     }
 

@@ -123,7 +123,7 @@ public class CertificateController {
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
-        return ResponseEntity.ok(certificateServiceImpl.update(giftCertificateDTO, id));
+        return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.update(giftCertificateDTO, id)));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -154,7 +154,8 @@ public class CertificateController {
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl
                 .findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
-        return ResponseEntity.ok(giftCertificateDTOS);
+        return ResponseEntity.ok(giftCertificateDTOS.stream()
+                .map(giftCertificateDTO -> linkCreator.toResource(giftCertificateDTO)));
 
     }
 
@@ -165,13 +166,14 @@ public class CertificateController {
             @PageAndSizeValid(message = "{violation.page.size}")
             @TagSortValid(message = "{violation.tag.sort}") @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO));
+        return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO).stream()
+                .map(tagDTO -> linkCreator.toResource(tagDTO)));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
     @PatchMapping(value = "/{id}")
     public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
                                         @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {
-        return ResponseEntity.ok(certificateServiceImpl.patch(certificatePatchDTO, id));
+        return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.patch(certificatePatchDTO, id)));
     }
 }

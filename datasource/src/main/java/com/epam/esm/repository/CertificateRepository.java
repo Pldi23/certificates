@@ -3,7 +3,6 @@ package com.epam.esm.repository;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.criteria.SearchCriteria;
 import com.epam.esm.repository.predicate.CriteriaBuilderHelper;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -31,7 +30,6 @@ import static com.epam.esm.repository.constant.JpaConstant.REQUEST_MODIFICATION_
 import static com.epam.esm.repository.constant.JpaConstant.TAGS;
 
 @Repository
-@Log4j2
 public class CertificateRepository implements AbstractCertificateRepository {
 
     private EntityManager entityManager;

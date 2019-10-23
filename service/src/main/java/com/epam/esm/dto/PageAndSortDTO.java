@@ -6,12 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-14.
- * @version 0.0.1
- */
+
 @Builder
 @Getter
 @Setter

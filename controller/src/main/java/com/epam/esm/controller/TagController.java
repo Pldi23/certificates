@@ -67,8 +67,8 @@ public class TagController {
     @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping
     public ResponseEntity getAllTags(@PageAndSizeValid(message = "{violation.page.size}")
-                                         @TagSortValid(message = "{violation.tag.sort.cost}")
-                                         @RequestParam Map<String, String> pageAndSortParameters) {
+                                     @TagSortValid(message = "{violation.tag.sort.cost}")
+                                     @RequestParam Map<String, String> pageAndSortParameters) {
 
         List<TagDTO> tagDTOS = tagServiceImpl.findPaginated(dtoParser.parsePageAndSortCriteria(pageAndSortParameters));
         if (!tagDTOS.isEmpty()) {
@@ -126,7 +126,8 @@ public class TagController {
     @GetMapping("/populars")
     public ResponseEntity getMostPopulars(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
-        return ResponseEntity.ok(tagServiceImpl.findPopular(pageAndSortDTO));
+        return ResponseEntity.ok(tagServiceImpl.findPopular(pageAndSortDTO).stream()
+                .map(tagDTO -> linkCreator.toResource(tagDTO)));
     }
 
 }

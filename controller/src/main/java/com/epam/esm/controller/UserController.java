@@ -102,7 +102,7 @@ public class UserController {
     @Secured(RoleConstant.ROLE_ADMIN)
     @GetMapping
     public ResponseEntity getAll(@RequestParam @PageAndSizeValid(message = "{violation.page.size}")
-                                     @UserSortValid(message = "{violation.user.sort}") Map<String, String> params) {
+                                 @UserSortValid(message = "{violation.user.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<UserDTO> users = userService.findAll(pageAndSortDTO);
         return ResponseEntity.ok(!users.isEmpty() ? users.stream().map(userDTO -> linkCreator.toResource(userDTO)) :
@@ -126,7 +126,8 @@ public class UserController {
         OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder()
                 .userId(id)
                 .build();
-        return ResponseEntity.ok(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO));
+        return ResponseEntity.ok(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO).stream()
+                .map(orderDTO -> linkCreator.toResource(orderDTO)));
     }
 
     @PreAuthorize("@securityChecker.check(#id) or @securityChecker.checkUser(#id)")
@@ -168,15 +169,16 @@ public class UserController {
             @TagCostSortValid(message = "{violation.tag.sort.cost}")
             @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO));
+        return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO).stream()
+                .map(tagDTO -> linkCreator.toResource(tagDTO)));
     }
 
     @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/tags/popular")
     public ResponseEntity getMostPopularTagsByUser(
             @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
-        return ResponseEntity.ok(tagService.findMostCostEffectiveTag(id));
+        return ResponseEntity.ok(tagService.findMostCostEffectiveTag(id).stream()
+                .map(tagDTO -> linkCreator.toResource(tagDTO)));
     }
-
 
 }
