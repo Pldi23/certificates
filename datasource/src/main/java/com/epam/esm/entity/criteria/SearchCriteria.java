@@ -2,12 +2,7 @@ package com.epam.esm.entity.criteria;
 
 import java.util.Objects;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-26.
- * @version 0.0.1
- */
+
 public class SearchCriteria {
 
     private IdCriteria idCriteria;

@@ -8,12 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Objects;
 
-/**
- * giftcertificates
- *
- * @author Dzmitry Platonov on 2019-09-23.
- * @version 0.0.1
- */
+
 @Data
 @javax.persistence.Entity
 public abstract class Entity {

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 
 public interface AbstractTagRepository extends FindAllRepository<Tag>, FindOneRepository<Tag>, SaveRepository<Tag>,
-        RemoveRepository, QueryRepository<Tag>  {
+        RemoveRepository {
 
     List<Tag> findTagsByCertificate(long certificateId, String sortParam, int page, int size);
     Optional<Tag> findByTitle(String title);
@@ -16,5 +16,4 @@ public interface AbstractTagRepository extends FindAllRepository<Tag>, FindOneRe
     List<Tag> findTagsByUserWithCriteria(long userId, String sortParam, int page, int size);
     List<Tag> findPopulars(int page, int size);
     List<Tag> findMostCostEffectiveTagByUser(long userId);
-    long count();
 }

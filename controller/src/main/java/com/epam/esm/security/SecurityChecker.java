@@ -1,9 +1,11 @@
 package com.epam.esm.security;
 
 
+import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.UserDTO;
+import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import lombok.extern.log4j.Log4j2;
@@ -11,14 +13,13 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * gift-certificates
+ * to check principal access
  *
  * @author Dzmitry Platonov on 2019-10-19.
  * @version 0.0.1
@@ -27,12 +28,12 @@ import java.util.stream.Collectors;
 @Log4j2
 public class SecurityChecker {
 
-    private UserDetailsService userDetailsService;
+    private AppUserDetailsService userDetailsService;
     private OrderService orderService;
     private UserService userService;
 
 
-    public SecurityChecker(UserDetailsService userDetailsService, OrderService orderService, UserService userService) {
+    public SecurityChecker(AppUserDetailsService userDetailsService, OrderService orderService, UserService userService) {
         this.userDetailsService = userDetailsService;
         this.orderService = orderService;
         this.userService = userService;
@@ -52,14 +53,7 @@ public class SecurityChecker {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         UserDTO userDTO = userService.findOne(id);
-        return !roles.contains("ROLE_USER") && !userDTO.getRole().equals("ROLE_ADMIN");
-//        if (roles.contains("ROLE_USER")) {
-//            return false;
-//        } else {
-//            return !userDTO.getRole().equals("ROLE_ADMIN");
-//        }
-
-
+        return !roles.contains(RoleConstant.ROLE_USER) && !userDTO.getRole().equals(RoleConstant.ROLE_ADMIN);
     }
 
     public boolean checkOrder(ResponseEntity responseEntity) {

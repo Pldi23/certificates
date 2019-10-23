@@ -1,5 +1,6 @@
 package com.epam.esm.generate;
 
+import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.PageAndSortDTO;
@@ -27,7 +28,7 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * gift-certificates
+ * to generate test data
  *
  * @author Dzmitry Platonov on 2019-10-21.
  * @version 0.0.1
@@ -68,11 +69,11 @@ public class RandomDataGenerator {
     }
 
     public void generate(int tagsQuantity, int certificatesQuantity, int usersQuantity, int ordersQuantity) {
-//        generateTags(tagsQuantity);
-//        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO());
-//        generateCertificates(certificatesQuantity, tags);
+        generateTags(tagsQuantity);
+        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO());
+        generateCertificates(certificatesQuantity, tags);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
-//        generateUsers(usersQuantity);
+        generateUsers(usersQuantity);
         List<UserDTO> userDTOS = userService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
         generateOrders(ordersQuantity, userDTOS, giftCertificateDTOS);
 
@@ -148,15 +149,12 @@ public class RandomDataGenerator {
     }
 
     private String getRandomUserEmail(List<UserDTO> allUsers) {
-//        long count = userService.count();
-//        List<UserDTO> all = userService.findAll(new PageAndSortDTO());
         UserDTO userDTO = allUsers.get(random.nextInt(allUsers.size()));
         return userDTO.getEmail();
     }
 
     private List<GiftCertificateDTO> getRandomGiftCetificateSet(List<GiftCertificateDTO> allGiftCertificateDTOS) {
         List<GiftCertificateDTO> certificateDTOSet = new ArrayList<>();
-//        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll(new PageAndSortDTO());
         for (int i = 0; i < random.nextInt(10); i++) {
             certificateDTOSet.add(allGiftCertificateDTOS.get(random.nextInt(allGiftCertificateDTOS.size())));
         }
@@ -170,7 +168,7 @@ public class RandomDataGenerator {
     }
 
     private String generateRole() {
-        return random.nextBoolean() ? "ROLE_USER" : "ROLE_ADMIN";
+        return random.nextBoolean() ? RoleConstant.ROLE_USER : RoleConstant.ROLE_ADMIN;
     }
 
     private LocalDate generateRandomExpirationDate() {
@@ -185,8 +183,6 @@ public class RandomDataGenerator {
 
     private Set<TagDTO> generateRandomTagsSet(List<TagDTO> allTags) {
         Set<TagDTO> tags = new HashSet<>();
-//        long count = tagService.count();
-//        List<TagDTO> all = tagService.findAll(new PageAndSortDTO());
         for (int i = 0; i < random.nextInt(10); i++) {
             TagDTO tag = allTags.get(random.nextInt(allTags.size()));
             tags.add(tag);

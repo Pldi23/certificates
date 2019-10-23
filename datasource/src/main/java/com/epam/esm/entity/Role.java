@@ -15,15 +15,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-10.
- * @version 0.0.1
- */
+
 @Entity
 @Table(name = "application_role")
-//@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,11 +33,4 @@ public class Role {
     private Long id;
 
     private String value;
-
-//    @OneToMany(mappedBy = "role")
-//    @JsonBackReference(value="user-role")
-//    private Set<User> users;
-
-
-
 }

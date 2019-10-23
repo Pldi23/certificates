@@ -1,5 +1,7 @@
 package com.epam.esm.validator;
 
+import com.epam.esm.constant.RequestConstant;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
@@ -12,23 +14,22 @@ public class OrderSearchCriteriaValidator implements ConstraintValidator<OrderSe
     public boolean isValid(Map<String, String> params, ConstraintValidatorContext constraintValidatorContext) {
         if (!validateUserCriteria(params)) return false;
         if (!validateCertificateCriteria(params)) return false;
-        if (params.containsKey("email") && params.get("email").isBlank()) return false;
-        if (params.containsKey("user_id") && (params.get("user_id").isBlank()
-                || !params.get("user_id").matches("\\d+")
-                || !isParsable(params.get("user_id")))) return false;
-        if (params.containsKey("c_name") && params.get("c_name").isBlank()) return false;
-        if (params.containsKey("c_id") && (params.get("c_id").isBlank()
-                || Arrays.stream(params.get("c_id").split(",")).noneMatch(s -> s.matches("\\d+"))
-                || !isParsable(params.get("c_id")))) return false;
-        return true;
+        if (params.containsKey(RequestConstant.EMAIL) && params.get(RequestConstant.EMAIL).isBlank()) return false;
+        if (params.containsKey(RequestConstant.USER_ID) && (params.get(RequestConstant.USER_ID).isBlank()
+                || !params.get(RequestConstant.USER_ID).matches("\\d+")
+                || !isParsable(params.get(RequestConstant.USER_ID)))) return false;
+        if (params.containsKey(RequestConstant.CERTIFICATE_NAME) && params.get(RequestConstant.CERTIFICATE_NAME).isBlank()) return false;
+        return !params.containsKey(RequestConstant.CERTIFICATE_ID) || (!params.get(RequestConstant.CERTIFICATE_ID).isBlank()
+                && Arrays.stream(params.get(RequestConstant.CERTIFICATE_ID).split(",")).anyMatch(s -> s.matches("\\d+"))
+                && isParsable(params.get(RequestConstant.CERTIFICATE_ID)));
     }
 
     private boolean validateUserCriteria(Map<String, String> params) {
-        return !params.containsKey("email") || !params.containsKey("user_id");
+        return !params.containsKey(RequestConstant.EMAIL) || !params.containsKey(RequestConstant.USER_ID);
     }
 
     private boolean validateCertificateCriteria(Map<String, String> params) {
-        return !params.containsKey("c_name") || !params.containsKey("c_id");
+        return !params.containsKey(RequestConstant.CERTIFICATE_NAME) || !params.containsKey(RequestConstant.CERTIFICATE_ID);
     }
 
     private boolean isParsable(String input) {

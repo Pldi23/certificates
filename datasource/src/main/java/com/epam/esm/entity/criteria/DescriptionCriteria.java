@@ -2,12 +2,7 @@ package com.epam.esm.entity.criteria;
 
 import java.util.List;
 
-/**
- * giftcertificates
- *
- * @author Dzmitry Platonov on 2019-09-26.
- * @version 0.0.1
- */
+
 public class DescriptionCriteria implements Criteria {
 
     private TextSearchType searchType;

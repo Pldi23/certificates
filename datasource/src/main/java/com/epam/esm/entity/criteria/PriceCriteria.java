@@ -3,12 +3,7 @@ package com.epam.esm.entity.criteria;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-27.
- * @version 0.0.1
- */
+
 public class PriceCriteria implements Criteria {
 
     private ParameterSearchType parameterSearchType;

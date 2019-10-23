@@ -1,7 +1,7 @@
 package com.epam.esm.entity.criteria;
 
 /**
- * giftcertificates
+ * type of search fot text parameters
  *
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1

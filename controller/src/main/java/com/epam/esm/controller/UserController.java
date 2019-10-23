@@ -10,7 +10,7 @@ import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
-import com.epam.esm.security.SecurityConstants;
+import com.epam.esm.constant.SecurityConstant;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
@@ -93,9 +93,9 @@ public class UserController {
         String refreshToken = tokenCreator.createRefreshToken(principle.getUsername(), roles);
         detailsService.update(principle, refreshToken);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(SecurityConstants.TOKEN_HEADER, tokenCreator.createJwt(saved.getEmail(), List.of(saved.getRole())));
-        httpHeaders.add(SecurityConstants.ACCESS_TOKEN_EXPIRATION, String.valueOf(tokenCreator.getJwtTokenExpirationTimestamp(token)));
-        httpHeaders.add(SecurityConstants.REFRESH_TOKEN_HEADER, refreshToken);
+        httpHeaders.add(SecurityConstant.TOKEN_HEADER, tokenCreator.createJwt(saved.getEmail(), List.of(saved.getRole())));
+        httpHeaders.add(SecurityConstant.ACCESS_TOKEN_EXPIRATION, String.valueOf(tokenCreator.getJwtTokenExpirationTimestamp(token)));
+        httpHeaders.add(SecurityConstant.REFRESH_TOKEN_HEADER, refreshToken);
         return new ResponseEntity<>(linkCreator.toResource(saved), httpHeaders, HttpStatus.OK);
     }
 

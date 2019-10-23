@@ -3,12 +3,6 @@ package com.epam.esm.entity.criteria;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-26.
- * @version 0.0.1
- */
 public class CreationDateCriteria implements Criteria {
 
     private ParameterSearchType parameterSearchType;

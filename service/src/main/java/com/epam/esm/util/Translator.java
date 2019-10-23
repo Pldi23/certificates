@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * gift-certificates
+ * message translator
  *
  * @author Dzmitry Platonov on 2019-10-21.
  * @version 0.0.1
@@ -17,7 +17,7 @@ public class Translator {
 
     private static ResourceBundleMessageSource messageSource;
 
-    public Translator(ResourceBundleMessageSource messageSource) {
+    private Translator(ResourceBundleMessageSource messageSource) {
         Translator.messageSource = messageSource;
     }
 

@@ -23,15 +23,9 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-11.
- * @version 0.0.1
- */
+
 @Entity
 @Table(name = "application_order")
-//@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

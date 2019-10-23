@@ -14,15 +14,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * giftcertificates
- *
- * @author Dzmitry Platonov on 2019-09-23.
- * @version 0.0.1
- */
+
 @Entity
 @Table(name = "tag")
-//@Data
 @Getter
 @Builder
 @AllArgsConstructor
@@ -39,6 +33,4 @@ public class Tag{
     @Column(unique = true, updatable = false)
     private String title;
 
-//    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
-//    private Set<GiftCertificate> giftCertificates;
 }

@@ -3,12 +3,7 @@ package com.epam.esm.entity.criteria;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * giftcertificates
- *
- * @author Dzmitry Platonov on 2019-09-26.
- * @version 0.0.1
- */
+
 public class ExpirationDateCriteria implements Criteria {
 
     private ParameterSearchType parameterSearchType;

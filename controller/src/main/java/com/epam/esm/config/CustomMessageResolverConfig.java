@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * message resolve configuration
+ * message/locale configuration
  *
  * @author Dzmitry Platonov on 2019-10-21.
  * @version 0.0.1

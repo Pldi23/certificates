@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * gift-certificates
+ * entity of user-principal
  *
  * @author Dzmitry Platonov on 2019-10-14.
  * @version 0.0.1

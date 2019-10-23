@@ -1,12 +1,10 @@
 package com.epam.esm.config;
 
 import com.epam.esm.dto.ViolationDTO;
-import com.epam.esm.exception.ApplicationDataSourceException;
 import com.epam.esm.exception.CriteriaSearchTypeException;
 import com.epam.esm.exception.DateNotValidException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.GenerateDataException;
-import com.epam.esm.exception.PaginationException;
 import com.epam.esm.exception.UserRoleException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -71,15 +69,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(ApplicationDataSourceException.class)
-    protected ResponseEntity<Object> handleApplicationDataSourceException(ApplicationDataSourceException ex, WebRequest webRequest) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", new Date());
-        body.put("message", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<Object> handleMethodArgumentMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) {
         return ResponseEntity.badRequest()
@@ -117,12 +106,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserRoleException.class)
     protected ResponseEntity<Object> handleRoleException(UserRoleException ex, WebRequest request) {
-        return ResponseEntity.badRequest()
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
-    }
-
-    @ExceptionHandler(PaginationException.class)
-    protected ResponseEntity<Object> handlePaginationException(PaginationException ex, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
     }

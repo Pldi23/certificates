@@ -17,16 +17,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-19.
- * @version 0.0.1
- */
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,7 +29,7 @@ import java.time.LocalDate;
 @ToString(exclude = {"order", "certificate"})
 @Entity
 @Table(name = "order_certificate")
-public class OrderCertificate implements Serializable {
+public class OrderCertificate {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

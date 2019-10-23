@@ -42,12 +42,10 @@ public class User {
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "role_id")
-//    @JsonManagedReference(value="user-role")
     @JsonBackReference
     private Role role;
 
     @OneToMany(mappedBy = "user")
-//    @JsonBackReference
     private Set<Order> orders;
 
 

@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 @Log4j2
 public class OrderServiceImpl implements OrderService {
 
+    private static final String ORDER_NOT_FOUND_MESSAGE = "entity.order.not.found";
+
     private AbstractOrderRepository orderRepository;
     private AbstractCertificateRepository certificateRepository;
     private AbstractUserRepository userRepository;
@@ -51,21 +53,25 @@ public class OrderServiceImpl implements OrderService {
             orderCertificateRepository.deleteByOrderId(id);
             orderRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale(ORDER_NOT_FOUND_MESSAGE), id));
         }
     }
 
     @Override
     public List<OrderDTO> findAll(PageAndSortDTO pageAndSortDTO) {
         return orderRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
-                .map(order -> orderConverter.convert(order))
-                .peek(orderDTO -> orderDTO.setPrice(orderCertificateRepository.calculateOrderFixedPrice(orderDTO.getId())))
+                .map(order -> {
+                    OrderDTO dto = orderConverter.convert(order);
+                    BigDecimal price = orderCertificateRepository.calculateOrderFixedPrice(dto.getId());
+                    dto.setPrice(price);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public OrderDTO findOne(long id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), id)));
+        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale(ORDER_NOT_FOUND_MESSAGE), id)));
         OrderDTO orderDTO = orderConverter.convert(order);
         orderDTO.setPrice(orderCertificateRepository.calculateOrderFixedPrice(id));
         return orderDTO;
@@ -75,7 +81,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO save(OrderDTO orderDTO) {
         Order saved = orderRepository.save(Order.builder()
-//                .createdAt(LocalDateTime.now())
                 .user(userRepository.findByEmail(orderDTO.getUserEmail()).orElseThrow(() ->
                         new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found"),
                                 orderDTO.getUserEmail()))))
@@ -103,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setPrice(orderCertificateRepository.calculateOrderFixedPrice(updated.getId()));
             return dto;
         } else {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale(ORDER_NOT_FOUND_MESSAGE), id));
         }
     }
 
@@ -113,10 +118,11 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByCriteria(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
                 pageAndSortDTO.getSize(), criteriaDTO.getEmail(), criteriaDTO.getUserId(),
                 criteriaDTO.getCertificatesNames(), criteriaDTO.getCertificatesIds()).stream()
-                .map(order -> orderConverter.convert(order))
-                .peek(orderDTO -> {
-                    BigDecimal price = orderCertificateRepository.calculateOrderFixedPrice(orderDTO.getId());
-                    orderDTO.setPrice(price != null ? price : new BigDecimal(0));
+                .map(order -> {
+                    OrderDTO dto = orderConverter.convert(order);
+                    BigDecimal price = orderCertificateRepository.calculateOrderFixedPrice(dto.getId());
+                    dto.setPrice(price != null ? price : new BigDecimal(0));
+                    return dto;
                 })
                 .collect(Collectors.toList());
     }
