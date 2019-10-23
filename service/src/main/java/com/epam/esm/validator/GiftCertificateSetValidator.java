@@ -5,7 +5,6 @@ import com.epam.esm.dto.GiftCertificateDTO;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
-import java.util.Set;
 
 /**
  * to validate set of {@link GiftCertificateDTO} when it comes nested in {@link com.epam.esm.dto.OrderDTO}

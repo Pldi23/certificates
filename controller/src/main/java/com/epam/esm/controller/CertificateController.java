@@ -1,5 +1,12 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.RoleConstant;
+import com.epam.esm.dto.CertificatePatchDTO;
+import com.epam.esm.dto.GiftCertificateDTO;
+import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.SearchCriteriaRequestDTO;
+import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
@@ -7,7 +14,6 @@ import com.epam.esm.service.TagService;
 import com.epam.esm.validator.CertificateSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.RequestParametersValidator;
-import com.epam.esm.dto.*;
 import com.epam.esm.validator.TagSortValid;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -20,25 +26,34 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * gift certificates
+ * certificates resource endpoint
  *
  * @author Dzmitry Platonov on 2019-09-26.
  * @version 0.0.1
  */
 @RestController
-@RequestMapping("certificates")
+@RequestMapping(EndPointConstant.CERTIFICATE_ENDPOINT)
 @Validated
 @ExposesResourceFor(GiftCertificateDTO.class)
 public class CertificateController {
@@ -72,13 +87,14 @@ public class CertificateController {
     }
 
     @GetMapping(value = "/")
-    public ResponseEntity findAll(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam
-                                      @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> params) {
+    public ResponseEntity findAll(@RequestParam
+                                  @PageAndSizeValid(message = "{violation.page.size}")
+                                  @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl.findAll(pageAndSortDTO);
         return !giftCertificateDTOS.isEmpty() ?
                 ResponseEntity.ok().body(giftCertificateDTOS.stream()
-                .map(giftCertificateDTO -> linkCreator.toResource(giftCertificateDTO))) :
+                        .map(giftCertificateDTO -> linkCreator.toResource(giftCertificateDTO))) :
                 ResponseEntity.notFound().build();
     }
 
@@ -90,7 +106,7 @@ public class CertificateController {
         return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.findOne(id)));
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @PostMapping
     public ResponseEntity add(@Valid @RequestBody GiftCertificateDTO giftCertificateDTO) {
         GiftCertificateDTO dto = certificateServiceImpl.save(giftCertificateDTO);
@@ -102,7 +118,7 @@ public class CertificateController {
         return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(dto));
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @PutMapping(value = "/{id}")
     public ResponseEntity update(
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
@@ -110,7 +126,7 @@ public class CertificateController {
         return ResponseEntity.ok(certificateServiceImpl.update(giftCertificateDTO, id));
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         certificateServiceImpl.delete(id);
@@ -119,8 +135,8 @@ public class CertificateController {
 
     @GetMapping
     public ResponseEntity findByCriteria(@RequestParam
-                                             @PageAndSizeValid(message = "{violation.page.size}")
-                                             @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> criteriaMap) {
+                                         @PageAndSizeValid(message = "{violation.page.size}")
+                                         @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> criteriaMap) {
         DataBinder dataBinder = new DataBinder(criteriaMap);
         dataBinder.addValidators(validator);
         dataBinder.validate();
@@ -142,7 +158,7 @@ public class CertificateController {
 
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping(value = "/{id}/tags")
     public ResponseEntity getTagsByCertificate(
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
@@ -152,7 +168,7 @@ public class CertificateController {
         return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO));
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @PatchMapping(value = "/{id}")
     public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
                                         @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {

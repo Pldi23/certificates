@@ -4,12 +4,8 @@ import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.util.Translator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,12 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +49,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-        log.info("authorization");
         UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
         if (authentication == null && !verifyNullToken(request)) {
             ObjectMapper mapper = new ObjectMapper();
@@ -66,7 +57,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             response.getWriter().write(mapper.writeValueAsString(
                     new ViolationDTO(List.of(Translator.toLocale("violation.autorization")), 401, LocalDateTime.now())));
         } else if (authentication == null) {
-            log.info("authentication is null ");
             filterChain.doFilter(request, response);
         } else {
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -81,7 +71,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             Jws<Claims> parsedToken = Jwts.parser()
                     .setSigningKey(SecurityConstants.JWT_SECRET.getBytes())
-                    .parseClaimsJws(token.replace("Bearer ", ""));
+                    .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX, ""));
 
             String username = parsedToken
                     .getBody()
@@ -100,12 +90,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             log.info(username + " authorized as " + authorities);
 
             if (username != null && !username.isEmpty() && expiration.isAfter(LocalDateTime.now())) {
-                log.info("to verify principle");
                 return new UsernamePasswordAuthenticationToken(username, null, authorities);
             }
-
         }
-
         return null;
     }
 

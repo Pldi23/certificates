@@ -1,11 +1,5 @@
 package com.epam.esm.constant;
 
-/**
- * gift certificates
- *
- * @author Dzmitry Platonov on 2019-09-30.
- * @version 0.0.1
- */
 public class RequestConstant {
 
     private RequestConstant() {
@@ -35,4 +29,6 @@ public class RequestConstant {
     public static final String USER_ID = "user_id";
     public static final String CERTIFICATE_NAME = "c_name";
     public static final String CERTIFICATE_ID = "c_id";
+    public static final String USERNAME = "username";
+    public static final String PASS = "password";
 }

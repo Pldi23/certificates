@@ -12,7 +12,12 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.repository.constant.JpaConstant.*;
+import static com.epam.esm.repository.constant.JpaConstant.EMAIL;
+import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.NUM_ORDERS_ASC_SORT_PARAMETER;
+import static com.epam.esm.repository.constant.JpaConstant.NUM_ORDERS_DESC_SORT_PARAMETER;
+import static com.epam.esm.repository.constant.JpaConstant.ORDERS;
+import static com.epam.esm.repository.constant.JpaConstant.PASS;
 
 /**
  * gift-certificates

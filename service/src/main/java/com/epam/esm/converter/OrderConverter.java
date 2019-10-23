@@ -4,11 +4,8 @@ import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.OrderCertificate;
-import com.epam.esm.repository.AbstractOrderRepository;
-import com.epam.esm.repository.AbstractUserRepository;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -13,7 +13,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.epam.esm.repository.constant.JpaConstant.*;
+import static com.epam.esm.repository.constant.JpaConstant.CREATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.DESCRIPTION;
+import static com.epam.esm.repository.constant.JpaConstant.EXPIRATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.MODIFICATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.NAME;
+import static com.epam.esm.repository.constant.JpaConstant.PRICE;
+import static com.epam.esm.repository.constant.JpaConstant.TAGS;
+import static com.epam.esm.repository.constant.JpaConstant.TITLE;
 
 /**
  * helper class to build predicate parameters for criteria

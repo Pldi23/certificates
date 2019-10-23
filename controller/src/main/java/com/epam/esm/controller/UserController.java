@@ -1,5 +1,7 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
@@ -15,9 +17,9 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.util.Translator;
-import com.epam.esm.validator.TagCostSortValid;
 import com.epam.esm.validator.OrderSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
+import com.epam.esm.validator.TagCostSortValid;
 import com.epam.esm.validator.UserSortValid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -46,14 +48,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * gift-certificates
+ * users resource endpoint
  *
  * @author Dzmitry Platonov on 2019-10-11.
  * @version 0.0.1
  */
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(EndPointConstant.USER_ENDPOINT)
 @Validated
 @ExposesResourceFor(UserDTO.class)
 public class UserController {
@@ -97,7 +99,7 @@ public class UserController {
         return new ResponseEntity<>(linkCreator.toResource(saved), httpHeaders, HttpStatus.OK);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @GetMapping
     public ResponseEntity getAll(@RequestParam @PageAndSizeValid(message = "{violation.page.size}")
                                      @UserSortValid(message = "{violation.user.sort}") Map<String, String> params) {
@@ -141,7 +143,8 @@ public class UserController {
         try {
             return ResponseEntity.ok(linkCreator.toResource(userService.update(userDTO, id)));
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"), userDTO.getEmail()));
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"),
+                    userDTO.getEmail()));
         }
     }
 
@@ -152,7 +155,8 @@ public class UserController {
         try {
             return ResponseEntity.ok(linkCreator.toResource(userService.patch(userPatchDTO, id)));
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"), userPatchDTO.getEmail()));
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"),
+                    userPatchDTO.getEmail()));
         }
     }
 

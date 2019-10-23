@@ -6,18 +6,15 @@ import com.epam.esm.converter.CriteriaCreatorHelper;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
-
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.entity.GiftCertificate;
-
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.criteria.SearchCriteria;
 import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.repository.AbstractTagRepository;
 import com.epam.esm.validator.ExpirationDateValidator;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,12 +22,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

@@ -1,15 +1,28 @@
 package com.epam.esm.parser;
 
-import com.epam.esm.dto.*;
+import com.epam.esm.dto.LimitOffsetCriteriaRequestDTO;
+import com.epam.esm.dto.OrderSearchCriteriaDTO;
+import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.SearchCriteriaRequestDTO;
+import com.epam.esm.dto.SortCriteriaRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-import static com.epam.esm.constant.RequestConstant.*;
+
+import static com.epam.esm.constant.RequestConstant.CERTIFICATE_ID;
+import static com.epam.esm.constant.RequestConstant.CERTIFICATE_NAME;
+import static com.epam.esm.constant.RequestConstant.EMAIL;
+import static com.epam.esm.constant.RequestConstant.LIMIT_PARAMETER;
+import static com.epam.esm.constant.RequestConstant.OFFSET_PARAMETER;
+import static com.epam.esm.constant.RequestConstant.PAGE_PARAMETER;
+import static com.epam.esm.constant.RequestConstant.SIZE_PARAMETER;
+import static com.epam.esm.constant.RequestConstant.SORT_PARAMETER;
+import static com.epam.esm.constant.RequestConstant.USER_ID;
 
 /**
- * gift certificates
+ * request to criteria dtos parser
  *
  * @author Dzmitry Platonov on 2019-09-27.
  * @version 0.0.1

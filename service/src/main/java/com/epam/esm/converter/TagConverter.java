@@ -4,8 +4,6 @@ import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-
 /**
  * gift certificates
  *

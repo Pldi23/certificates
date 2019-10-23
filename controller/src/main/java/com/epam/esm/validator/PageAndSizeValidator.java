@@ -4,14 +4,10 @@ package com.epam.esm.validator;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Map;
-import static com.epam.esm.constant.RequestConstant.*;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-14.
- * @version 0.0.1
- */
+import static com.epam.esm.constant.RequestConstant.PAGE_PARAMETER;
+import static com.epam.esm.constant.RequestConstant.SIZE_PARAMETER;
+
 public class PageAndSizeValidator implements ConstraintValidator<PageAndSizeValid, Map<String, String>> {
 
 

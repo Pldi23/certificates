@@ -17,7 +17,13 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.repository.constant.JpaConstant.*;
+import static com.epam.esm.repository.constant.JpaConstant.CERTIFICATE;
+import static com.epam.esm.repository.constant.JpaConstant.FIXED_PRICE;
+import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.ORDER_CERTIFICATE;
+import static com.epam.esm.repository.constant.JpaConstant.TAGS;
+import static com.epam.esm.repository.constant.JpaConstant.TITLE;
+import static com.epam.esm.repository.constant.JpaConstant.USER;
 
 @Repository
 public class EMTagRepository implements AbstractTagRepository {

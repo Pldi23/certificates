@@ -4,7 +4,6 @@ package com.epam.esm.security;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.UserDTO;
-import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import lombok.extern.log4j.Log4j2;
@@ -15,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +51,7 @@ public class SecurityChecker {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-            UserDTO userDTO = userService.findOne(id);
+        UserDTO userDTO = userService.findOne(id);
         return !roles.contains("ROLE_USER") && !userDTO.getRole().equals("ROLE_ADMIN");
 //        if (roles.contains("ROLE_USER")) {
 //            return false;

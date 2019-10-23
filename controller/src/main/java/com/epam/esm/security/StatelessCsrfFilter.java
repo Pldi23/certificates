@@ -4,7 +4,6 @@ import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.util.Translator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.web.filter.OncePerRequestFilter;

@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * gift-certificates
+ * to create unique jwt
  *
  * @author Dzmitry Platonov on 2019-10-18.
  * @version 0.0.1
@@ -45,7 +45,7 @@ public class TokenCreator {
     public long getJwtTokenExpirationTimestamp(String token) {
         Jws<Claims> parsedToken = Jwts.parser()
                 .setSigningKey(SecurityConstants.JWT_SECRET.getBytes())
-                .parseClaimsJws(token.replace("Bearer ", ""));
+                .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX, ""));
 
         return parsedToken.getBody().getExpiration().getTime();
     }

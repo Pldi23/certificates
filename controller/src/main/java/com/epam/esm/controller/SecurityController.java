@@ -1,5 +1,7 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.RequestConstant;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.security.SecurityConstants;
 import com.epam.esm.security.TokenCreator;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * gift-certificates
+ * login and refresh-token endpoints
  *
  * @author Dzmitry Platonov on 2019-10-17.
  * @version 0.0.1
@@ -38,12 +40,11 @@ public class SecurityController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/authenticate/refresh-token")
+    @PostMapping(EndPointConstant.REFRESH_TOKEN_ENDPOINT)
     public ResponseEntity getTokens(HttpServletRequest request) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        String username = request.getParameter("username");
+        String username = request.getParameter(RequestConstant.USERNAME);
         String refreshToken = request.getHeader(SecurityConstants.REFRESH_TOKEN_HEADER);
-        log.info("'/authenticate/refresh-token' authentication attempt by " + username);
         AppUserPrinciple principle = (AppUserPrinciple) detailsService.loadUserByUsername(username);
         if (principle != null && principle.getUser() != null && principle.getUser().getRefreshToken() != null
                 && principle.getUser().getRefreshToken().equals(refreshToken)) {
@@ -65,12 +66,12 @@ public class SecurityController {
         }
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping(EndPointConstant.LOGIN_ENDPOINT)
     public ResponseEntity authenticate(HttpServletRequest request) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        String username = request.getParameter(RequestConstant.USERNAME);
+        String password = request.getParameter(RequestConstant.PASS);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-        log.info("'/authenticate' authentication attempt by " + username);
+        log.info("authentication attempt by " + username);
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         HttpHeaders httpHeaders = new HttpHeaders();
         AppUserPrinciple user = ((AppUserPrinciple) authenticate.getPrincipal());

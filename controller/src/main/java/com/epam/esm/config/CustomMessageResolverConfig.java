@@ -1,19 +1,11 @@
 package com.epam.esm.config;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.lang.NonNull;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
@@ -23,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * gift-certificates
+ * message resolve configuration
  *
  * @author Dzmitry Platonov on 2019-10-21.
  * @version 0.0.1
@@ -31,7 +23,7 @@ import java.util.Locale;
 @Configuration
 public class CustomMessageResolverConfig extends AcceptHeaderLocaleResolver implements WebMvcConfigurer {
 
-    List<Locale> LOCALES = Arrays.asList(
+    private static final List<Locale> LOCALES = Arrays.asList(
             new Locale("en"),
             new Locale("ru"));
 

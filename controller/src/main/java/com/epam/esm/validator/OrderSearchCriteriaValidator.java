@@ -5,12 +5,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.Map;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-14.
- * @version 0.0.1
- */
+
 public class OrderSearchCriteriaValidator implements ConstraintValidator<OrderSearchCriteriaValid, Map<String, String>> {
 
     @Override

@@ -1,3 +1,7 @@
+plugins {
+    id 'org.sonarqube' version '2.7.1'
+}
+
 allprojects {
     group = 'com.epam.esm'
     version = '1.0-SNAPSHOT'
@@ -5,6 +9,7 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'jacoco'
 
 
     repositories {
@@ -88,5 +93,13 @@ subprojects {
 
     test {
         useJUnitPlatform()
+    }
+}
+
+sonarqube {
+    properties {
+        property('sonar.host.url', 'http://localhost:9000')
+        property('sonar.login', 'admin')
+        property('sonar.password', 'admin')
     }
 }

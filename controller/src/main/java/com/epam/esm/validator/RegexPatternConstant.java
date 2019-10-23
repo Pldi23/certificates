@@ -1,11 +1,6 @@
 package com.epam.esm.validator;
 
-/**
- * giftcertificates
- *
- * @author Dzmitry Platonov on 2019-09-30.
- * @version 0.0.1
- */
+
 class RegexPatternConstant {
 
     static final String ID_PARAMETER_REGEX_PATTERN = "(\\d)|(^bw:\\d,\\d)|(^nbw:\\d,\\d)";

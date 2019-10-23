@@ -1,8 +1,6 @@
 package com.epam.esm.repository;
 
 
-import java.util.List;
-
 /**
  * giftcertificates
  *

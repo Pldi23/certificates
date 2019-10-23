@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.epam.esm.service.TagServiceImplTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2019-10-23T08:35:15" hostname="MBP-Dzmitry.minsk.epam.com" time="0.03">
+<testsuite name="com.epam.esm.service.TagServiceImplTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2019-10-23T10:14:15" hostname="MBP-Dzmitry.minsk.epam.com" time="0.054">
   <properties/>
-  <testcase name="findTagsByUser()" classname="com.epam.esm.service.TagServiceImplTest" time="0.004"/>
-  <testcase name="getTag()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="findAll()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="findMostCostEffectiveTag()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="getTagsByCertificate()" classname="com.epam.esm.service.TagServiceImplTest" time="0.003"/>
-  <testcase name="save()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="deleteUnsuccessful()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="findPopular()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="findTagsByOrder()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="findPaginated()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
-  <testcase name="deleteSuccessful()" classname="com.epam.esm.service.TagServiceImplTest" time="0.002"/>
+  <testcase name="findTagsByUser()" classname="com.epam.esm.service.TagServiceImplTest" time="0.01"/>
+  <testcase name="getTag()" classname="com.epam.esm.service.TagServiceImplTest" time="0.003"/>
+  <testcase name="findAll()" classname="com.epam.esm.service.TagServiceImplTest" time="0.003"/>
+  <testcase name="findMostCostEffectiveTag()" classname="com.epam.esm.service.TagServiceImplTest" time="0.004"/>
+  <testcase name="getTagsByCertificate()" classname="com.epam.esm.service.TagServiceImplTest" time="0.004"/>
+  <testcase name="save()" classname="com.epam.esm.service.TagServiceImplTest" time="0.005"/>
+  <testcase name="deleteUnsuccessful()" classname="com.epam.esm.service.TagServiceImplTest" time="0.003"/>
+  <testcase name="findPopular()" classname="com.epam.esm.service.TagServiceImplTest" time="0.004"/>
+  <testcase name="findTagsByOrder()" classname="com.epam.esm.service.TagServiceImplTest" time="0.004"/>
+  <testcase name="findPaginated()" classname="com.epam.esm.service.TagServiceImplTest" time="0.003"/>
+  <testcase name="deleteSuccessful()" classname="com.epam.esm.service.TagServiceImplTest" time="0.004"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

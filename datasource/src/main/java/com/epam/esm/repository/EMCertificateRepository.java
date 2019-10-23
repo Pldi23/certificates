@@ -19,7 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.repository.constant.JpaConstant.*;
+import static com.epam.esm.repository.constant.JpaConstant.ACTIVE_STATUS;
+import static com.epam.esm.repository.constant.JpaConstant.CREATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.EXPIRATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.MODIFICATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.NAME;
+import static com.epam.esm.repository.constant.JpaConstant.ORDER;
+import static com.epam.esm.repository.constant.JpaConstant.ORDER_CERTIFICATE;
+import static com.epam.esm.repository.constant.JpaConstant.REQUEST_CREATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.REQUEST_EXPIRATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.REQUEST_MODIFICATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.TAGS;
 
 @Repository
 @Log4j2

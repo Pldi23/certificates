@@ -6,12 +6,7 @@ import java.util.Map;
 
 import static com.epam.esm.constant.RequestConstant.SORT_PARAMETER;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-15.
- * @version 0.0.1
- */
+
 public class UserSortValidator implements ConstraintValidator<UserSortValid, Map<String, String>> {
     @Override
     public boolean isValid(Map<String, String> stringStringMap, ConstraintValidatorContext constraintValidatorContext) {

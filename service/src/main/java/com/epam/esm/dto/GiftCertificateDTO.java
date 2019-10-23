@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.AssertTrue;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
+@NoArgsConstructor
 public class GiftCertificateDTO {
 
     @Null(message = "{violation.input.certificate.id}")
@@ -65,8 +67,7 @@ public class GiftCertificateDTO {
     private Set<TagDTO> tags;
 
 
-    private GiftCertificateDTO() {
-    }
+
 
     public static class Builder {
         private GiftCertificateDTO giftCertificateDTO;

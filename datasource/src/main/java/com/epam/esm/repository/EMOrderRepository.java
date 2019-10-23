@@ -13,7 +13,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.repository.constant.JpaConstant.*;
+import static com.epam.esm.repository.constant.JpaConstant.CERTIFICATE;
+import static com.epam.esm.repository.constant.JpaConstant.EMAIL;
+import static com.epam.esm.repository.constant.JpaConstant.FIXED_PRICE;
+import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.NAME;
+import static com.epam.esm.repository.constant.JpaConstant.ORDER_CERTIFICATE;
+import static com.epam.esm.repository.constant.JpaConstant.PRICE;
+import static com.epam.esm.repository.constant.JpaConstant.USER;
 
 /**
  * gift-certificates

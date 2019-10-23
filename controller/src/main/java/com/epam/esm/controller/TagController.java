@@ -1,5 +1,7 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
@@ -17,10 +19,15 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -29,13 +36,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * gift certificates
+ * tags resource endpoint
  *
  * @author Dzmitry Platonov on 2019-09-25.
  * @version 0.0.1
  */
 @RestController
-@RequestMapping("tags")
+@RequestMapping(EndPointConstant.TAG_ENDPOINT)
 @Validated
 @ExposesResourceFor(TagDTO.class)
 public class TagController {
@@ -43,33 +50,21 @@ public class TagController {
     private TagService tagServiceImpl;
     private CertificateService certificateService;
     private EntityLinks entityLinks;
-//    private SpringValidatorAdapter localValidatorFactoryBean;
-//    private Validator validator;
     private LinkCreator linkCreator;
     private DtoParser dtoParser;
 
 
     public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks,
-//                         SpringValidatorAdapter localValidatorFactoryBean,
-//                         Validator validator,
                          LinkCreator linkCreator, DtoParser dtoParser) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateService = certificateServiceImpl;
         this.entityLinks = entityLinks;
-//        this.localValidatorFactoryBean = localValidatorFactoryBean;
-//        this.validator = validator;
         this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
     }
 
-//    @InitBinder
-//    protected void initBinder(WebDataBinder binder) {
-//        binder.setValidator(validator);
-////        binder.setValidator(localValidatorFactoryBean);
-//    }
 
-
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping
     public ResponseEntity getAllTags(@PageAndSizeValid(message = "{violation.page.size}")
                                          @TagSortValid(message = "{violation.tag.sort.cost}")
@@ -84,13 +79,14 @@ public class TagController {
         return ResponseEntity.notFound().build();
     }
 
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping(value = "/{id}")
     public ResponseEntity getById(@PathVariable("id")
                                   @Min(value = 0, message = "{violation.id}") long id) {
         return ResponseEntity.ok(linkCreator.toResource(tagServiceImpl.findOne(id)));
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @PostMapping
     public ResponseEntity add(@Valid @RequestBody TagDTO tagDTO) {
         TagDTO saved = tagServiceImpl.save(tagDTO);
@@ -101,14 +97,14 @@ public class TagController {
         return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(saved));
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         tagServiceImpl.delete(id);
         return ResponseEntity.status(204).build();
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping(value = "/{id}/certificates")
     public ResponseEntity getCertificatesByTag(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
                                                @RequestParam
@@ -126,7 +122,7 @@ public class TagController {
         return ResponseEntity.ok(giftCertificateDTOS);
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping("/populars")
     public ResponseEntity getMostPopulars(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);

@@ -11,8 +11,30 @@ import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.epam.esm.constant.RequestConstant.*;
-import static com.epam.esm.validator.RegexPatternConstant.*;
+import static com.epam.esm.constant.RequestConstant.BETWEEN;
+import static com.epam.esm.constant.RequestConstant.CREATION_DATE;
+import static com.epam.esm.constant.RequestConstant.DESCRIPTION;
+import static com.epam.esm.constant.RequestConstant.EXPIRATION_DATE;
+import static com.epam.esm.constant.RequestConstant.ID;
+import static com.epam.esm.constant.RequestConstant.LIMIT;
+import static com.epam.esm.constant.RequestConstant.MODIFICATION_DATE;
+import static com.epam.esm.constant.RequestConstant.NAME;
+import static com.epam.esm.constant.RequestConstant.NOT_BERWEEN;
+import static com.epam.esm.constant.RequestConstant.NOT_IN;
+import static com.epam.esm.constant.RequestConstant.OFFSET;
+import static com.epam.esm.constant.RequestConstant.PRICE;
+import static com.epam.esm.constant.RequestConstant.SORT;
+import static com.epam.esm.constant.RequestConstant.TAG_ID;
+import static com.epam.esm.constant.RequestConstant.TAG_NAME;
+import static com.epam.esm.validator.RegexPatternConstant.DESCRIPTION_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.ID_PARAMETER_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.LIMIT_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.NAME_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.OFFSET_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.PRICE_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.SORT_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.TAG_ID_PARAMETER_REGEX_PATTERN;
+import static com.epam.esm.validator.RegexPatternConstant.TAG_NAME_REGEX_PATTERN;
 
 /**
  * gift certificates

@@ -1,5 +1,7 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.generate.RandomDataGenerator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -8,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * gift-certificates
+ * to generate test data
  *
  * @author Dzmitry Platonov on 2019-10-21.
  * @version 0.0.1
  */
 @RestController
-@RequestMapping("generate")
+@RequestMapping(EndPointConstant.DATA_GENERATOR_ENDPOINT)
 public class DataController {
 
     private static final int TAGS_QUANTITY = 1000;
@@ -28,7 +30,7 @@ public class DataController {
         this.randomDataGenerator = randomDataGenerator;
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(RoleConstant.ROLE_ADMIN)
     @PostMapping
     public ResponseEntity generateData() {
         randomDataGenerator.generate(TAGS_QUANTITY, CERTIFICATES_QUANTITY, USERS_QUANTITY, ORDERS_QUANTITY);

@@ -3,7 +3,6 @@ package com.epam.esm.service;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.entity.User;
 import com.epam.esm.repository.AbstractUserRepository;
-import com.epam.esm.repository.EMUserRepository;
 import com.epam.esm.util.Translator;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UserDetails;

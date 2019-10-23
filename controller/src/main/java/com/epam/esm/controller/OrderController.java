@@ -1,5 +1,7 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
@@ -24,7 +26,6 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,13 +43,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * gift-certificates
+ * orders resource endpoints
  *
  * @author Dzmitry Platonov on 2019-10-11.
  * @version 0.0.1
  */
 @RestController
-@RequestMapping("/orders")
+@RequestMapping(EndPointConstant.ORDER_ENDPOINT)
 @Validated
 @ExposesResourceFor(OrderDTO.class)
 @Log4j2
@@ -72,7 +73,7 @@ public class OrderController {
         this.userDetailsService = userDetailsService;
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @PostMapping
     public ResponseEntity save(@Valid @RequestBody OrderDTO orderDTO) {
         String principleEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -80,7 +81,7 @@ public class OrderController {
         return ResponseEntity.ok(linkCreator.toResource(orderService.save(orderDTO)));
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping
     public ResponseEntity findAll(@PageAndSizeValid(message = "{violation.page.size}")
                                   @OrderSortValid(message = "{violation.order.sort}")
@@ -92,7 +93,7 @@ public class OrderController {
                 .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (principle.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(s -> s.equals("ROLE_USER"))) {
+                .anyMatch(s -> s.equals(RoleConstant.ROLE_USER))) {
             orderSearchCriteriaDTO.setEmail(principle.getUsername());
             orderSearchCriteriaDTO.setUserId(null);
         }

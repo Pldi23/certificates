@@ -4,7 +4,6 @@ import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
-import org.springframework.security.access.method.P;
 
 import java.util.List;
 
