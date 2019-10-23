@@ -6,7 +6,6 @@ import com.epam.esm.entity.Order;
 import com.epam.esm.entity.OrderCertificate;
 import com.epam.esm.entity.User;
 import com.epam.esm.repository.jpa.OrderRepository;
-import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +28,6 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
-@Log4j2
 class EMOrderCertificateRepositoryTest {
 
     @Autowired

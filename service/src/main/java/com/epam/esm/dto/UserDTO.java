@@ -1,26 +1,21 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.Order;
-import com.epam.esm.entity.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import java.util.List;
-import java.util.Set;
 
 /**
  * gift-certificates
@@ -34,6 +29,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
 @JsonIgnoreProperties(value={ "password" }, allowSetters=true)
 public class UserDTO {
 
@@ -44,6 +40,7 @@ public class UserDTO {
     @Email
     private String email;
 
+    @NotBlank(message = "{violation.password}")
     @Pattern(regexp = "^(?=.*\\d)(?=.*\\p{Lower})(?=.*\\p{Upper})(?=.*\\p{Punct})(?=\\S+$).{8,20}$", message = "{violation.password}")
     private String password;
 

@@ -25,6 +25,4 @@ public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDT
     List<TagDTO> findPaginated(PageAndSortDTO pageAndSortDTO);
 
     List<TagDTO> findMostCostEffectiveTag(Long userId);
-
-    long count();
 }

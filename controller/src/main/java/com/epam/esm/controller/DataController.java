@@ -2,6 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.generate.RandomDataGenerator;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ public class DataController {
         this.randomDataGenerator = randomDataGenerator;
     }
 
+    @Secured("ROLE_ADMIN")
     @PostMapping
     public ResponseEntity generateData() {
         randomDataGenerator.generate(TAGS_QUANTITY, CERTIFICATES_QUANTITY, USERS_QUANTITY, ORDERS_QUANTITY);

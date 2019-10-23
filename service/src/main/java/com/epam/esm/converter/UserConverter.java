@@ -43,10 +43,6 @@ public class UserConverter {
                 .password(user.getPassword())
                 .role(user.getRole().getValue())
                 .ordersIds(ordersIds)
-//                .role(Role.builder()
-//                        .id(user.getRole().getId())
-//                        .value(user.getRole().getValue())
-//                        .build())
                 .build();
     }
 

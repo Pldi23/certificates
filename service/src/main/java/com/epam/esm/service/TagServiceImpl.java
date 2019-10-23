@@ -7,8 +7,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.repository.AbstractTagRepository;
-import com.epam.esm.repository.EMCertificateRepository;
-import com.epam.esm.repository.EMTagRepository;
+
 import com.epam.esm.util.Translator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,7 +41,8 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDTO findOne(long id) {
-        return tagConverter.convert(tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id))));
+        return tagConverter.convert(tagRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id))));
     }
 
     @Override
@@ -98,11 +98,6 @@ public class TagServiceImpl implements TagService {
         return tags.stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public long count() {
-        return tagRepository.count();
     }
 
     @Override

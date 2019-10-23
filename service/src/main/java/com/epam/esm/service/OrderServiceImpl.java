@@ -8,10 +8,10 @@ import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.OrderCertificate;
-import com.epam.esm.repository.EMCertificateRepository;
-import com.epam.esm.repository.EMOrderCertificateRepository;
-import com.epam.esm.repository.EMOrderRepository;
-import com.epam.esm.repository.EMUserRepository;
+import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.repository.AbstractOrderCertificateRepository;
+import com.epam.esm.repository.AbstractOrderRepository;
+import com.epam.esm.repository.AbstractUserRepository;
 import com.epam.esm.util.Translator;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -20,32 +20,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-12.
- * @version 0.0.1
- */
 @Service
 @Log4j2
 public class OrderServiceImpl implements OrderService {
 
-    private EMOrderRepository orderRepository;
-    private EMCertificateRepository certificateRepository;
-    private EMUserRepository userRepository;
+    private AbstractOrderRepository orderRepository;
+    private AbstractCertificateRepository certificateRepository;
+    private AbstractUserRepository userRepository;
     private OrderConverter orderConverter;
-    private EMOrderCertificateRepository orderCertificateRepository;
+    private AbstractOrderCertificateRepository orderCertificateRepository;
 
-    public OrderServiceImpl(EMOrderRepository orderRepository, EMCertificateRepository certificateRepository,
-                            EMUserRepository userRepository, OrderConverter orderConverter,
-                            EMOrderCertificateRepository orderCertificateRepository) {
+    public OrderServiceImpl(AbstractOrderRepository orderRepository, AbstractCertificateRepository certificateRepository,
+                            AbstractUserRepository userRepository, OrderConverter orderConverter,
+                            AbstractOrderCertificateRepository orderCertificateRepository) {
         this.orderRepository = orderRepository;
         this.certificateRepository = certificateRepository;
         this.userRepository = userRepository;
@@ -84,8 +75,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO save(OrderDTO orderDTO) {
         Order saved = orderRepository.save(Order.builder()
-                .createdAt(LocalDateTime.now())
-                .user(userRepository.findByEmail(orderDTO.getUserEmail()).orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found"), orderDTO.getUserEmail()))))
+//                .createdAt(LocalDateTime.now())
+                .user(userRepository.findByEmail(orderDTO.getUserEmail()).orElseThrow(() ->
+                        new EntityNotFoundException(String.format(Translator.toLocale("entity.user.not.found"),
+                                orderDTO.getUserEmail()))))
                 .build());
         saveOrderCertificates(saved, orderDTO.getGiftCertificates());
 

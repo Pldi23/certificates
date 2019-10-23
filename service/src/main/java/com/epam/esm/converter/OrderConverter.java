@@ -22,31 +22,10 @@ import java.util.stream.Collectors;
 @Component
 public class OrderConverter {
 
-    private AbstractUserRepository userRepository;
-    private AbstractOrderRepository orderRepository;
     private CertificateConverter certificateConverter;
 
-    public OrderConverter(AbstractUserRepository userRepository,
-                          AbstractOrderRepository orderRepository, CertificateConverter certificateConverter) {
-        this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
+    public OrderConverter(CertificateConverter certificateConverter) {
         this.certificateConverter = certificateConverter;
-    }
-
-    public Order convert(OrderDTO orderDTO) {
-        List<OrderCertificate> orderCertificates = orderDTO.getGiftCertificates().stream()
-                .map(giftCertificateDTO -> OrderCertificate.builder()
-                        .order(orderRepository.findById(orderDTO.getId()).orElseThrow(() -> new EntityNotFoundException("user not found")))
-                        .certificate(certificateConverter.convert(giftCertificateDTO))
-                        .fixedPrice(orderDTO.getPrice())
-                        .build())
-                .collect(Collectors.toList());
-        return Order.builder()
-                .id(orderDTO.getId())
-                .user(userRepository.findById(orderDTO.getUserId()).orElseThrow(() -> new EntityNotFoundException("user not found")))
-                .orderCertificates(orderCertificates)
-                .createdAt(orderDTO.getCreatedAt())
-                .build();
     }
 
     public OrderDTO convert(Order order) {

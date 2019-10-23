@@ -23,6 +23,4 @@ public interface CertificateService extends FindAllService<GiftCertificateDTO>, 
 
     List<GiftCertificateDTO> findByOrder(Long orderId, PageAndSortDTO pageAndSortDTO);
 
-    long count();
-
 }

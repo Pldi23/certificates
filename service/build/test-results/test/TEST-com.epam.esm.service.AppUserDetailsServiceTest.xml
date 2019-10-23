@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.epam.esm.service.AppUserDetailsServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2019-10-23T08:35:15" hostname="MBP-Dzmitry.minsk.epam.com" time="0.025">
+  <properties/>
+  <testcase name="updateByEmail()" classname="com.epam.esm.service.AppUserDetailsServiceTest" time="0.02"/>
+  <testcase name="update()" classname="com.epam.esm.service.AppUserDetailsServiceTest" time="0.001"/>
+  <testcase name="loadUserByUsername()" classname="com.epam.esm.service.AppUserDetailsServiceTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

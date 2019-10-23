@@ -21,7 +21,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -60,5 +62,11 @@ public class Order {
     private List<OrderCertificate> orderCertificates;
 
     private Boolean activeStatus;
+
+    @PrePersist
+    public void onPrePersist() {
+        setCreatedAt(LocalDateTime.now());
+    }
+
 
 }

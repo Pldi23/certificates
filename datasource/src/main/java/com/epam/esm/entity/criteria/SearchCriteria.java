@@ -1,5 +1,7 @@
 package com.epam.esm.entity.criteria;
 
+import java.util.Objects;
+
 /**
  * gift certificates
  *
@@ -124,5 +126,26 @@ public class SearchCriteria {
                 ", tagCriteria=" + tagCriteria +
                 ", tagNameCriteria=" + tagNameCriteria +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SearchCriteria that = (SearchCriteria) o;
+        return Objects.equals(idCriteria, that.idCriteria) &&
+                Objects.equals(nameCriteria, that.nameCriteria) &&
+                Objects.equals(descriptionCriteria, that.descriptionCriteria) &&
+                Objects.equals(creationDateCriteria, that.creationDateCriteria) &&
+                Objects.equals(modificationDateCriteria, that.modificationDateCriteria) &&
+                Objects.equals(expirationDateCriteria, that.expirationDateCriteria) &&
+                Objects.equals(priceCriteria, that.priceCriteria) &&
+                Objects.equals(tagCriteria, that.tagCriteria) &&
+                Objects.equals(tagNameCriteria, that.tagNameCriteria);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idCriteria, nameCriteria, descriptionCriteria, creationDateCriteria, modificationDateCriteria, expirationDateCriteria, priceCriteria, tagCriteria, tagNameCriteria);
     }
 }

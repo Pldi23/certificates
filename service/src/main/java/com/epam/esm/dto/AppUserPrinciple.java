@@ -1,6 +1,7 @@
 package com.epam.esm.dto;
 
 import com.epam.esm.entity.User;
+import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,11 +10,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * gift-certificates
+ * Application principle
  *
  * @author Dzmitry Platonov on 2019-10-16.
  * @version 0.0.1
  */
+@EqualsAndHashCode
 public class AppUserPrinciple implements UserDetails  {
 
     private User user;

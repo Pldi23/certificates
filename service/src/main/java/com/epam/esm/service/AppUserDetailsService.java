@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.entity.User;
+import com.epam.esm.repository.AbstractUserRepository;
 import com.epam.esm.repository.EMUserRepository;
 import com.epam.esm.util.Translator;
 import lombok.extern.log4j.Log4j2;
@@ -13,20 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-16.
- * @version 0.0.1
- */
 @Service
 @Log4j2
 public class AppUserDetailsService implements UserDetailsService {
 
-    private EMUserRepository userRepository;
+    private AbstractUserRepository userRepository;
 
 
-    public AppUserDetailsService(EMUserRepository userRepository) {
+    public AppUserDetailsService(AbstractUserRepository userRepository) {
         this.userRepository = userRepository;
 
     }

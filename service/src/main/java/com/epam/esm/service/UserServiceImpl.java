@@ -6,7 +6,7 @@ import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityAlreadyExistsException;
-import com.epam.esm.repository.EMUserRepository;
+import com.epam.esm.repository.AbstractUserRepository;
 import com.epam.esm.util.Translator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -19,20 +19,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-12.
- * @version 0.0.1
- */
+
 @Service
 public class UserServiceImpl implements UserService {
 
-    private EMUserRepository userRepository;
+    private AbstractUserRepository userRepository;
     private UserConverter userConverter;
     private PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(EMUserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(AbstractUserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;
@@ -122,8 +117,4 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
-    @Override
-    public long count() {
-        return userRepository.count();
-    }
 }

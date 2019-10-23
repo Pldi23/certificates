@@ -12,8 +12,6 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.repository.AbstractTagRepository;
-import com.epam.esm.repository.EMCertificateRepository;
-import com.epam.esm.repository.EMTagRepository;
 import com.epam.esm.util.Translator;
 import com.epam.esm.validator.ExpirationDateValidator;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -149,11 +147,6 @@ public class CertificateServiceImpl implements CertificateService {
                 pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public long count() {
-        return certificateRepository.count();
     }
 
     @Transactional
