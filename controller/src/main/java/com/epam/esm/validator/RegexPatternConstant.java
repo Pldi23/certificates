@@ -3,7 +3,7 @@ package com.epam.esm.validator;
 
 class RegexPatternConstant {
 
-    static final String ID_PARAMETER_REGEX_PATTERN = "(\\d)|(^bw:\\d,\\d)|(^nbw:\\d,\\d)";
+    static final String ID_PARAMETER_REGEX_PATTERN = "(\\d+(,\\d+)+)|(^bw:\\d+,\\d+)|(^nbw:\\d+,\\d+)|(\\d+)";
     static final String TAG_ID_PARAMETER_REGEX_PATTERN = "((\\d+)(,\\d+)+)|(^bw:\\d+,\\d+)|(^nbw:\\d+,\\d+)|(\\d+)";
     static final String PRICE_REGEX_PATTERN = "^(-)?[\\d]*(?:\\.[\\d]*)*|^n?bw:[\\d]*(?:\\.[\\d]*)*,[\\d]*(?:\\.[\\d]*)*";
     static final String NAME_REGEX_PATTERN = "^(-)?l:(\\w+)|^(-)?([\\w,]+)";

@@ -3,19 +3,16 @@ package com.epam.esm.repository;
 import com.epam.esm.TestConfig;
 import com.epam.esm.entity.Role;
 import com.epam.esm.entity.User;
+import com.epam.esm.repository.page.PageSizeData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.sql.DataSource;
 
 import java.util.HashSet;
 import java.util.List;
@@ -77,7 +74,7 @@ class UserRepositoryTest {
                 .orders(new HashSet<>())
                 .build();
 
-        assertEquals(List.of(expected), userRepository.findAll("id", 1, Integer.MAX_VALUE));
+        assertEquals(List.of(expected), userRepository.findAllSpecified(null, null, new PageSizeData(1, 20)));
     }
 
     @Test

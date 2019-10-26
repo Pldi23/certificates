@@ -101,7 +101,7 @@ class OrderServiceImplTest {
         PageAndSortDTO pageAndSortDTO = PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build();
 
         Mockito.when(orderRepository
-                .findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()))
+                .findAllSpecified(any(),any(), any()))
                 .thenReturn(orders);
         Mockito.when(orderCertificateRepository.calculateOrderFixedPrice(orderDTO.getId())).thenReturn(new BigDecimal(0));
 
@@ -155,9 +155,7 @@ class OrderServiceImplTest {
         OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder().build();
 
         Mockito.when(orderRepository
-                .findByCriteria(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize(),
-                        orderSearchCriteriaDTO.getEmail(), orderSearchCriteriaDTO.getUserId(),
-                        orderSearchCriteriaDTO.getCertificatesNames(), orderSearchCriteriaDTO.getCertificatesIds()))
+                .findAllSpecified(any(), any(), any()))
                 .thenReturn(orders);
         Mockito.when(orderCertificateRepository.calculateOrderFixedPrice(orderDTO.getId())).thenReturn(new BigDecimal(0));
 

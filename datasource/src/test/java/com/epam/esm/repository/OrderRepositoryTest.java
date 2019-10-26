@@ -4,6 +4,7 @@ import com.epam.esm.TestConfig;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Role;
 import com.epam.esm.entity.User;
+import com.epam.esm.repository.page.PageSizeData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
 @Transactional
@@ -54,7 +55,7 @@ class OrderRepositoryTest {
             "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1);",
             "insert into application_order (user_id, created_at, active_status) values (1, null, true)"})
     void findAll() {
-        List<Order> actual = orderRepository.findAll("price", 1, Integer.MAX_VALUE);
+        List<Order> actual = orderRepository.findAllSpecified(null, null, new PageSizeData(1, 20));
         assertEquals(List.of(expected), actual);
     }
 
@@ -89,13 +90,12 @@ class OrderRepositoryTest {
     }
 
     @Test
-    @DisplayName("should find order 1 by criteria")
+    @DisplayName("should find order 1 by sort")
     @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');",
             "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1);",
             "insert into application_order (user_id, created_at, active_status) values (1, null, true)"})
     void findByCriteria() {
-        List<Order> actual = orderRepository.findByCriteria("id", 1, Integer.MAX_VALUE,
-                null, null, null, null);
+        List<Order> actual = orderRepository.findAllSpecified(null, null, new PageSizeData(1, 20));
 
         assertEquals(List.of(expected), actual);
     }

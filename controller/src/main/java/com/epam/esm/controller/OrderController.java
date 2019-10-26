@@ -48,11 +48,11 @@ import java.util.Map;
  * @author Dzmitry Platonov on 2019-10-11.
  * @version 0.0.1
  */
+@Log4j2
 @RestController
 @RequestMapping(EndPointConstant.ORDER_ENDPOINT)
 @Validated
 @ExposesResourceFor(OrderDTO.class)
-@Log4j2
 public class OrderController {
 
     private OrderService orderService;
@@ -81,7 +81,7 @@ public class OrderController {
         return ResponseEntity.ok(linkCreator.toResource(orderService.save(orderDTO)));
     }
 
-    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
+    @PreAuthorize("@securityChecker.check(#params) or hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity findAll(@PageAndSizeValid(message = "{violation.page.size}")
                                   @OrderSortValid(message = "{violation.order.sort}")
@@ -97,6 +97,7 @@ public class OrderController {
             orderSearchCriteriaDTO.setEmail(principle.getUsername());
             orderSearchCriteriaDTO.setUserId(null);
         }
+        log.info(orderSearchCriteriaDTO);
         List<OrderDTO> dtos = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
         return !dtos.isEmpty() ? ResponseEntity.ok(dtos.stream().map(orderDTO ->
                 linkCreator.toResource(orderDTO))) : ResponseEntity.status(404).body(dtos);

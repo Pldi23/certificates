@@ -7,6 +7,8 @@ import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.AbstractUserRepository;
+import com.epam.esm.repository.page.PageSizeData;
+import com.epam.esm.repository.sort.UserSortData;
 import com.epam.esm.util.Translator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -48,9 +49,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> findAll(PageAndSortDTO pageAndSortDTO) {
-        return userRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
-                .map(user -> userConverter.convert(user))
-                .collect(Collectors.toList());
+        return userRepository.findAllSpecified(null,
+                pageAndSortDTO.getSortParameter() != null ? new UserSortData(pageAndSortDTO.getSortParameter()) : null,
+                new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
+                .map(user -> userConverter.convert(user)).collect(Collectors.toList());
     }
 
     @Override
@@ -113,11 +115,6 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new EntityNotFoundException(String.format(Translator.toLocale(USER_NOT_FOUND_MESSAGE), id));
         }
-    }
-
-    @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
     }
 
 }

@@ -11,7 +11,7 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.validator.CertificateSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
-import com.epam.esm.validator.TagSortValid;
+import com.epam.esm.validator.TagCostSortValid;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -67,10 +67,10 @@ public class TagController {
     @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
     @GetMapping
     public ResponseEntity getAllTags(@PageAndSizeValid(message = "{violation.page.size}")
-                                     @TagSortValid(message = "{violation.tag.sort.cost}")
+                                     @TagCostSortValid(message = "{violation.tag.sort.cost}")
                                      @RequestParam Map<String, String> pageAndSortParameters) {
 
-        List<TagDTO> tagDTOS = tagServiceImpl.findPaginated(dtoParser.parsePageAndSortCriteria(pageAndSortParameters));
+        List<TagDTO> tagDTOS = tagServiceImpl.findAllPaginated(dtoParser.parsePageAndSortCriteria(pageAndSortParameters));
         if (!tagDTOS.isEmpty()) {
             List<Resource> resources = new ArrayList<>(tagDTOS.size());
             tagDTOS.forEach(tagDTO -> resources.add(linkCreator.toResource(tagDTO)));
@@ -128,6 +128,12 @@ public class TagController {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
         return ResponseEntity.ok(tagServiceImpl.findPopular(pageAndSortDTO).stream()
                 .map(tagDTO -> linkCreator.toResource(tagDTO)));
+    }
+
+    @Secured(RoleConstant.ROLE_ADMIN)
+    @GetMapping("/{id}/cost")
+    public ResponseEntity getTagCost(@PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
+        return ResponseEntity.ok(tagServiceImpl.calculateTagCost(id));
     }
 
 }

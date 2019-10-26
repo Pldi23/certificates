@@ -2,6 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.constant.EndPointConstant;
 import com.epam.esm.constant.RoleConstant;
+import com.epam.esm.constant.SecurityConstant;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
@@ -10,7 +11,6 @@ import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
-import com.epam.esm.constant.SecurityConstant;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
@@ -101,7 +101,8 @@ public class UserController {
 
     @Secured(RoleConstant.ROLE_ADMIN)
     @GetMapping
-    public ResponseEntity getAll(@RequestParam @PageAndSizeValid(message = "{violation.page.size}")
+    public ResponseEntity getAll(@RequestParam
+                                 @PageAndSizeValid(message = "{violation.page.size}")
                                  @UserSortValid(message = "{violation.user.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<UserDTO> users = userService.findAll(pageAndSortDTO);

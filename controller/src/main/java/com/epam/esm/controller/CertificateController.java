@@ -14,7 +14,7 @@ import com.epam.esm.service.TagService;
 import com.epam.esm.validator.CertificateSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.RequestParametersValidator;
-import com.epam.esm.validator.TagSortValid;
+import com.epam.esm.validator.TagCostSortValid;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -164,7 +164,7 @@ public class CertificateController {
     public ResponseEntity getTagsByCertificate(
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id,
             @PageAndSizeValid(message = "{violation.page.size}")
-            @TagSortValid(message = "{violation.tag.sort}") @RequestParam Map<String, String> params) {
+            @TagCostSortValid(message = "{violation.tag.sort.cost}") @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO).stream()
                 .map(tagDTO -> linkCreator.toResource(tagDTO)));

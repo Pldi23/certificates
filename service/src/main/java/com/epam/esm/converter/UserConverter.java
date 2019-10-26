@@ -25,10 +25,6 @@ public class UserConverter {
                 .id(userDTO.getId())
                 .email(userDTO.getEmail())
                 .password(userDTO.getPassword())
-//                .role(Role.builder()
-//                        .id(userDTO.getRole().getId())
-//                        .value(userDTO.getRole().getValue())
-//                        .build())
                 .role(convertRole(userDTO.getRole()))
                 .build();
     }

@@ -7,10 +7,8 @@ import com.epam.esm.filter.OpenIdSuccessHandler;
 import com.epam.esm.filter.StatelessCsrfFilter;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
-import com.epam.esm.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -27,12 +25,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-16.
- * @version 0.0.1
- */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
@@ -42,13 +34,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private AppUserDetailsService userDetailsService;
-    private UserService userService;
-    private TokenCreator tokenCreator;
 
-    public SecurityConfig(AppUserDetailsService userDetailsService, @Lazy UserService userService, TokenCreator tokenCreator) {
+    public SecurityConfig(AppUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.userService = userService;
-        this.tokenCreator = tokenCreator;
     }
 
     @Override
@@ -58,12 +46,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .exceptionHandling()
-                .accessDeniedHandler(new AppAccessDeniedHandler())
+                .accessDeniedHandler(appAccessDeniedHandler())
                 .and()
                 .csrf().disable()
-                .addFilterBefore(new StatelessCsrfFilter(), CsrfFilter.class)
-                .addFilter(new JwtAuthorizationFilter(authenticationManager()))
-                .addFilterBefore(new ExceptionHandlerFilter(), JwtAuthorizationFilter.class)
+                .addFilterBefore(statelessCsrfFilter(), CsrfFilter.class)
+                .addFilter(jwtAuthorizationFilter(authenticationManagerBean()))
+                .addFilterBefore(exceptionHandlerFilter(), JwtAuthorizationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/", "/authenticate", "/authenticate/refresh-token", "/login", "/error").permitAll()
                 .antMatchers(HttpMethod.GET, "/certificates").permitAll()
@@ -75,7 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .oauth2Login()
-                .successHandler(new OpenIdSuccessHandler(userDetailsService, userService, tokenCreator));
+                .successHandler(openIdSuccessHandler(userDetailsService, tokenCreator()));
     }
 
     @Override
@@ -83,7 +71,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -105,5 +92,34 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+        return new JwtAuthorizationFilter(authenticationManager);
+    }
+
+    @Bean
+    public ExceptionHandlerFilter exceptionHandlerFilter() {
+        return new ExceptionHandlerFilter();
+    }
+
+    @Bean
+    public StatelessCsrfFilter statelessCsrfFilter() {
+        return new StatelessCsrfFilter();
+    }
+
+    @Bean
+    public AppAccessDeniedHandler appAccessDeniedHandler() {
+        return new AppAccessDeniedHandler();
+    }
+
+    @Bean
+    public TokenCreator tokenCreator() {
+        return new TokenCreator();
+    }
+
+    @Bean
+    public OpenIdSuccessHandler openIdSuccessHandler(AppUserDetailsService appUserDetailsService, TokenCreator tokenCreator) {
+        return new OpenIdSuccessHandler(appUserDetailsService, tokenCreator);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.epam.esm.security;
 
 
+import com.epam.esm.constant.RequestConstant;
 import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderDTO;
@@ -16,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -66,6 +68,19 @@ public class SecurityChecker {
         } else {
             return false;
         }
+    }
+
+    public boolean check(Map<String, String> params) {
+        AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        try {
+            if (params.containsKey(RequestConstant.USER_ID) && principle.getUser().getId() != Long.parseLong(params.get(RequestConstant.USER_ID))) {
+                return false;
+            }
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+        return !params.containsKey(RequestConstant.EMAIL) || principle.getUsername().equals(params.get(RequestConstant.EMAIL));
     }
 
     public boolean checkOrderAuthorities(Long id) {

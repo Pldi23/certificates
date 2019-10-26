@@ -1,10 +1,15 @@
 package com.epam.esm.service;
 
+import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.AppUserPrinciple;
+import com.epam.esm.dto.UserDTO;
+import com.epam.esm.entity.Role;
 import com.epam.esm.entity.User;
+import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.AbstractUserRepository;
 import com.epam.esm.util.Translator;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -52,6 +57,15 @@ public class AppUserDetailsService implements UserDetailsService {
             return new AppUserPrinciple(userRepository.save(user));
         } else {
             throw new UsernameNotFoundException(Translator.toLocale("exception.invalid.principle"));
+        }
+    }
+
+    @Transactional
+    public void save(UserDTO userDTO) {
+        try {
+            userRepository.save(User.builder().email(userDTO.getEmail()).role(Role.builder().id(2L).value(RoleConstant.ROLE_USER).build()).build());
+        } catch (DataIntegrityViolationException ex) {
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"), userDTO.getEmail()));
         }
     }
 }

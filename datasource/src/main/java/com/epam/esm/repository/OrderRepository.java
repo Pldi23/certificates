@@ -1,25 +1,22 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Order;
+import com.epam.esm.repository.page.Pageable;
+import com.epam.esm.repository.predicate.Specification;
+import com.epam.esm.repository.sort.Sortable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.repository.constant.JpaConstant.CERTIFICATE;
-import static com.epam.esm.repository.constant.JpaConstant.EMAIL;
-import static com.epam.esm.repository.constant.JpaConstant.FIXED_PRICE;
 import static com.epam.esm.repository.constant.JpaConstant.ID;
-import static com.epam.esm.repository.constant.JpaConstant.NAME;
-import static com.epam.esm.repository.constant.JpaConstant.ORDER_CERTIFICATE;
-import static com.epam.esm.repository.constant.JpaConstant.PRICE;
-import static com.epam.esm.repository.constant.JpaConstant.USER;
 
 @Repository
 public class OrderRepository implements AbstractOrderRepository {
@@ -28,15 +25,6 @@ public class OrderRepository implements AbstractOrderRepository {
 
     public OrderRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
-    }
-
-    @Override
-    public List<Order> findAll(String sortParam, int page, int size) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Order> query = criteriaBuilder.createQuery(Order.class);
-        Root<Order> root = query.from(Order.class);
-        query.select(root);
-        return entityManager.createQuery(query).getResultList();
     }
 
     @Override
@@ -63,49 +51,22 @@ public class OrderRepository implements AbstractOrderRepository {
     }
 
     @Override
-    public List<Order> findByCriteria(String sort, int page, int size, String email, Long userId,
-                                      List<String> certificateNames, List<Long> certificateIds) {
+    public List<Order> findAllSpecified(List<Specification<Order>> specifications, Sortable<Order> sortable, Pageable pageable) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Order> query = criteriaBuilder.createQuery(Order.class);
+        Root<Order> root = query.from(Order.class);
 
-        CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
-        Root<Order> from = criteriaQuery.from(Order.class);
-        CriteriaQuery<Order> select = criteriaQuery.select(from);
-        if (email != null) {
-            select.where(criteriaBuilder.like(from.get(USER).get(EMAIL), email));
+        query.groupBy(root.get(ID));
+        if (sortable != null) {
+            query.orderBy(sortable.setOrder(root, query, criteriaBuilder));
         }
-        if (userId != null) {
-            select.where(criteriaBuilder.equal(from.get(USER).get(ID), userId));
+        if (specifications != null) {
+            List<Predicate> predicates = new ArrayList<>();
+            for (Specification<Order> s : specifications) {
+                predicates.addAll(s.toPredicates(root, query, criteriaBuilder));
+            }
+            query.where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
         }
-        if (certificateNames != null && !certificateNames.isEmpty()) {
-            certificateNames.forEach(s -> select.where(
-                    criteriaBuilder.equal(
-                            from.join(ORDER_CERTIFICATE).join(CERTIFICATE).get(NAME), s)));
-        }
-        if (certificateIds != null && !certificateIds.isEmpty()) {
-            certificateIds.forEach(i -> select.where(
-                    criteriaBuilder.equal(
-                            from.join(ORDER_CERTIFICATE).join(CERTIFICATE).get(ID), i)));
-        }
-        if (sort != null && sort.contains(PRICE)) {
-            select.groupBy(from.get(ID));
-            select.orderBy(sort.startsWith("-") ?
-                    criteriaBuilder.asc(
-                            criteriaBuilder.sum(
-                                    from.join(ORDER_CERTIFICATE).get(buildSortParameter(sort.replaceFirst("-", ""))))) :
-                    criteriaBuilder.desc(criteriaBuilder.sum(from.join(ORDER_CERTIFICATE).get(buildSortParameter(sort)))));
-        }
-        if (sort != null && sort.contains(ID)) {
-            select.orderBy(sort.startsWith("-") ?
-                    criteriaBuilder.asc(from.get(ID)) : criteriaBuilder.desc(from.get(ID)));
-        }
-
-        TypedQuery<Order> typedQuery = entityManager.createQuery(select);
-        typedQuery.setFirstResult(page * size - size);
-        typedQuery.setMaxResults(size);
-        return typedQuery.getResultList();
-    }
-
-    private String buildSortParameter(String sortParameter) {
-        return sortParameter.replaceFirst(PRICE, FIXED_PRICE);
+        return pageable.setPageAndSize(entityManager.createQuery(query)).getResultList();
     }
 }

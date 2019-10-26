@@ -2,8 +2,8 @@ package com.epam.esm.controller;
 
 import com.epam.esm.constant.EndPointConstant;
 import com.epam.esm.constant.RequestConstant;
-import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.constant.SecurityConstant;
+import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
 import lombok.extern.log4j.Log4j2;

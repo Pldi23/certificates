@@ -75,7 +75,7 @@ class UserServiceImplTest {
         PageAndSortDTO pageAndSortDTO = PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build();
 
         Mockito.when(userRepository
-                .findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()))
+                .findAllSpecified(any(), any(), any()))
                 .thenReturn(certificates);
 
         List<UserDTO> expected = List.of(userDTO);
@@ -124,16 +124,5 @@ class UserServiceImplTest {
         UserDTO actual = userService.update(userDTO, user.getId());
         assertEquals(userDTO, actual);
 
-    }
-
-    @Test
-    void findByEmail() {
-
-        Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-
-        Optional<User> expected = Optional.of(user);
-        Optional<User> actual = userService.findByEmail(user.getEmail());
-        Mockito.verify(userRepository, times(1)).findByEmail(user.getEmail());
-        assertEquals(expected, actual);
     }
 }

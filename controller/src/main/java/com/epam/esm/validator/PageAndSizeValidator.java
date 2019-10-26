@@ -25,7 +25,6 @@ public class PageAndSizeValidator implements ConstraintValidator<PageAndSizeVali
             return false;
         }
         if (stringStringMap.containsKey(SIZE_PARAMETER) && !stringStringMap.get(SIZE_PARAMETER).isBlank()
-                && isParsable(stringStringMap.get(SIZE_PARAMETER))
                 && Integer.parseInt(stringStringMap.get(SIZE_PARAMETER)) < 1) {
             return false;
         }

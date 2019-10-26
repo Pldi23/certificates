@@ -8,6 +8,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,7 +34,9 @@ import java.util.stream.Collectors;
  * @version 0.0.1
  */
 @Log4j2
+@PropertySource("app.properties")
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+
 
     private static final Map<String, String> SAFE_ENDPOINTS =
             Map.of("/", "GET",
@@ -42,6 +46,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     "/error", "GET",
                     "/certificates", "GET",
                     "/users", "POST");
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
@@ -71,7 +78,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (token != null && !token.isEmpty() && token.startsWith(SecurityConstant.TOKEN_PREFIX)) {
 
             Jws<Claims> parsedToken = Jwts.parser()
-                    .setSigningKey(SecurityConstant.JWT_SECRET.getBytes())
+                    .setSigningKey(jwtSecret.getBytes())
                     .parseClaimsJws(token.replace(SecurityConstant.TOKEN_PREFIX, ""));
 
             String username = parsedToken
@@ -99,10 +106,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private boolean verifyNullableToken(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        log.info(uri);
-        boolean result = SAFE_ENDPOINTS.containsKey(uri) && SAFE_ENDPOINTS.get(uri).equals(request.getMethod());
-        log.info(result);
-        return result;
+        return SAFE_ENDPOINTS.containsKey(uri) && SAFE_ENDPOINTS.get(uri).equals(request.getMethod());
     }
 
 }

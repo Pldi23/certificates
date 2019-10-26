@@ -5,6 +5,8 @@ import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.dto.SortCriteriaRequestDTO;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -22,13 +24,19 @@ import static com.epam.esm.constant.RequestConstant.SORT_PARAMETER;
 import static com.epam.esm.constant.RequestConstant.USER_ID;
 
 /**
- * request to criteria dtos parser
+ * request to sort dtos parser
  *
  * @author Dzmitry Platonov on 2019-09-27.
  * @version 0.0.1
  */
 @Component
+@PropertySource("app.properties")
 public class DtoParser {
+
+    @Value("${default.size}")
+    private String defaultSize;
+    @Value("${default.page}")
+    private String defaultPage;
 
     public SearchCriteriaRequestDTO parseSearchCriteria(Map<String, String> requestParams) {
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = new SearchCriteriaRequestDTO();
@@ -62,9 +70,9 @@ public class DtoParser {
         return PageAndSortDTO.builder()
                 .sortParameter(requestParams.getOrDefault(SORT_PARAMETER, null))
                 .page(requestParams.containsKey(PAGE_PARAMETER) && !requestParams.get(PAGE_PARAMETER).isBlank() ?
-                        Integer.parseInt(requestParams.get(PAGE_PARAMETER)) : 1)
+                        Integer.parseInt(requestParams.get(PAGE_PARAMETER)) : Integer.parseInt(defaultPage))
                 .size(requestParams.containsKey(SIZE_PARAMETER) && !requestParams.get(SIZE_PARAMETER).isBlank() ?
-                        Integer.parseInt(requestParams.get(SIZE_PARAMETER)) : 5)
+                        Integer.parseInt(requestParams.get(SIZE_PARAMETER)) : Integer.parseInt(defaultSize))
                 .build();
     }
 

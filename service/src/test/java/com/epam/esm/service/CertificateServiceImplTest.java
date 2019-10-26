@@ -11,8 +11,8 @@ import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.entity.criteria.SearchCriteria;
 import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.repository.AbstractOrderRepository;
 import com.epam.esm.repository.AbstractTagRepository;
 import com.epam.esm.validator.ExpirationDateValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +48,9 @@ class CertificateServiceImplTest {
     @Mock
     private AbstractTagRepository tagRepository;
 
+    @Mock
+    private AbstractOrderRepository orderRepository;
+
     private GiftCertificate giftCertificate;
     private GiftCertificateDTO giftCertificateDTO;
     private CriteriaConverter criteriaConverter;
@@ -61,7 +64,7 @@ class CertificateServiceImplTest {
         criteriaConverter = new CriteriaConverter(helper);
         ExpirationDateValidator validator = new ExpirationDateValidator();
         TagConverter tagConverter = new TagConverter();
-        service = new CertificateServiceImpl(certificateRepository, tagRepository, converter,
+        service = new CertificateServiceImpl(certificateRepository, tagRepository, orderRepository, converter,
                 criteriaConverter, validator, tagConverter);
 
         giftCertificate = GiftCertificate.builder()
@@ -94,7 +97,7 @@ class CertificateServiceImplTest {
         PageAndSortDTO pageAndSortDTO = PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build();
 
         Mockito.when(certificateRepository
-                .findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize(), true))
+                .findAllSpecified(any(), any(), any()))
                 .thenReturn(certificates);
 
         List<GiftCertificateDTO> dtos = List.of(giftCertificateDTO);
@@ -146,9 +149,7 @@ class CertificateServiceImplTest {
         List<GiftCertificate> certificates = List.of(giftCertificate);
         PageAndSortDTO pageAndSortDTO = PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build();
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = new SearchCriteriaRequestDTO(new HashMap<>());
-        SearchCriteria searchCriteria = criteriaConverter.convertSearchCriteria(searchCriteriaRequestDTO);
-        Mockito.when(certificateRepository.findByCriteria(searchCriteria, pageAndSortDTO.getSortParameter(),
-                pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).thenReturn(certificates);
+        Mockito.when(certificateRepository.findAllSpecified(any(), any(), any())).thenReturn(certificates);
 
         List<GiftCertificateDTO> expected = List.of(giftCertificateDTO);
         List<GiftCertificateDTO> actual = service.findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
@@ -164,8 +165,7 @@ class CertificateServiceImplTest {
         PageAndSortDTO pageAndSortDTO = PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build();
 
         Mockito.when(tagRepository.findById(1)).thenReturn(Optional.of(tag));
-        Mockito.when(certificateRepository.findByTagsId(1, pageAndSortDTO.getSortParameter(),
-                pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).thenReturn(List.of(giftCertificate));
+        Mockito.when(certificateRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(giftCertificate));
 
         List<GiftCertificateDTO> actual = service.getByTag(1, pageAndSortDTO);
         List<GiftCertificateDTO> expected = List.of(giftCertificateDTO);
@@ -178,9 +178,8 @@ class CertificateServiceImplTest {
         Order order = Order.builder().id(1L).build();
         PageAndSortDTO pageAndSortDTO = PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build();
 
-        Mockito.when(certificateRepository.findByOrder(order.getId(), pageAndSortDTO.getSortParameter(),
-                pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).thenReturn(List.of(giftCertificate));
-
+        Mockito.when(certificateRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(giftCertificate));
+        Mockito.when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         List<GiftCertificateDTO> actual = service.findByOrder(order.getId(), pageAndSortDTO);
         List<GiftCertificateDTO> expected = List.of(giftCertificateDTO);
         assertEquals(expected, actual);

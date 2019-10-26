@@ -6,7 +6,7 @@ import java.util.Optional;
 
 
 public interface AbstractUserRepository extends SaveRepository<User>, RemoveRepository, FindOneRepository<User>,
-        FindAllRepository<User> {
+        FindAllSpecifiedRepository<User> {
 
     Optional<User> findByEmail(String email);
 }

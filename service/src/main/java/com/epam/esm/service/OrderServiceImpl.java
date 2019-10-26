@@ -12,6 +12,13 @@ import com.epam.esm.repository.AbstractCertificateRepository;
 import com.epam.esm.repository.AbstractOrderCertificateRepository;
 import com.epam.esm.repository.AbstractOrderRepository;
 import com.epam.esm.repository.AbstractUserRepository;
+import com.epam.esm.repository.page.PageSizeData;
+import com.epam.esm.repository.predicate.OrderHasCertificateByIdSpecification;
+import com.epam.esm.repository.predicate.OrderHasCertificateByNameSpecification;
+import com.epam.esm.repository.predicate.OrderHasUserEmailSpecification;
+import com.epam.esm.repository.predicate.OrderHasUserIdSpecification;
+import com.epam.esm.repository.predicate.Specification;
+import com.epam.esm.repository.sort.OrderSortData;
 import com.epam.esm.util.Translator;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -20,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,7 +67,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDTO> findAll(PageAndSortDTO pageAndSortDTO) {
-        return orderRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
+        return orderRepository.findAllSpecified(null,
+                pageAndSortDTO.getSortParameter() != null ? new OrderSortData(pageAndSortDTO.getSortParameter()) : null,
+                new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(order -> {
                     OrderDTO dto = orderConverter.convert(order);
                     BigDecimal price = orderCertificateRepository.calculateOrderFixedPrice(dto.getId());
@@ -114,10 +124,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDTO> findByCriteria(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO) {
-
-        return orderRepository.findByCriteria(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
-                pageAndSortDTO.getSize(), criteriaDTO.getEmail(), criteriaDTO.getUserId(),
-                criteriaDTO.getCertificatesNames(), criteriaDTO.getCertificatesIds()).stream()
+        List<Specification<Order>> specifications = new ArrayList<>();
+        if (criteriaDTO.getUserId() != null) {
+            specifications.add(new OrderHasUserIdSpecification(criteriaDTO.getUserId()));
+        }
+        if (criteriaDTO.getEmail() != null) {
+            specifications.add(new OrderHasUserEmailSpecification(criteriaDTO.getEmail()));
+        }
+        if (criteriaDTO.getCertificatesIds() != null && !criteriaDTO.getCertificatesIds().isEmpty()) {
+            specifications.add(new OrderHasCertificateByIdSpecification(criteriaDTO.getCertificatesIds()));
+        }
+        if (criteriaDTO.getCertificatesNames() != null && !criteriaDTO.getCertificatesNames().isEmpty()) {
+            specifications.add(new OrderHasCertificateByNameSpecification(criteriaDTO.getCertificatesNames()));
+        }
+        return orderRepository.findAllSpecified(specifications,
+                pageAndSortDTO.getSortParameter() != null ? new OrderSortData(pageAndSortDTO.getSortParameter()) : null,
+                new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(order -> {
                     OrderDTO dto = orderConverter.convert(order);
                     BigDecimal price = orderCertificateRepository.calculateOrderFixedPrice(dto.getId());
@@ -126,7 +148,6 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .collect(Collectors.toList());
     }
-
 
 
     private void saveOrderCertificates(Order order, List<GiftCertificateDTO> giftCertificates) {

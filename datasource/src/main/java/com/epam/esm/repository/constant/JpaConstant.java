@@ -34,5 +34,8 @@ public class JpaConstant {
     public static final String NUM_ORDERS_ASC_SORT_PARAMETER = "num_orders";
     public static final String NUM_ORDERS_DESC_SORT_PARAMETER = "-num_orders";
     public static final String ORDERS = "orders";
+    public static final String COST = "cost";
+    public static final String COST_DESC = "-cost";
+    public static final String GIFT_CERTIFICATES = "giftCertificates";
 
 }

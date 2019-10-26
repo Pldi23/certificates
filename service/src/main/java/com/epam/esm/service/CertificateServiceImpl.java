@@ -9,9 +9,27 @@ import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.entity.criteria.ParameterSearchType;
+import com.epam.esm.entity.criteria.SearchCriteria;
+import com.epam.esm.entity.criteria.TagCriteria;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.repository.AbstractOrderRepository;
 import com.epam.esm.repository.AbstractTagRepository;
+import com.epam.esm.repository.page.PageSizeData;
+import com.epam.esm.repository.predicate.CertificateHasCreationDateSpecification;
+import com.epam.esm.repository.predicate.CertificateHasDescriptionSpecification;
+import com.epam.esm.repository.predicate.CertificateHasExpirationDateSpecification;
+import com.epam.esm.repository.predicate.CertificateHasIdSpecification;
+import com.epam.esm.repository.predicate.CertificateHasModificationdateSpecification;
+import com.epam.esm.repository.predicate.CertificateHasNameSpecification;
+import com.epam.esm.repository.predicate.CertificateHasOrderIdSpecification;
+import com.epam.esm.repository.predicate.CertificateHasPriceSpecification;
+import com.epam.esm.repository.predicate.CertificateHasTagsIdSpecification;
+import com.epam.esm.repository.predicate.CertificateHasTagsNameSpecification;
+import com.epam.esm.repository.predicate.CertificateIsActiveSpecification;
+import com.epam.esm.repository.predicate.Specification;
+import com.epam.esm.repository.sort.CertificateSortData;
 import com.epam.esm.util.Translator;
 import com.epam.esm.validator.ExpirationDateValidator;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,19 +58,19 @@ public class CertificateServiceImpl implements CertificateService {
 
     private AbstractCertificateRepository certificateRepository;
     private AbstractTagRepository tagRepository;
+    private AbstractOrderRepository orderRepository;
     private CertificateConverter certificateConverter;
     private CriteriaConverter criteriaConverter;
     private ExpirationDateValidator validator;
     private TagConverter tagConverter;
 
-    public CertificateServiceImpl(AbstractCertificateRepository certificateRepository,
-                                  AbstractTagRepository tagRepository,
-                                  CertificateConverter certificateConverter,
-                                  CriteriaConverter criteriaConverter,
-                                  ExpirationDateValidator validator,
+    public CertificateServiceImpl(AbstractCertificateRepository certificateRepository, AbstractTagRepository tagRepository,
+                                  AbstractOrderRepository orderRepository, CertificateConverter certificateConverter,
+                                  CriteriaConverter criteriaConverter, ExpirationDateValidator validator,
                                   TagConverter tagConverter) {
         this.certificateRepository = certificateRepository;
         this.tagRepository = tagRepository;
+        this.orderRepository = orderRepository;
         this.certificateConverter = certificateConverter;
         this.criteriaConverter = criteriaConverter;
         this.validator = validator;
@@ -60,8 +79,10 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<GiftCertificateDTO> findAll(PageAndSortDTO pageAndSortDTO) {
-        return certificateRepository.findAll(pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
-                pageAndSortDTO.getSize(), true).stream()
+        return certificateRepository.findAllSpecified(List.of(new CertificateIsActiveSpecification()),
+                pageAndSortDTO.getSortParameter() != null ? new CertificateSortData(pageAndSortDTO.getSortParameter()) : null,
+                new PageSizeData(pageAndSortDTO.getPage(),
+                pageAndSortDTO.getSize())).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
@@ -122,11 +143,38 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO, PageAndSortDTO pageAndSortDTO) {
-
-
-        return certificateRepository.findByCriteria(
-                        criteriaConverter.convertSearchCriteria(searchCriteriaDTO), pageAndSortDTO.getSortParameter(),
-                pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
+        List<Specification<GiftCertificate>> specifications = new ArrayList<>();
+        SearchCriteria searchCriteria = criteriaConverter.convertSearchCriteria(searchCriteriaDTO);
+        if (searchCriteria.getCreationDateCriteria() != null) {
+            specifications.add(new CertificateHasCreationDateSpecification(searchCriteria.getCreationDateCriteria()));
+        }
+        if (searchCriteria.getExpirationDateCriteria() != null) {
+            specifications.add(new CertificateHasExpirationDateSpecification(searchCriteria.getExpirationDateCriteria()));
+        }
+        if (searchCriteria.getModificationDateCriteria() != null) {
+            specifications.add(new CertificateHasModificationdateSpecification(searchCriteria.getModificationDateCriteria()));
+        }
+        if (searchCriteria.getTagNameCriteria() != null) {
+            specifications.add(new CertificateHasTagsNameSpecification(searchCriteria.getTagNameCriteria()));
+        }
+        if (searchCriteria.getTagCriteria() != null) {
+            specifications.add(new CertificateHasTagsIdSpecification(searchCriteria.getTagCriteria()));
+        }
+        if (searchCriteria.getNameCriteria() != null) {
+            specifications.add(new CertificateHasNameSpecification(searchCriteria.getNameCriteria()));
+        }
+        if (searchCriteria.getDescriptionCriteria() != null) {
+            specifications.add(new CertificateHasDescriptionSpecification(searchCriteria.getDescriptionCriteria()));
+        }
+        if (searchCriteria.getIdCriteria() != null) {
+            specifications.add(new CertificateHasIdSpecification(searchCriteria.getIdCriteria()));
+        }
+        if (searchCriteria.getPriceCriteria() != null) {
+            specifications.add(new CertificateHasPriceSpecification(searchCriteria.getPriceCriteria()));
+        }
+        return certificateRepository.findAllSpecified(specifications,
+                pageAndSortDTO.getSortParameter() != null ? new CertificateSortData(pageAndSortDTO.getSortParameter()) : null,
+                new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                 .collect(Collectors.toList());
     }
@@ -134,8 +182,10 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<GiftCertificateDTO> getByTag(long id, PageAndSortDTO pageAndSortDTO) {
         if (tagRepository.findById(id).isPresent()) {
-            return certificateRepository.findByTagsId(id, pageAndSortDTO.getSortParameter(), pageAndSortDTO.getPage(),
-                    pageAndSortDTO.getSize()).stream()
+            TagCriteria tagCriteria = new TagCriteria(ParameterSearchType.IN, List.of(id));
+            return certificateRepository.findAllSpecified(List.of(new CertificateHasTagsIdSpecification(tagCriteria)),
+                    pageAndSortDTO.getSortParameter() != null ? new CertificateSortData(pageAndSortDTO.getSortParameter()) : null,
+                    new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                     .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                     .collect(Collectors.toList());
         } else {
@@ -145,10 +195,15 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<GiftCertificateDTO> findByOrder(Long orderId, PageAndSortDTO pageAndSortDTO) {
-        return certificateRepository.findByOrder(orderId, pageAndSortDTO.getSortParameter(),
-                pageAndSortDTO.getPage(), pageAndSortDTO.getSize()).stream()
-                .map(giftCertificate -> certificateConverter.convert(giftCertificate))
-                .collect(Collectors.toList());
+        if (orderRepository.findById(orderId).isPresent()) {
+            return certificateRepository.findAllSpecified(List.of(new CertificateHasOrderIdSpecification(orderId)),
+                    pageAndSortDTO.getSortParameter() != null ? new CertificateSortData(pageAndSortDTO.getSortParameter()) : null,
+                    new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
+                    .map(giftCertificate -> certificateConverter.convert(giftCertificate))
+                    .collect(Collectors.toList());
+        } else {
+            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), orderId));
+        }
     }
 
     @Transactional

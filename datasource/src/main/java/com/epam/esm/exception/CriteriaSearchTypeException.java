@@ -11,4 +11,7 @@ public class CriteriaSearchTypeException extends RuntimeException {
     public CriteriaSearchTypeException(String message) {
         super(message);
     }
+
+    public CriteriaSearchTypeException() {
+    }
 }

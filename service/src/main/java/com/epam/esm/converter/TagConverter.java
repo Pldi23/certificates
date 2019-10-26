@@ -4,6 +4,8 @@ import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+
 /**
  * gift certificates
  *
@@ -18,6 +20,6 @@ public class TagConverter {
     }
 
     public Tag convert(TagDTO tagDTO) {
-        return new Tag(tagDTO.getId(), tagDTO.getTitle());
+        return new Tag(tagDTO.getId(), tagDTO.getTitle(), new HashSet<>());
     }
 }

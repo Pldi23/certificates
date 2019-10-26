@@ -37,7 +37,7 @@ public class CertificateConverter {
     public GiftCertificate convert(GiftCertificateDTO giftCertificateDTO) {
         Set<Tag> tags = giftCertificateDTO.getTags() != null ?
                 giftCertificateDTO.getTags().stream().filter(Objects::nonNull).map(tagDTO ->
-                        new Tag(tagDTO.getId(), tagDTO.getTitle())).collect(Collectors.toSet()) :
+                        new Tag(tagDTO.getId(), tagDTO.getTitle(), new HashSet<>())).collect(Collectors.toSet()) :
                 new HashSet<>();
         return GiftCertificate.builder()
                 .id(giftCertificateDTO.getId() != null ? giftCertificateDTO.getId() : 0L)

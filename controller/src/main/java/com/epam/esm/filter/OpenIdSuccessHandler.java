@@ -6,19 +6,15 @@ import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
-import com.epam.esm.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,25 +25,22 @@ import java.util.stream.Collectors;
  * @version 0.0.1
  */
 @Log4j2
-@Component
 public class OpenIdSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static final String OATH_EMAIL_ATTRIBUTE = "email";
 
     private AppUserDetailsService detailsService;
-    private UserService userService;
     private TokenCreator tokenCreator;
 
-    public OpenIdSuccessHandler(AppUserDetailsService detailsService, UserService userService, TokenCreator tokenCreator) {
+    public OpenIdSuccessHandler(AppUserDetailsService detailsService, TokenCreator tokenCreator) {
         this.detailsService = detailsService;
-        this.userService = userService;
         this.tokenCreator = tokenCreator;
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        OAuth2User user = (OAuth2User) authentication.getPrincipal();
-        String email = (String) user.getAttributes().get(OATH_EMAIL_ATTRIBUTE);
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String email = (String) oAuth2User.getAttributes().get(OATH_EMAIL_ATTRIBUTE);
         List<String> roles;
         AppUserPrinciple principle;
         try {
@@ -65,7 +58,7 @@ public class OpenIdSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .build();
 
             roles = List.of(userDTO.getRole());
-            userService.save(userDTO);
+            detailsService.save(userDTO);
         }
 
         String token = tokenCreator.createJwt(email, roles);
@@ -73,11 +66,11 @@ public class OpenIdSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         detailsService.update(email, refreshToken);
 
-        log.info("successful authentication, user " + user.getAttributes().get(OATH_EMAIL_ATTRIBUTE)
-                + " role:: " + user.getAuthorities());
+        log.info("successful authentication, user " + oAuth2User.getAttributes().get(OATH_EMAIL_ATTRIBUTE)
+                + " role:: " + oAuth2User.getAuthorities());
 
 
-        response.addHeader(SecurityConstant.TOKEN_HEADER, SecurityConstant.TOKEN_PREFIX + token);
+        response.addHeader(SecurityConstant.TOKEN_HEADER, token);
         response.addHeader(SecurityConstant.ACCESS_TOKEN_EXPIRATION, String.valueOf(tokenCreator.getJwtTokenExpirationTimestamp(token)));
         response.addHeader(SecurityConstant.REFRESH_TOKEN_HEADER, refreshToken);
     }
