@@ -6,6 +6,7 @@ import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.UserDTO;
+import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
@@ -91,6 +92,34 @@ public class SecurityChecker {
             return orderDTO.getUserId().equals(principle.getUser().getId());
         } else {
             return false;
+        }
+    }
+
+    public boolean checkRegisterRole(UserDTO userDTO) {
+        if (userDTO.getRole().equals(RoleConstant.ROLE_USER)) {
+            return true;
+        } else {
+            AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
+                    .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            List<String> roles = principle.getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+            return roles.contains(RoleConstant.ROLE_ADMIN) || !userDTO.getRole().equals(RoleConstant.ROLE_ADMIN);
+        }
+    }
+
+    public boolean checkRegisterRole(UserPatchDTO userPatchDTO) {
+        if (userPatchDTO.getRole() == null || (userPatchDTO.getRole() != null && userPatchDTO.getRole().equals(RoleConstant.ROLE_USER))) {
+            return true;
+        } else {
+            AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
+                    .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            List<String> roles = principle.getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+            return roles.contains(RoleConstant.ROLE_ADMIN) || !userPatchDTO.getRole().equals(RoleConstant.ROLE_ADMIN);
         }
     }
 }

@@ -1,11 +1,6 @@
 package com.epam.esm.repository.constant;
 
-/**
- * gift-certificates
- *
- * @author Dzmitry Platonov on 2019-10-20.
- * @version 0.0.1
- */
+
 public class QueryConstant {
 
     private QueryConstant() {
@@ -27,13 +22,13 @@ public class QueryConstant {
             "delete from order_certificate where order_id = ?";
 
     public static final String SELECT_ALL_ORDER_CERTIFICATE_BY_CERTIFICATE_ID =
-            "select * from order_certificate where certificate_id = ?";
+            "select id, certificate_id, order_id, fixed_price, expiration_date from order_certificate where certificate_id = ?";
 
     public static final String SELECT_ALL_ORDER_CERTIFICATE_BY_ORDER_ID =
-            "select * from order_certificate where order_id = ?";
+            "select id, certificate_id, order_id, fixed_price, expiration_date from order_certificate where order_id = ?";
 
     public static final String SELECT_ALL_ORDER_CERTIFICATE =
-            "select * from order_certificate";
+            "select id, certificate_id, order_id, fixed_price, expiration_date from order_certificate";
 
 
 }

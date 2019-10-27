@@ -19,7 +19,6 @@ import java.util.List;
  * @author Dzmitry Platonov on 2019-10-18.
  * @version 0.0.1
  */
-//@Component
 @PropertySource("app.properties")
 public class TokenCreator {
 

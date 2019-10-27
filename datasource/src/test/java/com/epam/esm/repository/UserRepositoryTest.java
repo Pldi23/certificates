@@ -38,7 +38,7 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("should add user to repository and return")
-    @Sql(statements = "insert into application_role (value) values ('admin'), ('user'), ('guest');")
+    @Sql(statements = "insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);")
     void testAdd() {
         User user = User.builder()
                 .id(1L)
@@ -54,8 +54,8 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("should delete user")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');",
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 3);"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);",
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 3, 1);"})
     void testDelete() {
         userRepository.deleteById(1);
         assertEquals(Optional.empty(), userRepository.findById(1));
@@ -63,8 +63,8 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("should find all users")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');" +
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@gmail.com', 'Qwertyui1!', 1);"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);" +
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@gmail.com', 'Qwertyui1!', 1, 1);"})
     void findAll() {
         User expected = User.builder()
                 .id(1L)
@@ -79,8 +79,8 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("should find user with id 1")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');" +
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@gmail.com', 'Qwertyui1!', 1);"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);" +
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@gmail.com', 'Qwertyui1!', 1, 1);"})
     void findById() {
         Optional<User> expected = Optional.of(User.builder()
                 .id(1L)
@@ -96,8 +96,8 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("should find user with email pldi@dmail.com")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');" +
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@gmail.com', 'Qwertyui1!', 1);"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);" +
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@gmail.com', 'Qwertyui1!', 1, 1);"})
     void findByEmail() {
         Optional<User> expected = Optional.of(User.builder()
                 .id(1L)

@@ -60,6 +60,8 @@ import java.util.stream.Collectors;
 @ExposesResourceFor(UserDTO.class)
 public class UserController {
 
+    private static final String USER_EXIST_MESSAGE = "exception.user.exist";
+
     private UserService userService;
     private OrderService orderService;
     private LinkCreator linkCreator;
@@ -80,10 +82,16 @@ public class UserController {
         this.detailsService = detailsService;
     }
 
-
+    @PreAuthorize("@securityChecker.checkRegisterRole(#userDTO)")
     @PostMapping
     public ResponseEntity save(@RequestBody @Valid UserDTO userDTO) {
-        UserDTO saved = userService.save(userDTO);
+        UserDTO saved;
+        try {
+            saved = userService.save(userDTO);
+        } catch (DataIntegrityViolationException ex) {
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
+                    userDTO.getEmail()));
+        }
         AppUserPrinciple principle = (AppUserPrinciple) detailsService.loadUserByUsername(saved.getEmail());
         List<String> roles = principle.getAuthorities()
                 .stream()
@@ -138,26 +146,26 @@ public class UserController {
         return ResponseEntity.status(204).build();
     }
 
-    @PreAuthorize(value = "@securityChecker.check(#id) or @securityChecker.checkUser(#id)")
+    @PreAuthorize(value = "(@securityChecker.check(#id) or @securityChecker.checkUser(#id)) and @securityChecker.checkRegisterRole(#userDTO)")
     @PutMapping("/{id}")
     public ResponseEntity update(@RequestBody @Valid UserDTO userDTO,
                                  @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         try {
             return ResponseEntity.ok(linkCreator.toResource(userService.update(userDTO, id)));
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"),
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
                     userDTO.getEmail()));
         }
     }
 
-    @PreAuthorize("@securityChecker.check(#id) or @securityChecker.checkUser(#id)")
+    @PreAuthorize("(@securityChecker.check(#id) or @securityChecker.checkUser(#id)) and @securityChecker.checkRegisterRole(#userPatchDTO)")
     @PatchMapping("/{id}")
     public ResponseEntity patch(@RequestBody @Valid UserPatchDTO userPatchDTO,
                                 @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         try {
             return ResponseEntity.ok(linkCreator.toResource(userService.patch(userPatchDTO, id)));
         } catch (DataIntegrityViolationException ex) {
-            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.user.exist"),
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
                     userPatchDTO.getEmail()));
         }
     }

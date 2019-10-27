@@ -10,7 +10,6 @@ import lombok.ToString;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -36,7 +35,7 @@ import java.util.Set;
 public class GiftCertificate {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
     private String name;
@@ -47,7 +46,7 @@ public class GiftCertificate {
     private LocalDate expirationDate;
     private Boolean activeStatus;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name="certificate_tag",
             joinColumns=@JoinColumn(name="certificate_id"),
             inverseJoinColumns=@JoinColumn(name="tag_id"))

@@ -32,7 +32,7 @@ import java.util.Set;
 public class Tag{
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
 

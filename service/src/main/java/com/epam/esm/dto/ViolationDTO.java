@@ -10,18 +10,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * giftcertificates
- *
- * @author Dzmitry Platonov on 2019-09-30.
- * @version 0.0.1
- */
 public class ViolationDTO {
 
     private List<String> messages;
     private int status;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime localDate;

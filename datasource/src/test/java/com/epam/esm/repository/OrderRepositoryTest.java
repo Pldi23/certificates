@@ -51,9 +51,9 @@ class OrderRepositoryTest {
 
     @Test
     @DisplayName("should find all orders")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');",
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1);",
-            "insert into application_order (user_id, created_at, active_status) values (1, null, true)"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);",
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1, 1);",
+            "insert into application_order (user_id, created_at, active_status, id) values (1, null, true, 1)"})
     void findAll() {
         List<Order> actual = orderRepository.findAllSpecified(null, null, new PageSizeData(1, 20));
         assertEquals(List.of(expected), actual);
@@ -61,9 +61,9 @@ class OrderRepositoryTest {
 
     @Test
     @DisplayName("should find order by id 1")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');",
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1);",
-            "insert into application_order (user_id, created_at, active_status) values (1, null, true)"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);",
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1, 1);",
+            "insert into application_order (user_id, created_at, active_status, id) values (1, null, true, 1)"})
     void findById() {
         Optional<Order> actual = orderRepository.findById(1L);
         assertEquals(Optional.of(expected), actual);
@@ -71,9 +71,9 @@ class OrderRepositoryTest {
 
     @Test
     @DisplayName("should delete order by id (1)")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');",
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1);",
-            "insert into application_order (user_id, created_at, active_status) values (1, null, true)"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);",
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1, 1);",
+            "insert into application_order (user_id, created_at, active_status, id) values (1, null, true, 1)"})
     void deleteById() {
         orderRepository.deleteById(1);
         assertEquals(Optional.empty(), orderRepository.findById(1));
@@ -81,9 +81,9 @@ class OrderRepositoryTest {
 
     @Test
     @DisplayName("should save order and return")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');",
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1);",
-            "insert into application_order (user_id, created_at, active_status) values (1, null, true)"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);",
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1, 1);",
+            "insert into application_order (user_id, created_at, active_status, id) values (1, null, true, 1)"})
     void save() {
         Order actual = orderRepository.save(expected);
         assertEquals(expected, actual);
@@ -91,9 +91,9 @@ class OrderRepositoryTest {
 
     @Test
     @DisplayName("should find order 1 by sort")
-    @Sql(statements = {"insert into application_role (value) values ('admin'), ('user'), ('guest');",
-            "INSERT INTO application_user(email, password, role_id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1);",
-            "insert into application_order (user_id, created_at, active_status) values (1, null, true)"})
+    @Sql(statements = {"insert into application_role (value, id) values ('admin', 1), ('user', 2), ('guest', 3);",
+            "INSERT INTO application_user(email, password, role_id, id) VALUES ('pldi@mail.ru', 'Qwertyui1!', 1, 1);",
+            "insert into application_order (user_id, created_at, active_status, id) values (1, null, true, 1)"})
     void findByCriteria() {
         List<Order> actual = orderRepository.findAllSpecified(null, null, new PageSizeData(1, 20));
 

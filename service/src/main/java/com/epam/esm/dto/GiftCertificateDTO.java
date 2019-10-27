@@ -1,5 +1,6 @@
 package com.epam.esm.dto;
 
+import com.epam.esm.validator.ValidTagSet;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.NoArgsConstructor;
 
-import javax.validation.Valid;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
@@ -63,7 +63,7 @@ public class GiftCertificateDTO {
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate expirationDate;
 
-    @Valid
+    @ValidTagSet(message = "{violation.tag.set}")
     private Set<TagDTO> tags;
 
 

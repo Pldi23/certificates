@@ -6,6 +6,7 @@ import com.epam.esm.exception.DateNotValidException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.GenerateDataException;
 import com.epam.esm.exception.UserRoleException;
+import com.epam.esm.util.Translator;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,9 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final String INVALID_FORMAT_EXCEPTION_MESSAGE =
+            "nested exception is com.fasterxml.jackson.databind.exc.InvalidFormatException:";
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,
@@ -56,7 +60,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraitViolationException(ConstraintViolationException ex, WebRequest request) {
-        return ResponseEntity.badRequest().body(new ViolationDTO(List.of(ex.getMessage()), 400, LocalDateTime.now()));
+        String message = ex.getLocalizedMessage();
+        return ResponseEntity.badRequest().body(new ViolationDTO(List.of(message.substring(message.indexOf(':') + 1).trim()), 400, LocalDateTime.now()));
     }
 
     @ExceptionHandler(CriteriaSearchTypeException.class)
@@ -78,8 +83,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-
         String message = ex.getLocalizedMessage();
+        if (message.contains(INVALID_FORMAT_EXCEPTION_MESSAGE)) {
+            return ResponseEntity.badRequest()
+                    .body(new ViolationDTO(List.of(Translator.toLocale("exception.json.invalid.format")), 400, LocalDateTime.now()));
+        }
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(message.substring(0, message.indexOf('\n'))), 400, LocalDateTime.now()));
 
@@ -100,7 +108,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(404)
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 404, LocalDateTime.now()));
     }
 
@@ -112,13 +120,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     protected ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(401)
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
     }
 
     @ExceptionHandler(GenerateDataException.class)
     protected ResponseEntity<Object> handleUsernameNotFoundException(GenerateDataException ex, WebRequest request) {
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(401)
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
     }
 

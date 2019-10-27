@@ -2,17 +2,24 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.OrderCertificate;
 import com.epam.esm.repository.constant.QueryConstant;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
+@PropertySource("classpath:application.properties")
 @Repository
 public class OrderCertificateRepository implements AbstractOrderCertificateRepository {
 
     private EntityManager entityManager;
+
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
 
     public OrderCertificateRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -23,6 +30,20 @@ public class OrderCertificateRepository implements AbstractOrderCertificateRepos
     public OrderCertificate save(OrderCertificate orderCertificate) {
         entityManager.persist(orderCertificate);
         return orderCertificate;
+    }
+
+    @Override
+    public List<OrderCertificate> save(List<OrderCertificate> orderCertificates) {
+        List<OrderCertificate> savedEntities = new ArrayList<>(orderCertificates.size());
+        for (int i = 0; i < orderCertificates.size(); i++) {
+            if (i > 0 && i % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+            entityManager.persist(orderCertificates.get(i));
+            savedEntities.add(orderCertificates.get(i));
+        }
+        return savedEntities;
     }
 
     @Override

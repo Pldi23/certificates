@@ -158,12 +158,13 @@ public class OrderServiceImpl implements OrderService {
                         new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), giftCertificateDTO.getId()))))
                 .collect(Collectors.toList());
 
-        certificates.forEach(certificate -> orderCertificateRepository.save(OrderCertificate.builder()
+        List<OrderCertificate> orderCertificates = certificates.stream().map(certificate -> OrderCertificate.builder()
                 .order(order)
                 .certificate(certificate)
                 .fixedPrice(certificate.getPrice())
                 .expirationDate(certificate.getExpirationDate())
-                .build()));
+                .build()).collect(Collectors.toList());
+        orderCertificateRepository.save(orderCertificates);
     }
 
 

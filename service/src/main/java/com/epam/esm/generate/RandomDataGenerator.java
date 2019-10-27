@@ -11,6 +11,7 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.UserService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import java.util.Set;
  * @version 0.0.1
  */
 @Component
+@Log4j2
 public class RandomDataGenerator {
 
     private static final Resource wordsResource = new ClassPathResource("words");
@@ -70,7 +72,7 @@ public class RandomDataGenerator {
 
     public void generate(int tagsQuantity, int certificatesQuantity, int usersQuantity, int ordersQuantity) {
         generateTags(tagsQuantity);
-        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO());
+        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
         generateCertificates(certificatesQuantity, tags);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
         generateUsers(usersQuantity);

@@ -7,6 +7,7 @@ import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.criteria.ParameterSearchType;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
 public class CertificateServiceImpl implements CertificateService {
 
     private static final String CERTIFICATE_NOT_FOUND_MESSAGE = "entity.certificate.not.found";
+    private static final String TAG_NOT_FOUND_MESSAGE = "entity.tag.not.found";
 
 
     private AbstractCertificateRepository certificateRepository;
@@ -97,8 +99,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public GiftCertificateDTO save(GiftCertificateDTO giftCertificateDTO) {
         Set<Tag> tags = giftCertificateDTO.getTags().stream()
-                .map(tagDTO -> tagRepository.findByTitle(tagDTO.getTitle())
-                        .orElseGet(() -> tagRepository.save(tagConverter.convert(tagDTO))))
+                .map(this::saveOrCreate)
                 .collect(Collectors.toSet());
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         giftCertificate.setCreationDate(LocalDate.now());
@@ -116,8 +117,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public GiftCertificateDTO update(GiftCertificateDTO giftCertificateDTO, long id) {
         Set<Tag> tags = giftCertificateDTO.getTags().stream()
-                .map(tagDTO -> tagRepository.findByTitle(tagDTO.getTitle())
-                        .orElseGet(() -> tagRepository.save(tagConverter.convert(tagDTO))))
+                .map(this::saveOrCreate)
                 .collect(Collectors.toSet());
         GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
         giftCertificate.setId(id);
@@ -189,7 +189,7 @@ public class CertificateServiceImpl implements CertificateService {
                     .map(giftCertificate -> certificateConverter.convert(giftCertificate))
                     .collect(Collectors.toList());
         } else {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale(TAG_NOT_FOUND_MESSAGE), id));
         }
     }
 
@@ -231,6 +231,24 @@ public class CertificateServiceImpl implements CertificateService {
                     .collect(Collectors.toSet()));
         }
         return certificateConverter.convert(certificateRepository.save(giftCertificate));
+    }
+
+    private Tag saveOrCreate(TagDTO tagDTO) {
+        if (tagDTO.getId() == null && tagDTO.getTitle() != null) {
+            return tagRepository.findByTitle(tagDTO.getTitle())
+                    .orElseGet(() -> tagRepository.save(tagConverter.convert(tagDTO)));
+        } else if (tagDTO.getId() != null && tagDTO.getTitle() == null) {
+            return tagRepository.findById(tagDTO.getId())
+                    .orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale(TAG_NOT_FOUND_MESSAGE), tagDTO.getId())));
+        } else {
+            Tag tag = tagRepository.findById(tagDTO.getId())
+                    .orElseThrow(() -> new EntityNotFoundException(String.format(Translator.toLocale(TAG_NOT_FOUND_MESSAGE), tagDTO.getId())));
+            if (tag.getTitle().equals(tagDTO.getTitle())) {
+                return tag;
+            } else {
+                throw new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.by.title.id.not.found"), tagDTO.getId(), tagDTO.getTitle()));
+            }
+        }
     }
 
 }
