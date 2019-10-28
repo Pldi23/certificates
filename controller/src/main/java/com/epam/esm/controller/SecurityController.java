@@ -47,15 +47,13 @@ public class SecurityController {
         AppUserPrinciple principle = (AppUserPrinciple) detailsService.loadUserByUsername(username);
         if (principle != null && principle.getUser() != null && principle.getUser().getRefreshToken() != null
                 && principle.getUser().getRefreshToken().equals(refreshToken)) {
-            log.info("'/authenticate/refresh-token' refresh token equals " + username);
-
             return ResponseEntity.ok().headers(buildHeaders(principle)).build();
         } else {
             return ResponseEntity.status(401).build();
         }
     }
 
-    @PostMapping(EndPointConstant.LOGIN_ENDPOINT)
+    @PostMapping(EndPointConstant.AUTHENTICATE_ENDPOINT)
     public ResponseEntity authenticate(HttpServletRequest request) {
         String username = request.getParameter(RequestConstant.USERNAME);
         String password = request.getParameter(RequestConstant.PASS);

@@ -1,5 +1,6 @@
 package com.epam.esm.filter;
 
+import com.epam.esm.constant.EndPointConstant;
 import com.epam.esm.constant.SecurityConstant;
 import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.util.Translator;
@@ -40,12 +41,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private static final Map<String, String> SAFE_ENDPOINTS =
             Map.of("/", "GET",
-                    "/authenticate", "POST",
-                    "/authenticate/refresh-token", "POST",
-                    "/login", "GET",
-                    "/error", "GET",
-                    "/certificates", "GET",
-                    "/users", "POST");
+                    EndPointConstant.AUTHENTICATE_ENDPOINT, "POST",
+                    EndPointConstant.REFRESH_TOKEN_ENDPOINT, "POST",
+                    EndPointConstant.LOGIN_ENDPOINT, "GET",
+                    EndPointConstant.ERROR_ENDPOINT, "GET",
+                    EndPointConstant.CERTIFICATE_ENDPOINT, "GET",
+                    EndPointConstant.USER_ENDPOINT, "POST");
 
     @Value("${jwt.secret}")
     private String jwtSecret;

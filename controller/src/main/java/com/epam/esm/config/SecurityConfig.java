@@ -4,7 +4,6 @@ import com.epam.esm.filter.AppAccessDeniedHandler;
 import com.epam.esm.filter.ExceptionHandlerFilter;
 import com.epam.esm.filter.JwtAuthorizationFilter;
 import com.epam.esm.filter.OpenIdSuccessHandler;
-import com.epam.esm.filter.StatelessCsrfFilter;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +18,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import static com.epam.esm.constant.EndPointConstant.*;
 
 @Configuration
 @EnableWebSecurity
@@ -48,19 +48,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .accessDeniedHandler(appAccessDeniedHandler())
                 .and()
-                .csrf().disable()
-                .addFilterBefore(statelessCsrfFilter(), CsrfFilter.class)
+                .csrf()
+                .csrfTokenRepository(cookieCsrfTokenRepository())
+                .and()
                 .addFilter(jwtAuthorizationFilter(authenticationManagerBean()))
                 .addFilterBefore(exceptionHandlerFilter(), JwtAuthorizationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/", "/authenticate", "/authenticate/refresh-token", "/login", "/error").permitAll()
-                .antMatchers(HttpMethod.GET, "/certificates").permitAll()
-                .antMatchers(HttpMethod.POST, "/users").permitAll()
+                .antMatchers("/", AUTHENTICATE_ENDPOINT, REFRESH_TOKEN_ENDPOINT, LOGIN_ENDPOINT, ERROR_ENDPOINT).permitAll()
+                .antMatchers(HttpMethod.GET, CERTIFICATE_ENDPOINT).permitAll()
+                .antMatchers(HttpMethod.POST, USER_ENDPOINT).permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .formLogin().successForwardUrl(AUTHENTICATE_ENDPOINT)
                 .and()
                 .oauth2Login()
                 .successHandler(openIdSuccessHandler(userDetailsService, tokenCreator()));
@@ -103,8 +106,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public StatelessCsrfFilter statelessCsrfFilter() {
-        return new StatelessCsrfFilter();
+    public CookieCsrfTokenRepository cookieCsrfTokenRepository() {
+        return new CookieCsrfTokenRepository();
     }
 
     @Bean
