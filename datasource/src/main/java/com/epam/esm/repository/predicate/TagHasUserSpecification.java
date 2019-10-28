@@ -1,16 +1,12 @@
 package com.epam.esm.repository.predicate;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.entity.User;
 import com.epam.esm.repository.constant.JpaConstant;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -29,14 +25,10 @@ public class TagHasUserSpecification implements Specification<Tag> {
 
     @Override
     public List<Predicate> toPredicates(Root<Tag> root, CriteriaQuery query, CriteriaBuilder cb) {
-        Subquery<User> subquery = query.subquery(User.class);
-        Root<User> userRoot = subquery.from(User.class);
-        Expression<Collection<Tag>> userTags = userRoot.join(JpaConstant.ORDERS)
+        return List.of(cb.equal(root
+                .join(JpaConstant.GIFT_CERTIFICATES)
                 .join(JpaConstant.ORDER_CERTIFICATE)
-                .join(JpaConstant.CERTIFICATE)
-                .get(JpaConstant.TAGS);
-        subquery.select(userRoot);
-        subquery.where(cb.equal(userRoot.get(JpaConstant.ID), id), cb.isMember(root, userTags));
-        return List.of(cb.exists(subquery));
+                .join(JpaConstant.ORDER)
+                .get(JpaConstant.USER), id));
     }
 }

@@ -13,7 +13,7 @@ public class QueryConstant {
             "join application_order ao on oc.order_id = ao.id " +
             "where ao.user_id = ? " +
             "group by tag.id, tag.title " +
-            "order by sum(c.price) desc limit 1";
+            "order by sum(oc.fixed_price) desc limit 1";
 
     public static final String CALCULATE_ORDER_FIXED_PRICE =
             "select sum(fixed_price) from order_certificate where order_id = ?";

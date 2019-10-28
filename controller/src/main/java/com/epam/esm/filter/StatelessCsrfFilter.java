@@ -36,13 +36,13 @@ public class StatelessCsrfFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (csrfTokenIsRequired(request)) {
 
-            String csrfHeaderToken = request.getHeader(SecurityConstant.CSRF_TOKEN);
+            String csrfHeaderToken = request.getHeader(SecurityConstant.HEADER_CSRF_TOKEN);
             String csrfCookieToken = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
 
                 Optional<Cookie> csrfCookie = Arrays.stream(cookies)
-                        .filter(cookie -> cookie.getName().equals(SecurityConstant.CSRF_TOKEN))
+                        .filter(cookie -> cookie.getName().equals(SecurityConstant.COOKIE_CSRF_TOKEN))
                         .findFirst();
                 if (csrfCookie.isPresent()) {
 

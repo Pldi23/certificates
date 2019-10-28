@@ -19,7 +19,7 @@ import com.epam.esm.service.UserService;
 import com.epam.esm.util.Translator;
 import com.epam.esm.validator.OrderSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
-import com.epam.esm.validator.TagCostSortValid;
+import com.epam.esm.validator.TagSortValid;
 import com.epam.esm.validator.UserSortValid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -175,7 +175,7 @@ public class UserController {
     public ResponseEntity getTagsByUser(
             @PathVariable @Min(value = 0, message = "{violation.id}") Long id,
             @PageAndSizeValid(message = "{violation.page.size}")
-            @TagCostSortValid(message = "{violation.tag.sort.cost}")
+            @TagSortValid(message = "{violation.tag.sort.cost}")
             @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO).stream()
