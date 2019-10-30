@@ -90,3 +90,8 @@ insert into application_role (role)
 values ('ROLE_ADMIN'),
        ('ROLE_USER'),
        ('ROLE_GUEST');
+
+create index order_index on application_order(user_id);
+create index certificate_tag_index on certificate_tag(tag_id);
+create index order_certificate_index on order_certificate(id);
+create index tag_index on tag(id);

@@ -9,7 +9,7 @@ public class SecurityConstant {
     public static final String TOKEN_TYPE = "JWT";
     public static final String TOKEN_ISSUER = "secure-api";
     public static final String TOKEN_AUDIENCE = "secure-app";
-    public static final String HEADER_CSRF_TOKEN = "X-CSRF-TOKEN";
+    public static final String HEADER_CSRF_TOKEN = "X-XSRF-TOKEN";
     public static final String COOKIE_CSRF_TOKEN = "XSRF-TOKEN";
     public static final int JWT_TOKEN_DURATION_HOURS = 2;
     public static final int REFRESH_TOKEN_DURATION_DAYS = 60;

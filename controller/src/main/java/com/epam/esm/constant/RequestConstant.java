@@ -18,7 +18,7 @@ public class RequestConstant {
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
     public static final String BETWEEN = "bw:";
-    public static final String NOT_BERWEEN = "nbw:";
+    public static final String NOT_BETWEEN = "nbw:";
     public static final String NOT_IN = "-";
     public static final String SORT_PARAMETER = "sort";
     public static final String SIZE_PARAMETER = "size";

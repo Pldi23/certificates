@@ -4,10 +4,14 @@ import com.epam.esm.converter.UserConverter;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
+import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.repository.AbstractOrderCertificateRepository;
 import com.epam.esm.repository.AbstractUserRepository;
+import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.page.PageSizeData;
+import com.epam.esm.repository.predicate.OrderHasUserIdSpecification;
 import com.epam.esm.repository.sort.UserSortData;
 import com.epam.esm.util.Translator;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,17 +34,25 @@ public class UserServiceImpl implements UserService {
     private AbstractUserRepository userRepository;
     private UserConverter userConverter;
     private PasswordEncoder passwordEncoder;
+    private AbstractOrderCertificateRepository orderCertificateRepository;
+    private OrderRepository orderRepository;
 
-    public UserServiceImpl(AbstractUserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(AbstractUserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder,
+                           AbstractOrderCertificateRepository orderCertificateRepository, OrderRepository orderRepository) {
         this.userRepository = userRepository;
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;
+        this.orderCertificateRepository = orderCertificateRepository;
+        this.orderRepository = orderRepository;
     }
 
     @Transactional
     @Override
     public void delete(long id) {
         try {
+            OrderHasUserIdSpecification orderHasUserIdSpecification = new OrderHasUserIdSpecification(id);
+            List<Order> orders = orderRepository.findAllSpecified(List.of(orderHasUserIdSpecification), null, new PageSizeData(1, Integer.MAX_VALUE));
+            orders.forEach(order -> orderCertificateRepository.deleteByOrderId(order.getId()));
             userRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
             throw new EntityNotFoundException(String.format(Translator.toLocale(USER_NOT_FOUND_MESSAGE), id));

@@ -19,7 +19,7 @@ import static com.epam.esm.constant.RequestConstant.ID;
 import static com.epam.esm.constant.RequestConstant.LIMIT;
 import static com.epam.esm.constant.RequestConstant.MODIFICATION_DATE;
 import static com.epam.esm.constant.RequestConstant.NAME;
-import static com.epam.esm.constant.RequestConstant.NOT_BERWEEN;
+import static com.epam.esm.constant.RequestConstant.NOT_BETWEEN;
 import static com.epam.esm.constant.RequestConstant.NOT_IN;
 import static com.epam.esm.constant.RequestConstant.OFFSET;
 import static com.epam.esm.constant.RequestConstant.PRICE;
@@ -171,8 +171,8 @@ public class RequestParametersValidator implements Validator {
             parameter = parameter.replaceFirst(NOT_IN, "");
         } else if (parameter.startsWith(BETWEEN)) {
             parameter = parameter.replaceFirst(BETWEEN, "");
-        } else if (parameter.startsWith(NOT_BERWEEN)) {
-            parameter = parameter.replaceFirst(NOT_BERWEEN, "");
+        } else if (parameter.startsWith(NOT_BETWEEN)) {
+            parameter = parameter.replaceFirst(NOT_BETWEEN, "");
         }
         for (String s: parameter.split(",")) {
             if (!isDateValid(s)) {

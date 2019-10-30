@@ -5,13 +5,16 @@ import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
+import com.epam.esm.util.Translator;
 import com.epam.esm.validator.CertificateSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.TagCostSortValid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
@@ -89,7 +92,13 @@ public class TagController {
     @Secured(RoleConstant.ROLE_ADMIN)
     @PostMapping
     public ResponseEntity add(@Valid @RequestBody TagDTO tagDTO) {
-        TagDTO saved = tagServiceImpl.save(tagDTO);
+        TagDTO saved;
+        try {
+            saved = tagServiceImpl.save(tagDTO);
+        } catch (DataIntegrityViolationException ex) {
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale("exception.tag.exist"),
+                    tagDTO.getTitle()));
+        }
         LinkBuilder linkBuilder
                 = entityLinks.linkForSingleResource(TagDTO.class, saved.getId());
         HttpHeaders httpHeaders = new HttpHeaders();

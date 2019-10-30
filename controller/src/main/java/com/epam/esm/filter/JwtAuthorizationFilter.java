@@ -46,6 +46,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     EndPointConstant.LOGIN_ENDPOINT, "GET",
                     EndPointConstant.ERROR_ENDPOINT, "GET",
                     EndPointConstant.CERTIFICATE_ENDPOINT, "GET",
+                    EndPointConstant.CERTIFICATE_ID_ENDPOINT, "GET",
+                    "/certificates/", "GET",
                     EndPointConstant.USER_ENDPOINT, "POST");
 
     @Value("${jwt.secret}")
@@ -107,6 +109,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private boolean verifyNullableToken(HttpServletRequest request) {
         String uri = request.getRequestURI();
+        uri = uri.replaceFirst("certificates\\/\\d+$", "certificates/");
+        log.info(uri);
         return SAFE_ENDPOINTS.containsKey(uri) && SAFE_ENDPOINTS.get(uri).equals(request.getMethod());
     }
 

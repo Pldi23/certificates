@@ -6,14 +6,21 @@ public class QueryConstant {
     private QueryConstant() {
     }
 
-    public static final String MOST_COST_EFFECTIVE_TAG_BY_USER = "select tag.id, tag.title from tag " +
-            "join certificate_tag on tag.id = tag_id "  +
-            "join certificate c on certificate_tag.certificate_id = c.id " +
-            "join order_certificate oc on c.id = oc.certificate_id " +
-            "join application_order ao on oc.order_id = ao.id " +
-            "where ao.user_id = ? " +
-            "group by tag.id, tag.title " +
-            "order by sum(oc.fixed_price) desc limit 1";
+    public static final String MOST_COST_EFFECTIVE_TAG_BY_USER =
+            "select tag.id, tag.title "+
+            "from tag "+
+            "where tag.id in (select tag_id "+
+            "from certificate_tag ct "+
+            "where ct.certificate_id = (select certificate_id "+
+            "from ((select id "+
+            "from application_order "+
+            "where application_order.user_id = ?) as app_or "+
+            "left join order_certificate "+
+            "on app_or.id = order_certificate.order_id) as s "+
+            "group by certificate_id, order_id "+
+            "order by sum(s.fixed_price) desc "+
+            "limit 1))";
+
 
     public static final String CALCULATE_ORDER_FIXED_PRICE =
             "select sum(fixed_price) from order_certificate where order_id = ?";

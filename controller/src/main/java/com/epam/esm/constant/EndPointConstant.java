@@ -12,6 +12,7 @@ public class EndPointConstant {
     }
 
     public static final String CERTIFICATE_ENDPOINT = "/certificates";
+    public static final String CERTIFICATE_ID_ENDPOINT = "/certificates/**";
     public static final String DATA_GENERATOR_ENDPOINT = "/generate";
     public static final String ORDER_ENDPOINT = "/orders";
     public static final String REFRESH_TOKEN_ENDPOINT = "/authenticate/refresh-token";

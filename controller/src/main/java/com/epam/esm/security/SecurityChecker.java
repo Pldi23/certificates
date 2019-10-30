@@ -7,9 +7,11 @@ import com.epam.esm.dto.AppUserPrinciple;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
+import com.epam.esm.exception.AccessForbiddenException;
 import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
+import com.epam.esm.util.Translator;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
@@ -95,18 +97,58 @@ public class SecurityChecker {
         }
     }
 
-    public boolean checkRegisterRole(UserDTO userDTO) {
-        if (userDTO.getRole().equals(RoleConstant.ROLE_USER)) {
+    public boolean checkRegisterRole(UserDTO userDTO){
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.equals("anonymousUser") && userDTO.getRole().equals(RoleConstant.ROLE_USER)) {
             return true;
-        } else {
+        } else if (!principal.equals("anonymousUser")) {
             AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
-                    .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+                    .loadUserByUsername(principal);
             List<String> roles = principle.getAuthorities()
                     .stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
-            return roles.contains(RoleConstant.ROLE_ADMIN) || !userDTO.getRole().equals(RoleConstant.ROLE_ADMIN);
+            return roles.contains(RoleConstant.ROLE_ADMIN);
+        } else {
+            throw new AccessForbiddenException(Translator.toLocale("exception.forbidden.action", new Object[]{principal}));
         }
+    }
+
+    public boolean checkUpdateRole(UserDTO userDTO) {
+        String principalValue = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
+                .loadUserByUsername(principalValue);
+        List<String> roles = principle.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        if (roles.contains(RoleConstant.ROLE_USER)) {
+            if (userDTO.getRole().equals(RoleConstant.ROLE_ADMIN)) {
+                throw new AccessForbiddenException(Translator.toLocale("exception.forbidden.action", new Object[]{principalValue}));
+            }
+            return userDTO.getRole().equals(RoleConstant.ROLE_USER);
+        }
+        return roles.contains(RoleConstant.ROLE_ADMIN);
+    }
+
+    public boolean checkPatchRole(UserPatchDTO userPatchDTO) {
+        if (userPatchDTO.getRole() == null) {
+            return true;
+        }
+        String principalValue = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
+                .loadUserByUsername(principalValue);
+        List<String> roles = principle.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        if (roles.contains(RoleConstant.ROLE_USER)) {
+            if (userPatchDTO.getRole().equals(RoleConstant.ROLE_ADMIN)) {
+                throw new AccessForbiddenException(Translator.toLocale("exception.forbidden.action", new Object[]{principalValue}));
+            }
+            return userPatchDTO.getRole().equals(RoleConstant.ROLE_USER);
+        }
+        return roles.contains(RoleConstant.ROLE_ADMIN);
     }
 
     public boolean checkRegisterRole(UserPatchDTO userPatchDTO) {

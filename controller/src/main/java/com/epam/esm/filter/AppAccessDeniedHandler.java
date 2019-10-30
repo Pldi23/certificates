@@ -40,6 +40,8 @@ public class AppAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(403);
         response.getWriter().write(mapper.writeValueAsString(
-                new ViolationDTO(List.of(Translator.toLocale("exception.forbidden")), 403, LocalDateTime.now())));
+                new ViolationDTO(List.of(Translator.toLocale("exception.forbidden",
+                        new Object[]{SecurityContextHolder.getContext().getAuthentication().getPrincipal(), request.getRequestURI()})),
+                        403, LocalDateTime.now())));
     }
 }

@@ -6,6 +6,7 @@ import com.epam.esm.exception.DateNotValidException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.GenerateDataException;
 import com.epam.esm.exception.UserRoleException;
+import com.epam.esm.exception.AccessForbiddenException;
 import com.epam.esm.util.Translator;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -140,6 +141,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleDisabledException(DisabledException ex, WebRequest request) {
         return ResponseEntity.status(401)
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(AccessForbiddenException.class)
+    protected ResponseEntity<Object> handleAccessForbiddenException(AccessForbiddenException ex, WebRequest request) {
+        return ResponseEntity.status(403)
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 403, LocalDateTime.now()));
     }
 
 }

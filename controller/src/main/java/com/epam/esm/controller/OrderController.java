@@ -135,7 +135,7 @@ public class OrderController {
                 .map(tagDTO -> linkCreator.toResource(tagDTO)));
     }
 
-    @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/certificates")
     public ResponseEntity getCertificatesByOrder(@PathVariable @Min(value = 0, message = "{violation.id}") Long id,
                                                  @RequestParam

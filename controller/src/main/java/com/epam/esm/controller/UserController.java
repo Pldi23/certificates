@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
@@ -146,7 +148,7 @@ public class UserController {
         return ResponseEntity.status(204).build();
     }
 
-    @PreAuthorize(value = "(@securityChecker.check(#id) or @securityChecker.checkUser(#id)) and @securityChecker.checkRegisterRole(#userDTO)")
+    @PreAuthorize(value = "(@securityChecker.check(#id) or @securityChecker.checkUser(#id)) and @securityChecker.checkUpdateRole(#userDTO)")
     @PutMapping("/{id}")
     public ResponseEntity update(@RequestBody @Valid UserDTO userDTO,
                                  @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
@@ -188,6 +190,43 @@ public class UserController {
             @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         return ResponseEntity.ok(tagService.findMostCostEffectiveTag(id).stream()
                 .map(tagDTO -> linkCreator.toResource(tagDTO)));
+    }
+
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
+    @PreAuthorize("@securityChecker.checkPatchRole(#userPatchDTO)")
+    @PatchMapping("/self")
+    public ResponseEntity patchSelf(@RequestBody @Valid UserPatchDTO userPatchDTO) {
+        AppUserPrinciple principle = (AppUserPrinciple) detailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        try {
+            return ResponseEntity.ok(linkCreator.toResource(userService.patch(userPatchDTO, principle.getUser().getId())));
+        } catch (DataIntegrityViolationException ex) {
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
+                    userPatchDTO.getEmail()));
+        }
+    }
+
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
+    @PreAuthorize("@securityChecker.checkUpdateRole(#userDTO)")
+    @PutMapping("/self")
+    public ResponseEntity putSelf(@RequestBody @Valid UserDTO userDTO) {
+        AppUserPrinciple principle = (AppUserPrinciple) detailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        try {
+            return ResponseEntity.ok(linkCreator.toResource(userService.update(userDTO, principle.getUser().getId())));
+        } catch (DataIntegrityViolationException ex) {
+            throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
+                    userDTO.getEmail()));
+        }
+    }
+
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
+    @DeleteMapping("/self")
+    public ResponseEntity deleteSelf() {
+        AppUserPrinciple principle = (AppUserPrinciple) detailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        userService.delete(principle.getUser().getId());
+        return ResponseEntity.status(204).build();
     }
 
 }
