@@ -152,9 +152,9 @@ public class OrderServiceImpl implements OrderService {
 
     private void saveOrderCertificates(Order order, List<GiftCertificateDTO> giftCertificates) {
         List<GiftCertificate> certificates = giftCertificates.stream().map(giftCertificateDTO -> giftCertificateDTO.getId() == null ?
-                certificateRepository.findByName(giftCertificateDTO.getName()).orElseThrow(() ->
+                certificateRepository.findByName(giftCertificateDTO.getName(), true).orElseThrow(() ->
                         new EntityNotFoundException(String.format(Translator.toLocale("certificate.not.found.by.name"), giftCertificateDTO.getName()))) :
-                certificateRepository.findById(giftCertificateDTO.getId(), false).orElseThrow(() ->
+                certificateRepository.findById(giftCertificateDTO.getId(), true).orElseThrow(() ->
                         new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), giftCertificateDTO.getId()))))
                 .collect(Collectors.toList());
 

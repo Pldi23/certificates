@@ -13,7 +13,6 @@ import java.util.Objects;
 public class ViolationDTO {
 
     private List<String> messages;
-    private int status;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -23,9 +22,8 @@ public class ViolationDTO {
     public ViolationDTO() {
     }
 
-    public ViolationDTO(List<String> messages, int status, LocalDateTime localDate) {
+    public ViolationDTO(List<String> messages, LocalDateTime localDate) {
         this.messages = messages;
-        this.status = status;
         this.localDate = localDate;
     }
 
@@ -37,13 +35,6 @@ public class ViolationDTO {
         this.messages = messages;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
 
     public LocalDateTime getLocalDate() {
         return localDate;
@@ -58,21 +49,20 @@ public class ViolationDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ViolationDTO that = (ViolationDTO) o;
-        return status == that.status &&
+        return
                 Objects.equals(messages, that.messages) &&
                 Objects.equals(localDate, that.localDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(messages, status, localDate);
+        return Objects.hash(messages, localDate);
     }
 
     @Override
     public String toString() {
         return "ViolationDTO{" +
                 "messages=" + messages +
-                ", status=" + status +
                 ", localDate=" + localDate +
                 '}';
     }

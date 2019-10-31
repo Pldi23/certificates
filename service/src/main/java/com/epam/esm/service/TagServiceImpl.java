@@ -3,6 +3,7 @@ package com.epam.esm.service;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.dto.TagDetailsDTO;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.AbstractCertificateRepository;
@@ -60,7 +61,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagDTO> findAll(PageAndSortDTO pageAndSortDTO) {
-        return tagRepository.findAllSpecified(null,null,
+        return tagRepository.findAllSpecified(null, null,
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
@@ -101,7 +102,6 @@ public class TagServiceImpl implements TagService {
     }
 
 
-
     @Override
     public List<TagDTO> findAllPaginated(PageAndSortDTO pageAndSortDTO) {
         return tagRepository.findAllSpecified(null,
@@ -120,8 +120,44 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public List<TagDetailsDTO> findMostCostEffectiveTagWithStats(Long userId) {
+        return tagRepository.findMostCostEffectiveTagByUser(userId).stream()
+                .map(tag -> TagDetailsDTO.builder()
+                        .tag(tagConverter.convert(tag))
+                        .cost(tagRepository.getTagCostByUser(tag.getId(), userId))
+                        .numOrders(tagRepository.getTagOrdersAmount(tag.getId(), userId))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public BigDecimal calculateTagCost(long id) {
         return tagRepository.getTagCost(id);
+    }
+
+    @Override
+    public List<TagDetailsDTO> findTagsWithDetails(PageAndSortDTO pageAndSortDTO) {
+        TagSortData tagSortData = pageAndSortDTO.getSortParameter() != null ?
+                new TagSortData(pageAndSortDTO.getSortParameter()) : new TagSortData(JpaConstant.COST);
+        return tagRepository.findAllSpecified(null, tagSortData,
+                new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
+                .map(tag -> TagDetailsDTO.builder()
+                        .tag(tagConverter.convert(tag))
+                        .cost(tagRepository.getTagCost(tag.getId()))
+                        .numOrders(tagRepository.getTagOrdersAmount(tag.getId()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TagDetailsDTO findTagDetails(long id) {
+        Tag tag = tagRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id)));
+        return TagDetailsDTO.builder()
+                .tag(tagConverter.convert(tag))
+                .cost(tagRepository.getTagCost(tag.getId()))
+                .numOrders(tagRepository.getTagOrdersAmount(tag.getId()))
+                .build();
     }
 
     @Override
@@ -157,4 +193,6 @@ public class TagServiceImpl implements TagService {
                 .map(tag -> tagConverter.convert(tag))
                 .collect(Collectors.toList());
     }
+
+
 }

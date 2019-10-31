@@ -56,13 +56,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.badRequest().body(new ViolationDTO(errors, 400, LocalDateTime.now()));
+        return ResponseEntity.badRequest().body(new ViolationDTO(errors, LocalDateTime.now()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraitViolationException(ConstraintViolationException ex, WebRequest request) {
         String message = ex.getLocalizedMessage();
-        return ResponseEntity.badRequest().body(new ViolationDTO(List.of(message.substring(message.indexOf(':') + 1).trim()), 400, LocalDateTime.now()));
+        return ResponseEntity.badRequest().body(new ViolationDTO(List.of(message.substring(message.indexOf(':') + 1).trim()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(CriteriaSearchTypeException.class)
@@ -79,7 +79,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage().substring(0, ex.getLocalizedMessage().lastIndexOf(';'))),
-                        400, LocalDateTime.now()));
+                        LocalDateTime.now()));
     }
 
     @Override
@@ -87,10 +87,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String message = ex.getLocalizedMessage();
         if (message.contains(INVALID_FORMAT_EXCEPTION_MESSAGE)) {
             return ResponseEntity.badRequest()
-                    .body(new ViolationDTO(List.of(Translator.toLocale("exception.json.invalid.format")), 400, LocalDateTime.now()));
+                    .body(new ViolationDTO(List.of(Translator.toLocale("exception.json.invalid.format")), LocalDateTime.now()));
         }
         return ResponseEntity.badRequest()
-                .body(new ViolationDTO(List.of(message.substring(0, message.indexOf('\n'))), 400, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(message.substring(0, message.indexOf('\n'))), LocalDateTime.now()));
 
     }
 
@@ -98,55 +98,55 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleDateNotValidException(DateNotValidException ex, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(new ViolationDTO(List.of(ex.getLocalizedMessage()),
-                        400, LocalDateTime.now()));
+                        LocalDateTime.now()));
     }
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
     protected ResponseEntity<Object> handleTagAlreadyExistsException(EntityAlreadyExistsException ex, WebRequest request) {
         return ResponseEntity.badRequest()
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
         return ResponseEntity.status(404)
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 404, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(UserRoleException.class)
     protected ResponseEntity<Object> handleRoleException(UserRoleException ex, WebRequest request) {
         return ResponseEntity.badRequest()
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 400, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     protected ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
         return ResponseEntity.status(401)
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(GenerateDataException.class)
     protected ResponseEntity<Object> handleUsernameNotFoundException(GenerateDataException ex, WebRequest request) {
         return ResponseEntity.status(401)
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         return ResponseEntity.status(401)
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(DisabledException.class)
     protected ResponseEntity<Object> handleDisabledException(DisabledException ex, WebRequest request) {
         return ResponseEntity.status(401)
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 401, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
     @ExceptionHandler(AccessForbiddenException.class)
     protected ResponseEntity<Object> handleAccessForbiddenException(AccessForbiddenException ex, WebRequest request) {
         return ResponseEntity.status(403)
-                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), 403, LocalDateTime.now()));
+                .body(new ViolationDTO(List.of(ex.getLocalizedMessage()), LocalDateTime.now()));
     }
 
 }

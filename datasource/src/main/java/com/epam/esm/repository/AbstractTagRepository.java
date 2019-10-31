@@ -13,4 +13,7 @@ public interface AbstractTagRepository extends FindAllSpecifiedRepository<Tag>, 
     Optional<Tag> findByTitle(String title);
     List<Tag> findMostCostEffectiveTagByUser(long userId);
     BigDecimal getTagCost(long id);
+    BigDecimal getTagCostByUser(long tagId, long userId);
+    long getTagOrdersAmount(long id);
+    long getTagOrdersAmount(long tagId, long userId);
 }

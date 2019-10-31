@@ -36,6 +36,8 @@ public class JpaConstant {
     public static final String ORDERS = "orders";
     public static final String COST = "cost";
     public static final String COST_DESC = "-cost";
+    public static final String ORDERS_NUM_DESC = "-orders_num";
+    public static final String ORDERS_NUM = "orders_num";
     public static final String GIFT_CERTIFICATES = "giftCertificates";
 
 }

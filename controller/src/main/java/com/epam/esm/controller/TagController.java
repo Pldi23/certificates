@@ -14,6 +14,7 @@ import com.epam.esm.util.Translator;
 import com.epam.esm.validator.CertificateSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.TagCostSortValid;
+import com.epam.esm.validator.TagDetailsSortValid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -131,12 +132,28 @@ public class TagController {
         return ResponseEntity.ok(giftCertificateDTOS);
     }
 
-    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
+    @Secured({RoleConstant.ROLE_ADMIN})
     @GetMapping("/populars")
     public ResponseEntity getMostPopulars(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
         return ResponseEntity.ok(tagServiceImpl.findPopular(pageAndSortDTO).stream()
                 .map(tagDTO -> linkCreator.toResource(tagDTO)));
+    }
+
+    @Secured({RoleConstant.ROLE_ADMIN})
+    @GetMapping("/payable")
+    public ResponseEntity getTagsWithDetails(@PageAndSizeValid(message = "{violation.page.size}")
+                                             @TagDetailsSortValid(message = "{violation.sort.tag.details}")
+                                             @RequestParam Map<String, String> requestParams) {
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
+        return ResponseEntity.ok(tagServiceImpl.findTagsWithDetails(pageAndSortDTO));
+    }
+
+    @Secured({RoleConstant.ROLE_ADMIN})
+    @GetMapping("{id}/stats")
+    public ResponseEntity getOneTagWithDetails(@PathVariable("id")
+                                               @Min(value = 0, message = "{violation.id}") long id) {
+        return ResponseEntity.ok(tagServiceImpl.findTagDetails(id));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)

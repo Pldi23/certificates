@@ -31,16 +31,22 @@ public class CertificateRepository implements AbstractCertificateRepository {
 
 
     @Override
-    public Optional<GiftCertificate> findById(long id, boolean isActive) {
+    public Optional<GiftCertificate> findById(long id, Boolean isActive) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GiftCertificate> query = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
         query.select(root);
-        if (isActive) {
-            query.where(criteriaBuilder.and(criteriaBuilder.equal(root.get(ACTIVE_STATUS), true), criteriaBuilder.equal(root.get(ID), id)));
+        if (isActive != null) {
+            query.where(criteriaBuilder.and(criteriaBuilder.equal(root.get(ACTIVE_STATUS), isActive),
+                    criteriaBuilder.equal(root.get(ID), id)));
         } else {
             query.where(criteriaBuilder.equal(root.get(ID), id));
         }
+//        if (isActive) {
+//            query.where(criteriaBuilder.and(criteriaBuilder.equal(root.get(ACTIVE_STATUS), true), criteriaBuilder.equal(root.get(ID), id)));
+//        } else {
+//            query.where(criteriaBuilder.equal(root.get(ID), id));
+//        }
         List<GiftCertificate> resultList = entityManager.createQuery(query).getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
@@ -67,16 +73,23 @@ public class CertificateRepository implements AbstractCertificateRepository {
     }
 
     @Override
-    public Optional<GiftCertificate> findByName(String name) {
+    public Optional<GiftCertificate> findByName(String name, Boolean isActive) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GiftCertificate> query = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
         query.select(root);
-        query.where(
-                criteriaBuilder.equal(
-                        root.get(NAME), name
-                )
-        );
+        if (isActive != null) {
+            query.where(criteriaBuilder.and(criteriaBuilder.equal(root.get(ACTIVE_STATUS), isActive),
+                    criteriaBuilder.equal(root.get(NAME), name)));
+        } else {
+            query.where(criteriaBuilder.equal(root.get(NAME), name));
+        }
+
+//        query.where(
+//                criteriaBuilder.equal(
+//                        root.get(NAME), name
+//                )
+//        );
         List<GiftCertificate> resultList = entityManager.createQuery(query).getResultList();
         return !resultList.isEmpty() ? Optional.of(resultList.get(0)) : Optional.empty();
     }

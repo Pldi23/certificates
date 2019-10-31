@@ -63,8 +63,13 @@ public class GiftCertificateDTO {
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate expirationDate;
 
+    @Null(message = "{violation.string.active}")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String active;
+
     @ValidTagSet(message = "{violation.tag.set}")
     private Set<TagDTO> tags;
+
 
 
 
@@ -114,6 +119,11 @@ public class GiftCertificateDTO {
 
         public Builder withTags(Set<TagDTO> tags) {
             giftCertificateDTO.tags = tags;
+            return this;
+        }
+
+        public Builder withIsActive(String active) {
+            giftCertificateDTO.active = active;
             return this;
         }
 
@@ -184,6 +194,14 @@ public class GiftCertificateDTO {
 
     public void setTags(Set<TagDTO> tags) {
         this.tags = tags;
+    }
+
+    public String getActive() {
+        return active;
+    }
+
+    public void setActive(String active) {
+        this.active = active;
     }
 
     @AssertTrue(message = "{violation.date.creation.modification}")

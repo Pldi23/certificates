@@ -30,6 +30,10 @@ public class TagSortData implements Sortable<Tag> {
             order = cb.desc(cb.sum(root.join(GIFT_CERTIFICATES).join(ORDER_CERTIFICATE).get(FIXED_PRICE)));
         } else if (sortParameter != null && sortParameter.equals(COST_DESC)) {
             order = cb.asc(cb.sum(root.join(GIFT_CERTIFICATES).join(ORDER_CERTIFICATE).get(FIXED_PRICE)));
+        } else if (sortParameter != null && sortParameter.equals(ORDERS_NUM)) {
+            order = cb.desc(cb.count(root.join(GIFT_CERTIFICATES).join(ORDER_CERTIFICATE).get(FIXED_PRICE)));
+        } else if (sortParameter != null && sortParameter.equals(ORDERS_NUM_DESC)) {
+            order = cb.asc(cb.count(root.join(GIFT_CERTIFICATES).join(ORDER_CERTIFICATE).get(FIXED_PRICE)));
         } else if (sortParameter != null) {
            order = sortParameter.startsWith("-") ? cb.desc(root.get(sortParameter.replaceFirst("-", ""))) :
                     cb.asc(root.get(sortParameter));

@@ -42,7 +42,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(401);
             response.getWriter().write(convertObjectToJson(
-                    new ViolationDTO(List.of(Translator.toLocale("violation.jwt")), 401, LocalDateTime.now())));
+                    new ViolationDTO(List.of(Translator.toLocale("violation.jwt")), LocalDateTime.now())));
         }
     }
 

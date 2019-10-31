@@ -152,7 +152,6 @@ public class CertificateController {
             dataBinder.getBindingResult().getAllErrors()
                     .forEach(objectError -> messages.add(objectError.getCode()));
             violationDTO.setMessages(messages);
-            violationDTO.setStatus(400);
             violationDTO.setLocalDate(LocalDateTime.now());
             return ResponseEntity.badRequest().body(violationDTO);
         }

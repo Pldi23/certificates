@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.dto.TagDetailsDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,5 +28,11 @@ public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDT
 
     List<TagDTO> findMostCostEffectiveTag(Long userId);
 
+    List<TagDetailsDTO> findMostCostEffectiveTagWithStats(Long userId);
+
     BigDecimal calculateTagCost(long id);
+
+    List<TagDetailsDTO> findTagsWithDetails(PageAndSortDTO pageAndSortDTO);
+
+    TagDetailsDTO findTagDetails(long id);
 }

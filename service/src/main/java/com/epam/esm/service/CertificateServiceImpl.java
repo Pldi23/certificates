@@ -172,6 +172,7 @@ public class CertificateServiceImpl implements CertificateService {
         if (searchCriteria.getPriceCriteria() != null) {
             specifications.add(new CertificateHasPriceSpecification(searchCriteria.getPriceCriteria()));
         }
+        specifications.add(new CertificateIsActiveSpecification());
         return certificateRepository.findAllSpecified(specifications,
                 pageAndSortDTO.getSortParameter() != null ? new CertificateSortData(pageAndSortDTO.getSortParameter()) : null,
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
@@ -183,7 +184,8 @@ public class CertificateServiceImpl implements CertificateService {
     public List<GiftCertificateDTO> getByTag(long id, PageAndSortDTO pageAndSortDTO) {
         if (tagRepository.findById(id).isPresent()) {
             TagCriteria tagCriteria = new TagCriteria(ParameterSearchType.IN, List.of(id));
-            return certificateRepository.findAllSpecified(List.of(new CertificateHasTagsIdSpecification(tagCriteria)),
+            return certificateRepository.findAllSpecified(List.of(new CertificateHasTagsIdSpecification(tagCriteria),
+                    new CertificateIsActiveSpecification()),
                     pageAndSortDTO.getSortParameter() != null ? new CertificateSortData(pageAndSortDTO.getSortParameter()) : null,
                     new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                     .map(giftCertificate -> certificateConverter.convert(giftCertificate))

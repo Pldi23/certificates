@@ -66,7 +66,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(401);
             response.getWriter().write(mapper.writeValueAsString(
-                    new ViolationDTO(List.of(Translator.toLocale("violation.autorization")), 401, LocalDateTime.now())));
+                    new ViolationDTO(List.of(Translator.toLocale("violation.autorization")), LocalDateTime.now())));
         } else if (authentication == null) {
             filterChain.doFilter(request, response);
         } else {

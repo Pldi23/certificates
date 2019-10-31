@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 @Component
 public class CertificateConverter {
 
+    private static final String NON_ACTIVE_MESSAGE = "not active";
+
     public GiftCertificateDTO convert(GiftCertificate giftCertificate) {
         return new GiftCertificateDTO.Builder()
                 .withId(giftCertificate.getId())
@@ -31,6 +33,7 @@ public class CertificateConverter {
                 .withExpirationDate(giftCertificate.getExpirationDate())
                 .withTags(giftCertificate.getTags().stream().filter(Objects::nonNull).map(tag ->
                         new TagDTO(tag.getId(), tag.getTitle())).collect(Collectors.toSet()))
+                .withIsActive(giftCertificate.getActiveStatus() ? null : NON_ACTIVE_MESSAGE)
                 .build();
     }
 

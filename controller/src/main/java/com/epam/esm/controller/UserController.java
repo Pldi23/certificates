@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
@@ -184,12 +183,12 @@ public class UserController {
                 .map(tagDTO -> linkCreator.toResource(tagDTO)));
     }
 
+
     @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}/tags/popular")
-    public ResponseEntity getMostPopularTagsByUser(
+    public ResponseEntity getMostPopularTagsByUserWithDetails(
             @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
-        return ResponseEntity.ok(tagService.findMostCostEffectiveTag(id).stream()
-                .map(tagDTO -> linkCreator.toResource(tagDTO)));
+        return ResponseEntity.ok(tagService.findMostCostEffectiveTagWithStats(id));
     }
 
     @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})

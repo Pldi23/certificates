@@ -23,8 +23,10 @@ import java.util.Optional;
 import static com.epam.esm.repository.constant.JpaConstant.CERTIFICATE;
 import static com.epam.esm.repository.constant.JpaConstant.FIXED_PRICE;
 import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.ORDER;
 import static com.epam.esm.repository.constant.JpaConstant.TAGS;
 import static com.epam.esm.repository.constant.JpaConstant.TITLE;
+import static com.epam.esm.repository.constant.JpaConstant.USER;
 
 @Repository
 public class TagRepository implements AbstractTagRepository {
@@ -94,6 +96,41 @@ public class TagRepository implements AbstractTagRepository {
         criteriaQuery
                 .select(criteriaBuilder.sum(root.get(FIXED_PRICE)))
                 .where(criteriaBuilder.equal(root.join(CERTIFICATE).join(TAGS).get(ID), id));
+        return entityManager.createQuery(criteriaQuery).getSingleResult();
+    }
+
+    @Override
+    public BigDecimal getTagCostByUser(long tagId, long userId) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BigDecimal> criteriaQuery = criteriaBuilder.createQuery(BigDecimal.class);
+        Root<OrderCertificate> root = criteriaQuery.from(OrderCertificate.class);
+        criteriaQuery
+                .select(criteriaBuilder.sum(root.get(FIXED_PRICE)))
+                .where(criteriaBuilder.and(
+                        criteriaBuilder.equal(root.join(CERTIFICATE).join(TAGS).get(ID), tagId)),
+                        criteriaBuilder.equal(root.join(ORDER).get(USER), userId));
+        return entityManager.createQuery(criteriaQuery).getSingleResult();
+    }
+
+    @Override
+    public long getTagOrdersAmount(long id) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+        Root<OrderCertificate> root = criteriaQuery.from(OrderCertificate.class);
+        criteriaQuery.select(criteriaBuilder.count(root.get(FIXED_PRICE)))
+                .where(criteriaBuilder.equal(root.join(CERTIFICATE).join(TAGS).get(ID), id));
+        return entityManager.createQuery(criteriaQuery).getSingleResult();
+    }
+
+    @Override
+    public long getTagOrdersAmount(long tagId, long userId) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+        Root<OrderCertificate> root = criteriaQuery.from(OrderCertificate.class);
+        criteriaQuery.select(criteriaBuilder.count(root.get(FIXED_PRICE)))
+                .where(criteriaBuilder.and(
+                        criteriaBuilder.equal(root.join(CERTIFICATE).join(TAGS).get(ID), tagId)),
+                        criteriaBuilder.equal(root.join(ORDER).get(USER), userId));
         return entityManager.createQuery(criteriaQuery).getSingleResult();
     }
 

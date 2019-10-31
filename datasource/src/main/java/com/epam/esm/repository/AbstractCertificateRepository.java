@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface AbstractCertificateRepository extends SaveRepository<GiftCertificate>, FindAllSpecifiedRepository<GiftCertificate>,
         RemoveRepository {
 
-    Optional<GiftCertificate> findById(long id, boolean isActive);
-    Optional<GiftCertificate> findByName(String name);
+    Optional<GiftCertificate> findById(long id, Boolean isActive);
+    Optional<GiftCertificate> findByName(String name, Boolean isActive);
 }
