@@ -27,7 +27,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "giftCertificates")
 @EqualsAndHashCode
 public class Tag{
 
@@ -39,7 +39,7 @@ public class Tag{
     @Column(unique = true, updatable = false)
     private String title;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="certificate_tag",
             joinColumns=@JoinColumn(name="tag_id"),
             inverseJoinColumns=@JoinColumn(name="certificate_id"))

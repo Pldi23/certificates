@@ -96,7 +96,8 @@ public class TagRepository implements AbstractTagRepository {
         criteriaQuery
                 .select(criteriaBuilder.sum(root.get(FIXED_PRICE)))
                 .where(criteriaBuilder.equal(root.join(CERTIFICATE).join(TAGS).get(ID), id));
-        return entityManager.createQuery(criteriaQuery).getSingleResult();
+        BigDecimal result = entityManager.createQuery(criteriaQuery).getSingleResult();
+        return result != null ? result : new BigDecimal(0);
     }
 
     @Override
@@ -109,7 +110,8 @@ public class TagRepository implements AbstractTagRepository {
                 .where(criteriaBuilder.and(
                         criteriaBuilder.equal(root.join(CERTIFICATE).join(TAGS).get(ID), tagId)),
                         criteriaBuilder.equal(root.join(ORDER).get(USER), userId));
-        return entityManager.createQuery(criteriaQuery).getSingleResult();
+        BigDecimal result = entityManager.createQuery(criteriaQuery).getSingleResult();
+        return result != null ? result : new BigDecimal(0);
     }
 
     @Override

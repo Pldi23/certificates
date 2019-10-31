@@ -7,7 +7,12 @@ import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
-import com.epam.esm.hateoas.LinkCreator;
+import com.epam.esm.hateoas.CertificateListResource;
+import com.epam.esm.hateoas.CertificateResource;
+import com.epam.esm.hateoas.OrderListResource;
+import com.epam.esm.hateoas.OrderResource;
+import com.epam.esm.hateoas.TagListResource;
+import com.epam.esm.hateoas.TagResource;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.CertificateService;
@@ -41,6 +46,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * orders resource endpoints
@@ -56,17 +62,15 @@ import java.util.Map;
 public class OrderController {
 
     private OrderService orderService;
-    private LinkCreator linkCreator;
     private DtoParser dtoParser;
     private TagService tagService;
     private CertificateService certificateService;
     private AppUserDetailsService userDetailsService;
 
-    public OrderController(OrderService orderService, LinkCreator linkCreator, DtoParser dtoParser,
+    public OrderController(OrderService orderService, DtoParser dtoParser,
                            TagService tagService, CertificateService certificateService,
                            AppUserDetailsService userDetailsService) {
         this.orderService = orderService;
-        this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
         this.tagService = tagService;
         this.certificateService = certificateService;
@@ -78,12 +82,12 @@ public class OrderController {
     public ResponseEntity save(@Valid @RequestBody OrderDTO orderDTO) {
         String principleEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderDTO.setUserEmail(principleEmail);
-        return ResponseEntity.ok(linkCreator.toResource(orderService.save(orderDTO)));
+        return ResponseEntity.ok(new OrderResource(orderService.save(orderDTO)));
     }
 
     @PreAuthorize("@securityChecker.check(#params) or hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity findAll(@PageAndSizeValid(message = "{violation.page.size}")
+    public ResponseEntity<OrderListResource> findAll(@PageAndSizeValid(message = "{violation.page.size}")
                                   @OrderSortValid(message = "{violation.order.sort}")
                                   @OrderSearchCriteriaValid(message = "{violation.order.search}")
                                   @RequestParam Map<String, String> params) {
@@ -97,16 +101,19 @@ public class OrderController {
             orderSearchCriteriaDTO.setEmail(principle.getUsername());
             orderSearchCriteriaDTO.setUserId(null);
         }
-        log.info(orderSearchCriteriaDTO);
         List<OrderDTO> dtos = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
-        return !dtos.isEmpty() ? ResponseEntity.ok(dtos.stream().map(orderDTO ->
-                linkCreator.toResource(orderDTO))) : ResponseEntity.status(404).body(dtos);
+        return !dtos.isEmpty() ? ResponseEntity.ok(
+                new OrderListResource(dtos.stream().map(OrderResource::new).collect(Collectors.toList()),
+                        pageAndSortDTO.getPage(),
+                        orderService.lastPageNumber(orderSearchCriteriaDTO, pageAndSortDTO),
+                        pageAndSortDTO.getSize())) :
+                ResponseEntity.status(404).build();
     }
 
     @PostAuthorize("@securityChecker.checkOrder(returnObject) or hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity findOne(@PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
-        return ResponseEntity.ok(linkCreator.toResource(orderService.findOne(id)));
+    public ResponseEntity<OrderResource> findOne(@PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
+        return ResponseEntity.ok(new OrderResource(orderService.findOne(id)));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
@@ -121,7 +128,7 @@ public class OrderController {
     public ResponseEntity update(@PathVariable @Min(value = 0, message = "{violation.id}") Long id, @Valid @RequestBody OrderDTO orderDTO) {
         String principleEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderDTO.setUserEmail(principleEmail);
-        return ResponseEntity.ok(linkCreator.toResource(orderService.update(orderDTO, id)));
+        return ResponseEntity.ok(new OrderResource(orderService.update(orderDTO, id)));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
@@ -131,8 +138,8 @@ public class OrderController {
                                          @TagSortValid(message = "{violation.tag.sort}")
                                          @PageAndSizeValid(message = "{violation.page.size}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(tagService.findTagsByOrder(id, pageAndSortDTO).stream()
-                .map(tagDTO -> linkCreator.toResource(tagDTO)));
+        return ResponseEntity.ok(new TagListResource(tagService.findTagsByOrder(id, pageAndSortDTO).stream()
+                .map(TagResource::new).collect(Collectors.toList())));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
@@ -144,8 +151,8 @@ public class OrderController {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findByOrder(id, pageAndSortDTO);
 
-        return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok(giftCertificateDTOS.stream()
-                .map(giftCertificateDTO -> linkCreator.toResource(giftCertificateDTO))) :
+        return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok(new CertificateListResource(giftCertificateDTOS.stream()
+                .map(CertificateResource::new).collect(Collectors.toList()))) :
                 ResponseEntity.status(404).body(giftCertificateDTOS);
     }
 }

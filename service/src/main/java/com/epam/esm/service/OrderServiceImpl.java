@@ -149,6 +149,24 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public long lastPageNumber(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO) {
+        List<Specification<Order>> specifications = new ArrayList<>();
+        if (criteriaDTO.getUserId() != null) {
+            specifications.add(new OrderHasUserIdSpecification(criteriaDTO.getUserId()));
+        }
+        if (criteriaDTO.getEmail() != null) {
+            specifications.add(new OrderHasUserEmailSpecification(criteriaDTO.getEmail()));
+        }
+        if (criteriaDTO.getCertificatesIds() != null && !criteriaDTO.getCertificatesIds().isEmpty()) {
+            specifications.add(new OrderHasCertificateByIdSpecification(criteriaDTO.getCertificatesIds()));
+        }
+        if (criteriaDTO.getCertificatesNames() != null && !criteriaDTO.getCertificatesNames().isEmpty()) {
+            specifications.add(new OrderHasCertificateByNameSpecification(criteriaDTO.getCertificatesNames()));
+        }
+        return orderRepository.countLastPage(specifications, pageAndSortDTO.getSize());
+    }
+
 
     private void saveOrderCertificates(Order order, List<GiftCertificateDTO> giftCertificates) {
         List<GiftCertificate> certificates = giftCertificates.stream().map(giftCertificateDTO -> giftCertificateDTO.getId() == null ?

@@ -8,12 +8,12 @@ import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.exception.AccessForbiddenException;
+import com.epam.esm.hateoas.OrderResource;
 import com.epam.esm.service.AppUserDetailsService;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.util.Translator;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -65,8 +65,8 @@ public class SecurityChecker {
         AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
                 .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (principle != null && responseEntity != null && responseEntity.getBody() != null) {
-            Resource resource = (Resource) responseEntity.getBody();
-            OrderDTO orderDTO = (OrderDTO) resource.getContent();
+            OrderResource resource = (OrderResource) responseEntity.getBody();
+            OrderDTO orderDTO = resource.getOrder();
             return orderDTO.getUserId().equals(principle.getUser().getId());
         } else {
             return false;

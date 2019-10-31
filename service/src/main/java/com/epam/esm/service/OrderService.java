@@ -11,4 +11,5 @@ public interface OrderService extends SaveService<OrderDTO>, UpdateService<Order
         FindOneService<OrderDTO>, FindAllService<OrderDTO>, DeleteService {
 
     List<OrderDTO> findByCriteria(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO);
+    long lastPageNumber(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO);
 }

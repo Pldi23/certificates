@@ -6,7 +6,12 @@ import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
-import com.epam.esm.hateoas.LinkCreator;
+import com.epam.esm.hateoas.CertificateListResource;
+import com.epam.esm.hateoas.CertificateResource;
+import com.epam.esm.hateoas.TagDetailsListResource;
+import com.epam.esm.hateoas.TagDetailsResource;
+import com.epam.esm.hateoas.TagListResource;
+import com.epam.esm.hateoas.TagResource;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
@@ -19,7 +24,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.LinkBuilder;
-import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -35,9 +39,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * tags resource endpoint
@@ -54,16 +58,14 @@ public class TagController {
     private TagService tagServiceImpl;
     private CertificateService certificateService;
     private EntityLinks entityLinks;
-    private LinkCreator linkCreator;
     private DtoParser dtoParser;
 
 
     public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks,
-                         LinkCreator linkCreator, DtoParser dtoParser) {
+                         DtoParser dtoParser) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateService = certificateServiceImpl;
         this.entityLinks = entityLinks;
-        this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
     }
 
@@ -73,12 +75,11 @@ public class TagController {
     public ResponseEntity getAllTags(@PageAndSizeValid(message = "{violation.page.size}")
                                      @TagCostSortValid(message = "{violation.tag.sort.cost}")
                                      @RequestParam Map<String, String> pageAndSortParameters) {
-
-        List<TagDTO> tagDTOS = tagServiceImpl.findAllPaginated(dtoParser.parsePageAndSortCriteria(pageAndSortParameters));
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(pageAndSortParameters);
+        List<TagDTO> tagDTOS = tagServiceImpl.findAllPaginated(pageAndSortDTO);
         if (!tagDTOS.isEmpty()) {
-            List<Resource> resources = new ArrayList<>(tagDTOS.size());
-            tagDTOS.forEach(tagDTO -> resources.add(linkCreator.toResource(tagDTO)));
-            return ResponseEntity.ok().body(resources);
+            return ResponseEntity.ok().body(new TagListResource(tagDTOS.stream()
+                    .map(TagResource::new).collect(Collectors.toList())));
         }
         return ResponseEntity.notFound().build();
     }
@@ -87,7 +88,7 @@ public class TagController {
     @GetMapping(value = "/{id}")
     public ResponseEntity getById(@PathVariable("id")
                                   @Min(value = 0, message = "{violation.id}") long id) {
-        return ResponseEntity.ok(linkCreator.toResource(tagServiceImpl.findOne(id)));
+        return ResponseEntity.ok(new TagResource(tagServiceImpl.findOne(id)));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -104,7 +105,7 @@ public class TagController {
                 = entityLinks.linkForSingleResource(TagDTO.class, saved.getId());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
-        return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(saved));
+        return ResponseEntity.status(201).headers(httpHeaders).body(new TagResource(saved));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -123,11 +124,8 @@ public class TagController {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateService.getByTag(id, pageAndSortDTO);
         if (!giftCertificateDTOS.isEmpty()) {
-            List<Resource> resources = new ArrayList<>(giftCertificateDTOS.size());
-            giftCertificateDTOS.forEach(giftCertificateDTO ->
-                    resources.add(linkCreator.toResource(giftCertificateDTO)));
-
-            return ResponseEntity.ok(resources);
+            return ResponseEntity.ok(new CertificateListResource(giftCertificateDTOS.stream()
+                    .map(CertificateResource::new).collect(Collectors.toList())));
         }
         return ResponseEntity.ok(giftCertificateDTOS);
     }
@@ -136,8 +134,8 @@ public class TagController {
     @GetMapping("/populars")
     public ResponseEntity getMostPopulars(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
-        return ResponseEntity.ok(tagServiceImpl.findPopular(pageAndSortDTO).stream()
-                .map(tagDTO -> linkCreator.toResource(tagDTO)));
+        return ResponseEntity.ok(new TagListResource(tagServiceImpl.findPopular(pageAndSortDTO).stream()
+                .map(TagResource::new).collect(Collectors.toList())));
     }
 
     @Secured({RoleConstant.ROLE_ADMIN})
@@ -146,14 +144,15 @@ public class TagController {
                                              @TagDetailsSortValid(message = "{violation.sort.tag.details}")
                                              @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
-        return ResponseEntity.ok(tagServiceImpl.findTagsWithDetails(pageAndSortDTO));
+        return ResponseEntity.ok(new TagDetailsListResource(tagServiceImpl.findTagsWithDetails(pageAndSortDTO).stream()
+                .map(TagDetailsResource::new).collect(Collectors.toList())));
     }
 
     @Secured({RoleConstant.ROLE_ADMIN})
     @GetMapping("{id}/stats")
     public ResponseEntity getOneTagWithDetails(@PathVariable("id")
                                                @Min(value = 0, message = "{violation.id}") long id) {
-        return ResponseEntity.ok(tagServiceImpl.findTagDetails(id));
+        return ResponseEntity.ok(new TagDetailsResource(tagServiceImpl.findTagDetails(id)));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)

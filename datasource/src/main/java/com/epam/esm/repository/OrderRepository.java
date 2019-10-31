@@ -8,6 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -68,5 +69,23 @@ public class OrderRepository implements AbstractOrderRepository {
             query.where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
         }
         return pageable.setPageAndSize(entityManager.createQuery(query)).getResultList();
+    }
+
+    @Override
+    public long countLastPage(List<Specification<Order>> specifications, int size) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cQuery = builder.createQuery(Long.class);
+        Root<Order> from = cQuery.from(Order.class);
+        CriteriaQuery<Long> select = cQuery.select(builder.count(from));
+        if (specifications != null) {
+            List<Predicate> predicates = new ArrayList<>();
+            for (Specification<Order> s : specifications) {
+                predicates.addAll(s.toPredicates(from, cQuery, builder));
+            }
+            select.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
+        }
+        TypedQuery<Long> typedQuery = entityManager.createQuery(select);
+        Long numOfOrders = typedQuery.getSingleResult();
+        return numOfOrders % size == 0 ? numOfOrders / size : numOfOrders / size + 1;
     }
 }

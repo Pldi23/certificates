@@ -9,7 +9,14 @@ import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
-import com.epam.esm.hateoas.LinkCreator;
+import com.epam.esm.hateoas.OrderListResource;
+import com.epam.esm.hateoas.OrderResource;
+import com.epam.esm.hateoas.TagDetailsListResource;
+import com.epam.esm.hateoas.TagDetailsResource;
+import com.epam.esm.hateoas.TagListResource;
+import com.epam.esm.hateoas.TagResource;
+import com.epam.esm.hateoas.UserListResource;
+import com.epam.esm.hateoas.UserResource;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
@@ -21,6 +28,7 @@ import com.epam.esm.validator.OrderSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.TagSortValid;
 import com.epam.esm.validator.UserSortValid;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.HttpHeaders;
@@ -59,24 +67,23 @@ import java.util.stream.Collectors;
 @RequestMapping(EndPointConstant.USER_ENDPOINT)
 @Validated
 @ExposesResourceFor(UserDTO.class)
+@Log4j2
 public class UserController {
 
     private static final String USER_EXIST_MESSAGE = "exception.user.exist";
 
     private UserService userService;
     private OrderService orderService;
-    private LinkCreator linkCreator;
     private DtoParser dtoParser;
     private TagService tagService;
     private TokenCreator tokenCreator;
     private AppUserDetailsService detailsService;
 
-    public UserController(UserService userService, OrderService orderService, LinkCreator linkCreator,
+    public UserController(UserService userService, OrderService orderService,
                           DtoParser dtoParser, TagService tagService, TokenCreator tokenCreator,
                           AppUserDetailsService detailsService) {
         this.userService = userService;
         this.orderService = orderService;
-        this.linkCreator = linkCreator;
         this.dtoParser = dtoParser;
         this.tagService = tagService;
         this.tokenCreator = tokenCreator;
@@ -105,7 +112,7 @@ public class UserController {
         httpHeaders.add(SecurityConstant.TOKEN_HEADER, tokenCreator.createJwt(saved.getEmail(), List.of(saved.getRole())));
         httpHeaders.add(SecurityConstant.ACCESS_TOKEN_EXPIRATION, String.valueOf(tokenCreator.getJwtTokenExpirationTimestamp(token)));
         httpHeaders.add(SecurityConstant.REFRESH_TOKEN_HEADER, refreshToken);
-        return new ResponseEntity<>(linkCreator.toResource(saved), httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(new UserResource(saved), httpHeaders, HttpStatus.OK);
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -115,14 +122,14 @@ public class UserController {
                                  @UserSortValid(message = "{violation.user.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         List<UserDTO> users = userService.findAll(pageAndSortDTO);
-        return ResponseEntity.ok(!users.isEmpty() ? users.stream().map(userDTO -> linkCreator.toResource(userDTO)) :
+        return ResponseEntity.ok(!users.isEmpty() ? new UserListResource(users.stream().map(UserResource::new).collect(Collectors.toList())) :
                 ResponseEntity.notFound().build());
     }
 
     @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity findOne(@PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
-        return ResponseEntity.ok(linkCreator.toResource(userService.findOne(id)));
+        return ResponseEntity.ok(new UserResource(userService.findOne(id)));
     }
 
     @PreAuthorize("@securityChecker.check(#id) or hasRole('ROLE_ADMIN')")
@@ -136,8 +143,11 @@ public class UserController {
         OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder()
                 .userId(id)
                 .build();
-        return ResponseEntity.ok(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO).stream()
-                .map(orderDTO -> linkCreator.toResource(orderDTO)));
+        return ResponseEntity.ok(new OrderListResource(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO).stream()
+                .map(OrderResource::new).collect(Collectors.toList()),
+                pageAndSortDTO.getPage(),
+                orderService.lastPageNumber(orderSearchCriteriaDTO, pageAndSortDTO),
+                pageAndSortDTO.getSize()));
     }
 
     @PreAuthorize("@securityChecker.check(#id) or @securityChecker.checkUser(#id)")
@@ -152,7 +162,7 @@ public class UserController {
     public ResponseEntity update(@RequestBody @Valid UserDTO userDTO,
                                  @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         try {
-            return ResponseEntity.ok(linkCreator.toResource(userService.update(userDTO, id)));
+            return ResponseEntity.ok(new UserResource(userService.update(userDTO, id)));
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
                     userDTO.getEmail()));
@@ -164,7 +174,7 @@ public class UserController {
     public ResponseEntity patch(@RequestBody @Valid UserPatchDTO userPatchDTO,
                                 @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
         try {
-            return ResponseEntity.ok(linkCreator.toResource(userService.patch(userPatchDTO, id)));
+            return ResponseEntity.ok(new UserResource(userService.patch(userPatchDTO, id)));
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
                     userPatchDTO.getEmail()));
@@ -179,8 +189,8 @@ public class UserController {
             @TagSortValid(message = "{violation.tag.sort.cost}")
             @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(tagService.findTagsByUser(id, pageAndSortDTO).stream()
-                .map(tagDTO -> linkCreator.toResource(tagDTO)));
+        return ResponseEntity.ok(new TagListResource(tagService.findTagsByUser(id, pageAndSortDTO).stream()
+                .map(TagResource::new).collect(Collectors.toList())));
     }
 
 
@@ -188,7 +198,8 @@ public class UserController {
     @GetMapping(value = "/{id}/tags/popular")
     public ResponseEntity getMostPopularTagsByUserWithDetails(
             @PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
-        return ResponseEntity.ok(tagService.findMostCostEffectiveTagWithStats(id));
+        return ResponseEntity.ok(new TagDetailsListResource(tagService.findMostCostEffectiveTagWithStats(id).stream()
+                .map(TagDetailsResource::new).collect(Collectors.toList())));
     }
 
     @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
@@ -198,7 +209,7 @@ public class UserController {
         AppUserPrinciple principle = (AppUserPrinciple) detailsService
                 .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         try {
-            return ResponseEntity.ok(linkCreator.toResource(userService.patch(userPatchDTO, principle.getUser().getId())));
+            return ResponseEntity.ok(new UserResource(userService.patch(userPatchDTO, principle.getUser().getId())));
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
                     userPatchDTO.getEmail()));
@@ -212,7 +223,7 @@ public class UserController {
         AppUserPrinciple principle = (AppUserPrinciple) detailsService
                 .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         try {
-            return ResponseEntity.ok(linkCreator.toResource(userService.update(userDTO, principle.getUser().getId())));
+            return ResponseEntity.ok(new UserResource(userService.update(userDTO, principle.getUser().getId())));
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(USER_EXIST_MESSAGE),
                     userDTO.getEmail()));
@@ -226,6 +237,16 @@ public class UserController {
                 .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         userService.delete(principle.getUser().getId());
         return ResponseEntity.status(204).build();
+    }
+
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
+    @GetMapping("/self")
+    public ResponseEntity getSelf() {
+        AppUserPrinciple principle = (AppUserPrinciple) detailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        UserDTO userDTO = userService.findOne(principle.getUser().getId());
+
+        return ResponseEntity.ok(new UserResource(userDTO));
     }
 
 }

@@ -8,7 +8,11 @@ import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.hateoas.CertificateListResource;
+import com.epam.esm.hateoas.CertificateResource;
 import com.epam.esm.hateoas.LinkCreator;
+import com.epam.esm.hateoas.TagListResource;
+import com.epam.esm.hateoas.TagResource;
 import com.epam.esm.parser.DtoParser;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
@@ -48,6 +52,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * certificates resource endpoint
@@ -116,7 +121,7 @@ public class CertificateController {
                 = entityLinks.linkForSingleResource(GiftCertificateDTO.class, dto.getId());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
-        return ResponseEntity.status(201).headers(httpHeaders).body(linkCreator.toResource(dto));
+        return ResponseEntity.status(201).headers(httpHeaders).body(new CertificateResource(dto));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -125,7 +130,7 @@ public class CertificateController {
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         try {
-            return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.update(giftCertificateDTO, id)));
+            return ResponseEntity.ok(new CertificateResource(certificateServiceImpl.update(giftCertificateDTO, id)));
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(CERTIFICATE_EXIST_MESSAGE),
                     giftCertificateDTO.getName()));
@@ -159,8 +164,8 @@ public class CertificateController {
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
         List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl
                 .findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
-        return ResponseEntity.ok(giftCertificateDTOS.stream()
-                .map(giftCertificateDTO -> linkCreator.toResource(giftCertificateDTO)));
+        return ResponseEntity.ok(new CertificateListResource(giftCertificateDTOS.stream()
+                .map(CertificateResource::new).collect(Collectors.toList())));
 
     }
 
@@ -171,8 +176,8 @@ public class CertificateController {
             @PageAndSizeValid(message = "{violation.page.size}")
             @TagCostSortValid(message = "{violation.tag.sort.cost}") @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(tagService.getTagsByCertificate(id, pageAndSortDTO).stream()
-                .map(tagDTO -> linkCreator.toResource(tagDTO)));
+        return ResponseEntity.ok(new TagListResource(tagService.getTagsByCertificate(id, pageAndSortDTO).stream()
+                .map(TagResource::new).collect(Collectors.toList())));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -180,7 +185,7 @@ public class CertificateController {
     public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
                                         @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {
         try {
-            return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.patch(certificatePatchDTO, id)));
+            return ResponseEntity.ok(new CertificateResource(certificateServiceImpl.patch(certificatePatchDTO, id)));
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(CERTIFICATE_EXIST_MESSAGE),
                     certificatePatchDTO.getName()));
