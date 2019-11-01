@@ -1,5 +1,6 @@
 package com.epam.esm.hateoas;
 
+import com.epam.esm.constant.LinkConstant;
 import com.epam.esm.controller.TagController;
 import com.epam.esm.dto.TagDetailsDTO;
 import lombok.Getter;

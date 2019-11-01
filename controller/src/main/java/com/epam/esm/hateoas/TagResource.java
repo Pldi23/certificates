@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.hateoas.LinkConstant.*;
+import static com.epam.esm.constant.LinkConstant.*;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @Getter
@@ -22,10 +22,9 @@ public class TagResource extends ResourceSupport {
     public TagResource(TagDTO tag) {
         this.tag = tag;
         add(linkTo(TagController.class).slash(tag.getId()).withSelfRel().withType(GET_METHOD));
-        add(linkTo(TagController.class).slash(tag.getId()).slash(TAG_STATS).withRel(TAG_STATS).withType(GET_METHOD));
         if (getAuthorities().contains(RoleConstant.ROLE_ADMIN)) {
+            add(linkTo(TagController.class).slash(tag.getId()).slash(TAG_STATS).withRel(TAG_STATS).withType(GET_METHOD));
             add(linkTo(TagController.class).slash(tag.getId()).withSelfRel().withType(DELETE_METHOD));
-            add(linkTo(TagController.class).withSelfRel().withType(POST_METHOD));
         }
     }
 

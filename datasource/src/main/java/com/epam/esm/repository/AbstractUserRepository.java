@@ -9,4 +9,6 @@ public interface AbstractUserRepository extends SaveRepository<User>, RemoveRepo
         FindAllSpecifiedRepository<User> {
 
     Optional<User> findByEmail(String email);
+
+    long countLastPage(int size);
 }

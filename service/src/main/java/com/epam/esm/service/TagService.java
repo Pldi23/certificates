@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.TagDetailsDTO;
 
@@ -16,15 +17,15 @@ import java.util.List;
  */
 public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDTO>, SaveService<TagDTO>, DeleteService{
 
-    List<TagDTO> findTagsByOrder(long orderId, PageAndSortDTO pageAndSortDTO);
+    PageableList<TagDTO> findTagsByOrder(long orderId, PageAndSortDTO pageAndSortDTO);
 
-    List<TagDTO> findTagsByUser(long userId, PageAndSortDTO pageAndSortDTO);
+    PageableList<TagDTO> findTagsByUser(long userId, PageAndSortDTO pageAndSortDTO);
 
-    List<TagDTO> findPopular(PageAndSortDTO pageAndSortDTO);
+    PageableList<TagDTO> findPopular(PageAndSortDTO pageAndSortDTO);
 
-    List<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO);
+    PageableList<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO);
 
-    List<TagDTO> findAllPaginated(PageAndSortDTO pageAndSortDTO);
+    PageableList<TagDTO> findAllPaginated(PageAndSortDTO pageAndSortDTO);
 
     List<TagDTO> findMostCostEffectiveTag(Long userId);
 
@@ -32,7 +33,7 @@ public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDT
 
     BigDecimal calculateTagCost(long id);
 
-    List<TagDetailsDTO> findTagsWithDetails(PageAndSortDTO pageAndSortDTO);
+    PageableList<TagDetailsDTO> findTagsWithDetails(PageAndSortDTO pageAndSortDTO);
 
     TagDetailsDTO findTagDetails(long id);
 }

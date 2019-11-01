@@ -8,6 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -42,11 +43,6 @@ public class CertificateRepository implements AbstractCertificateRepository {
         } else {
             query.where(criteriaBuilder.equal(root.get(ID), id));
         }
-//        if (isActive) {
-//            query.where(criteriaBuilder.and(criteriaBuilder.equal(root.get(ACTIVE_STATUS), true), criteriaBuilder.equal(root.get(ID), id)));
-//        } else {
-//            query.where(criteriaBuilder.equal(root.get(ID), id));
-//        }
         List<GiftCertificate> resultList = entityManager.createQuery(query).getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
@@ -84,12 +80,6 @@ public class CertificateRepository implements AbstractCertificateRepository {
         } else {
             query.where(criteriaBuilder.equal(root.get(NAME), name));
         }
-
-//        query.where(
-//                criteriaBuilder.equal(
-//                        root.get(NAME), name
-//                )
-//        );
         List<GiftCertificate> resultList = entityManager.createQuery(query).getResultList();
         return !resultList.isEmpty() ? Optional.of(resultList.get(0)) : Optional.empty();
     }
@@ -110,5 +100,23 @@ public class CertificateRepository implements AbstractCertificateRepository {
             criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
         }
         return pageable.setPageAndSize(entityManager.createQuery(criteriaQuery)).getResultList();
+    }
+
+    @Override
+    public long countLastPage(List<Specification<GiftCertificate>> specifications, int size) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cQuery = builder.createQuery(Long.class);
+        Root<GiftCertificate> from = cQuery.from(GiftCertificate.class);
+        CriteriaQuery<Long> select = cQuery.select(builder.count(from));
+        if (specifications != null) {
+            List<Predicate> predicates = new ArrayList<>();
+            for (Specification<GiftCertificate> s : specifications) {
+                predicates.addAll(s.toPredicates(from, cQuery, builder));
+            }
+            select.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
+        }
+        TypedQuery<Long> typedQuery = entityManager.createQuery(select);
+        Long numOfOrders = typedQuery.getSingleResult();
+        return numOfOrders % size == 0 ? numOfOrders / size : numOfOrders / size + 1;
     }
 }

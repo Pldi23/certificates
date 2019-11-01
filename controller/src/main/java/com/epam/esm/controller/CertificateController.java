@@ -1,16 +1,18 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.LinkConstant;
 import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.ViolationDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.hateoas.CertificateListResource;
 import com.epam.esm.hateoas.CertificateResource;
-import com.epam.esm.hateoas.LinkCreator;
 import com.epam.esm.hateoas.TagListResource;
 import com.epam.esm.hateoas.TagResource;
 import com.epam.esm.parser.DtoParser;
@@ -54,6 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+
 /**
  * certificates resource endpoint
  *
@@ -75,21 +79,18 @@ public class CertificateController {
     private Validator validator;
     private EntityLinks entityLinks;
     private SpringValidatorAdapter localValidatorFactoryBean;
-    private LinkCreator linkCreator;
 
 
     public CertificateController(CertificateService certificateServiceImpl, DtoParser dtoParser,
                                  RequestParametersValidator validator, TagService tagServiceImpl,
                                  EntityLinks entityLinks,
-                                 SpringValidatorAdapter localValidatorFactoryBean,
-                                 LinkCreator linkCreator) {
+                                 SpringValidatorAdapter localValidatorFactoryBean) {
         this.certificateServiceImpl = certificateServiceImpl;
         this.dtoParser = dtoParser;
         this.validator = validator;
         this.tagService = tagServiceImpl;
         this.entityLinks = entityLinks;
         this.localValidatorFactoryBean = localValidatorFactoryBean;
-        this.linkCreator = linkCreator;
     }
 
     @InitBinder
@@ -103,7 +104,8 @@ public class CertificateController {
                                       @Min(value = 0, message = "{violation.id}")
                                       @Max(value = Long.MAX_VALUE, message = "{violation.long.range}")
                                               long id) {
-        return ResponseEntity.ok(linkCreator.toResource(certificateServiceImpl.findOne(id)));
+        CertificateResource resource = new CertificateResource(certificateServiceImpl.findOne(id));
+        return ResponseEntity.ok(resource);
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -121,7 +123,8 @@ public class CertificateController {
                 = entityLinks.linkForSingleResource(GiftCertificateDTO.class, dto.getId());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
-        return ResponseEntity.status(201).headers(httpHeaders).body(new CertificateResource(dto));
+        CertificateResource resource = new CertificateResource(dto);
+        return ResponseEntity.status(201).headers(httpHeaders).body(resource);
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -130,7 +133,8 @@ public class CertificateController {
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         try {
-            return ResponseEntity.ok(new CertificateResource(certificateServiceImpl.update(giftCertificateDTO, id)));
+            CertificateResource resource = new CertificateResource(certificateServiceImpl.update(giftCertificateDTO, id));
+            return ResponseEntity.ok(resource);
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(CERTIFICATE_EXIST_MESSAGE),
                     giftCertificateDTO.getName()));
@@ -162,10 +166,11 @@ public class CertificateController {
         }
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(criteriaMap);
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateServiceImpl
+        PageableList<GiftCertificateDTO> pageableList = certificateServiceImpl
                 .findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
-        return ResponseEntity.ok(new CertificateListResource(giftCertificateDTOS.stream()
-                .map(CertificateResource::new).collect(Collectors.toList())));
+        return ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
+                .map(CertificateResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                pageableList.getLastPage(), pageAndSortDTO.getSize()));
 
     }
 
@@ -176,8 +181,10 @@ public class CertificateController {
             @PageAndSizeValid(message = "{violation.page.size}")
             @TagCostSortValid(message = "{violation.tag.sort.cost}") @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(new TagListResource(tagService.getTagsByCertificate(id, pageAndSortDTO).stream()
-                .map(TagResource::new).collect(Collectors.toList())));
+        PageableList<TagDTO> pageableList = tagService.getTagsByCertificate(id, pageAndSortDTO);
+        return ResponseEntity.ok(new TagListResource(pageableList.getList().stream()
+                .map(TagResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                pageableList.getLastPage(), pageAndSortDTO.getSize()));
     }
 
     @Secured(RoleConstant.ROLE_ADMIN)
@@ -185,7 +192,9 @@ public class CertificateController {
     public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
                                         @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {
         try {
-            return ResponseEntity.ok(new CertificateResource(certificateServiceImpl.patch(certificatePatchDTO, id)));
+            CertificateResource resource = new CertificateResource(certificateServiceImpl.patch(certificatePatchDTO, id));
+//            resource.add(linkTo(CertificateController.class).withSelfRel().withType(LinkConstant.POST_METHOD));
+            return ResponseEntity.ok(resource);
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(CERTIFICATE_EXIST_MESSAGE),
                     certificatePatchDTO.getName()));

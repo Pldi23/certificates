@@ -4,7 +4,9 @@ import com.epam.esm.constant.EndPointConstant;
 import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.dto.TagDetailsDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.hateoas.CertificateListResource;
 import com.epam.esm.hateoas.CertificateResource;
@@ -39,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -76,10 +77,11 @@ public class TagController {
                                      @TagCostSortValid(message = "{violation.tag.sort.cost}")
                                      @RequestParam Map<String, String> pageAndSortParameters) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(pageAndSortParameters);
-        List<TagDTO> tagDTOS = tagServiceImpl.findAllPaginated(pageAndSortDTO);
-        if (!tagDTOS.isEmpty()) {
-            return ResponseEntity.ok().body(new TagListResource(tagDTOS.stream()
-                    .map(TagResource::new).collect(Collectors.toList())));
+        PageableList<TagDTO> pageableList = tagServiceImpl.findAllPaginated(pageAndSortDTO);
+        if (!pageableList.getList().isEmpty()) {
+            return ResponseEntity.ok().body(new TagListResource(pageableList.getList().stream()
+                    .map(TagResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                    pageableList.getLastPage(), pageAndSortDTO.getSize()));
         }
         return ResponseEntity.notFound().build();
     }
@@ -122,20 +124,23 @@ public class TagController {
                                                @PageAndSizeValid(message = "{violation.page.size}")
                                                @CertificateSortValid(message = "{violation.certificate.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.getByTag(id, pageAndSortDTO);
-        if (!giftCertificateDTOS.isEmpty()) {
-            return ResponseEntity.ok(new CertificateListResource(giftCertificateDTOS.stream()
-                    .map(CertificateResource::new).collect(Collectors.toList())));
+        PageableList<GiftCertificateDTO> pageableList = certificateService.getByTag(id, pageAndSortDTO);
+        if (!pageableList.getList().isEmpty()) {
+            return ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
+                    .map(CertificateResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                    pageableList.getLastPage(), pageAndSortDTO.getSize()));
         }
-        return ResponseEntity.ok(giftCertificateDTOS);
+        return ResponseEntity.ok(pageableList.getList());
     }
 
     @Secured({RoleConstant.ROLE_ADMIN})
     @GetMapping("/populars")
     public ResponseEntity getMostPopulars(@PageAndSizeValid(message = "{violation.page.size}") @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
-        return ResponseEntity.ok(new TagListResource(tagServiceImpl.findPopular(pageAndSortDTO).stream()
-                .map(TagResource::new).collect(Collectors.toList())));
+        PageableList<TagDTO> pageableList = tagServiceImpl.findPopular(pageAndSortDTO);
+        return ResponseEntity.ok(new TagListResource(pageableList.getList().stream()
+                .map(TagResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                pageableList.getLastPage(), pageAndSortDTO.getSize()));
     }
 
     @Secured({RoleConstant.ROLE_ADMIN})
@@ -144,7 +149,8 @@ public class TagController {
                                              @TagDetailsSortValid(message = "{violation.sort.tag.details}")
                                              @RequestParam Map<String, String> requestParams) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(requestParams);
-        return ResponseEntity.ok(new TagDetailsListResource(tagServiceImpl.findTagsWithDetails(pageAndSortDTO).stream()
+        PageableList<TagDetailsDTO> pageableList = tagServiceImpl.findTagsWithDetails(pageAndSortDTO);
+        return ResponseEntity.ok(new TagDetailsListResource(pageableList.getList().stream()
                 .map(TagDetailsResource::new).collect(Collectors.toList())));
     }
 

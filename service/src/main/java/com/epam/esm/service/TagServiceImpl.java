@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.TagDetailsDTO;
 import com.epam.esm.entity.Tag;
@@ -12,6 +13,7 @@ import com.epam.esm.repository.AbstractTagRepository;
 import com.epam.esm.repository.AbstractUserRepository;
 import com.epam.esm.repository.constant.JpaConstant;
 import com.epam.esm.repository.page.PageSizeData;
+import com.epam.esm.repository.predicate.Specification;
 import com.epam.esm.repository.predicate.TagHasCertificateByIdSpecification;
 import com.epam.esm.repository.predicate.TagHasOrderSpecification;
 import com.epam.esm.repository.predicate.TagHasUserSpecification;
@@ -37,6 +39,9 @@ import java.util.stream.Collectors;
 @Service
 public class TagServiceImpl implements TagService {
 
+    private static final String TAG_NOT_FOUND_MESSAGE = "entity.tag.not.found";
+
+
     private AbstractTagRepository tagRepository;
     private AbstractCertificateRepository certificateRepository;
     private AbstractOrderRepository orderRepository;
@@ -56,15 +61,17 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDTO findOne(long id) {
         return tagConverter.convert(tagRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id))));
+                new EntityNotFoundException(String.format(Translator.toLocale(TAG_NOT_FOUND_MESSAGE), id))));
     }
 
     @Override
-    public List<TagDTO> findAll(PageAndSortDTO pageAndSortDTO) {
-        return tagRepository.findAllSpecified(null, null,
+    public PageableList<TagDTO> findAll(PageAndSortDTO pageAndSortDTO) {
+        return PageableList.<TagDTO>builder().list(tagRepository.findAllSpecified(null, null,
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()))
+                .lastPage(tagRepository.countLastPage(null, pageAndSortDTO.getSize()))
+                .build();
     }
 
     @Override
@@ -84,18 +91,21 @@ public class TagServiceImpl implements TagService {
         try {
             tagRepository.deleteById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id));
+            throw new EntityNotFoundException(String.format(Translator.toLocale(TAG_NOT_FOUND_MESSAGE), id));
         }
     }
 
     @Override
-    public List<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO) {
+    public PageableList<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO) {
         if (certificateRepository.findById(id, true).isPresent()) {
-            return tagRepository.findAllSpecified(List.of(new TagHasCertificateByIdSpecification(id)),
+            List<Specification<Tag>> specifications = List.of(new TagHasCertificateByIdSpecification(id));
+            return PageableList.<TagDTO>builder().list(tagRepository.findAllSpecified(specifications,
                     new TagSortData(pageAndSortDTO.getSortParameter()),
                     new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                     .map(tag -> tagConverter.convert(tag))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()))
+                    .lastPage(tagRepository.countLastPage(specifications, pageAndSortDTO.getSize()))
+                    .build();
         } else {
             throw new EntityNotFoundException(String.format(Translator.toLocale("entity.certificate.not.found"), id));
         }
@@ -103,12 +113,14 @@ public class TagServiceImpl implements TagService {
 
 
     @Override
-    public List<TagDTO> findAllPaginated(PageAndSortDTO pageAndSortDTO) {
-        return tagRepository.findAllSpecified(null,
+    public PageableList<TagDTO> findAllPaginated(PageAndSortDTO pageAndSortDTO) {
+        return PageableList.<TagDTO>builder().list(tagRepository.findAllSpecified(null,
                 pageAndSortDTO.getSortParameter() != null ? new TagSortData(pageAndSortDTO.getSortParameter()) : null,
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()))
+                .lastPage(tagRepository.countLastPage(null, pageAndSortDTO.getSize()))
+                .build();
     }
 
     @Override
@@ -136,23 +148,25 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDetailsDTO> findTagsWithDetails(PageAndSortDTO pageAndSortDTO) {
+    public PageableList<TagDetailsDTO> findTagsWithDetails(PageAndSortDTO pageAndSortDTO) {
         TagSortData tagSortData = pageAndSortDTO.getSortParameter() != null ?
                 new TagSortData(pageAndSortDTO.getSortParameter()) : new TagSortData(JpaConstant.COST);
-        return tagRepository.findAllSpecified(null, tagSortData,
+        return PageableList.<TagDetailsDTO>builder().list(tagRepository.findAllSpecified(null, tagSortData,
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(tag -> TagDetailsDTO.builder()
                         .tag(tagConverter.convert(tag))
                         .cost(tagRepository.getTagCost(tag.getId()))
                         .numOrders(tagRepository.getTagOrdersAmount(tag.getId()))
                         .build())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()))
+                .lastPage(tagRepository.countLastPage(null, pageAndSortDTO.getSize()))
+                .build();
     }
 
     @Override
     public TagDetailsDTO findTagDetails(long id) {
         Tag tag = tagRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException(String.format(Translator.toLocale("entity.tag.not.found"), id)));
+                new EntityNotFoundException(String.format(Translator.toLocale(TAG_NOT_FOUND_MESSAGE), id)));
         return TagDetailsDTO.builder()
                 .tag(tagConverter.convert(tag))
                 .cost(tagRepository.getTagCost(tag.getId()))
@@ -161,38 +175,45 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> findTagsByOrder(long orderId, PageAndSortDTO pageAndSortDTO) {
+    public PageableList<TagDTO> findTagsByOrder(long orderId, PageAndSortDTO pageAndSortDTO) {
         if (orderRepository.findById(orderId).isPresent()) {
-            return tagRepository.findAllSpecified(List.of(new TagHasOrderSpecification(orderId)),
+            List<Specification<Tag>> specifications = List.of(new TagHasOrderSpecification(orderId));
+            return PageableList.<TagDTO>builder().list(tagRepository.findAllSpecified(specifications,
                     pageAndSortDTO.getSortParameter() != null ? new TagSortData(pageAndSortDTO.getSortParameter()) : null,
                     new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                     .map(tag -> tagConverter.convert(tag))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()))
+                    .lastPage(tagRepository.countLastPage(specifications, pageAndSortDTO.getSize()))
+                    .build();
         } else {
             throw new EntityNotFoundException(String.format(Translator.toLocale("entity.order.not.found"), orderId));
         }
     }
 
     @Override
-    public List<TagDTO> findTagsByUser(long userId, PageAndSortDTO pageAndSortDTO) {
+    public PageableList<TagDTO> findTagsByUser(long userId, PageAndSortDTO pageAndSortDTO) {
         if (userRepository.findById(userId).isPresent()) {
-            return tagRepository.findAllSpecified(List.of(new TagHasUserSpecification(userId)),
+            List<Specification<Tag>> specifications = List.of(new TagHasUserSpecification(userId));
+            return PageableList.<TagDTO>builder().list(tagRepository.findAllSpecified(specifications,
                     pageAndSortDTO.getSortParameter() != null ? new TagSortData(pageAndSortDTO.getSortParameter()) : null,
                     new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                     .map(tag -> tagConverter.convert(tag))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()))
+                    .lastPage(tagRepository.countLastPage(specifications, pageAndSortDTO.getSize()))
+                    .build();
         } else {
             throw new EntityNotFoundException(String.format(Translator.toLocale("entity.user.id.not.found"), userId));
         }
     }
 
     @Override
-    public List<TagDTO> findPopular(PageAndSortDTO pageAndSortDTO) {
-        return tagRepository.findAllSpecified(null, new TagSortData(JpaConstant.COST),
+    public PageableList<TagDTO> findPopular(PageAndSortDTO pageAndSortDTO) {
+        return PageableList.<TagDTO>builder().list(tagRepository.findAllSpecified(null, new TagSortData(JpaConstant.COST),
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(tag -> tagConverter.convert(tag))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()))
+                .lastPage(tagRepository.countLastPage(null, pageAndSortDTO.getSize()))
+                .build();
     }
-
 
 }

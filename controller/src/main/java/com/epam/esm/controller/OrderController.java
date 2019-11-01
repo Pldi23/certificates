@@ -7,6 +7,8 @@ import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.hateoas.CertificateListResource;
 import com.epam.esm.hateoas.CertificateResource;
 import com.epam.esm.hateoas.OrderListResource;
@@ -101,11 +103,11 @@ public class OrderController {
             orderSearchCriteriaDTO.setEmail(principle.getUsername());
             orderSearchCriteriaDTO.setUserId(null);
         }
-        List<OrderDTO> dtos = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
-        return !dtos.isEmpty() ? ResponseEntity.ok(
-                new OrderListResource(dtos.stream().map(OrderResource::new).collect(Collectors.toList()),
+        PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
+        return !pageableList.getList().isEmpty() ? ResponseEntity.ok(
+                new OrderListResource(pageableList.getList().stream().map(OrderResource::new).collect(Collectors.toList()),
                         pageAndSortDTO.getPage(),
-                        orderService.lastPageNumber(orderSearchCriteriaDTO, pageAndSortDTO),
+                        pageableList.getLastPage(),
                         pageAndSortDTO.getSize())) :
                 ResponseEntity.status(404).build();
     }
@@ -138,8 +140,10 @@ public class OrderController {
                                          @TagSortValid(message = "{violation.tag.sort}")
                                          @PageAndSizeValid(message = "{violation.page.size}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(new TagListResource(tagService.findTagsByOrder(id, pageAndSortDTO).stream()
-                .map(TagResource::new).collect(Collectors.toList())));
+        PageableList<TagDTO> pageableList = tagService.findTagsByOrder(id, pageAndSortDTO);
+        return ResponseEntity.ok(new TagListResource(pageableList.getList().stream()
+                .map(TagResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                pageableList.getLastPage(), pageAndSortDTO.getSize()));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
@@ -149,10 +153,11 @@ public class OrderController {
                                                  @CertificateSortValid(message = "{violation.certificate.sort}")
                                                  @PageAndSizeValid(message = "{violation.page.size}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findByOrder(id, pageAndSortDTO);
+        PageableList<GiftCertificateDTO> pageableList = certificateService.findByOrder(id, pageAndSortDTO);
 
-        return !giftCertificateDTOS.isEmpty() ? ResponseEntity.ok(new CertificateListResource(giftCertificateDTOS.stream()
-                .map(CertificateResource::new).collect(Collectors.toList()))) :
-                ResponseEntity.status(404).body(giftCertificateDTOS);
+        return !pageableList.getList().isEmpty() ? ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
+                .map(CertificateResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                pageableList.getLastPage(), pageAndSortDTO.getSize())) :
+                ResponseEntity.status(404).body(pageableList.getList());
     }
 }

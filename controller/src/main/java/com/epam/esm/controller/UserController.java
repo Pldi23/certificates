@@ -4,8 +4,11 @@ import com.epam.esm.constant.EndPointConstant;
 import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.constant.SecurityConstant;
 import com.epam.esm.dto.AppUserPrinciple;
+import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
@@ -121,8 +124,10 @@ public class UserController {
                                  @PageAndSizeValid(message = "{violation.page.size}")
                                  @UserSortValid(message = "{violation.user.sort}") Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        List<UserDTO> users = userService.findAll(pageAndSortDTO);
-        return ResponseEntity.ok(!users.isEmpty() ? new UserListResource(users.stream().map(UserResource::new).collect(Collectors.toList())) :
+        PageableList<UserDTO> pageableList = userService.findAll(pageAndSortDTO);
+        return ResponseEntity.ok(!pageableList.getList().isEmpty() ? new UserListResource(pageableList.getList().stream()
+                .map(UserResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(), pageableList.getLastPage(),
+                pageAndSortDTO.getSize()) :
                 ResponseEntity.notFound().build());
     }
 
@@ -143,10 +148,11 @@ public class UserController {
         OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder()
                 .userId(id)
                 .build();
-        return ResponseEntity.ok(new OrderListResource(orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO).stream()
+        PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
+        return ResponseEntity.ok(new OrderListResource(pageableList.getList().stream()
                 .map(OrderResource::new).collect(Collectors.toList()),
                 pageAndSortDTO.getPage(),
-                orderService.lastPageNumber(orderSearchCriteriaDTO, pageAndSortDTO),
+                pageableList.getLastPage(),
                 pageAndSortDTO.getSize()));
     }
 
@@ -189,8 +195,10 @@ public class UserController {
             @TagSortValid(message = "{violation.tag.sort.cost}")
             @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        return ResponseEntity.ok(new TagListResource(tagService.findTagsByUser(id, pageAndSortDTO).stream()
-                .map(TagResource::new).collect(Collectors.toList())));
+        PageableList<TagDTO> pageableList = tagService.findTagsByUser(id, pageAndSortDTO);
+        return ResponseEntity.ok(new TagListResource(pageableList.getList().stream()
+                .map(TagResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                pageableList.getLastPage(), pageAndSortDTO.getSize()));
     }
 
 

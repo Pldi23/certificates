@@ -8,6 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -68,6 +69,17 @@ public class UserRepository implements AbstractUserRepository {
         return !entityManager.createQuery(query).getResultList().isEmpty() ?
                 Optional.of(entityManager.createQuery(query).getSingleResult()) :
                 Optional.empty();
+    }
+
+    @Override
+    public long countLastPage(int size) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cQuery = builder.createQuery(Long.class);
+        Root<User> from = cQuery.from(User.class);
+        cQuery.select(builder.count(from));
+        TypedQuery<Long> typedQuery = entityManager.createQuery(cQuery);
+        Long numOfUsers = typedQuery.getSingleResult();
+        return numOfUsers % size == 0 ? numOfUsers / size : numOfUsers / size + 1;
     }
 
     @Override

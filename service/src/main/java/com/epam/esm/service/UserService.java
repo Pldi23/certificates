@@ -6,5 +6,4 @@ import com.epam.esm.dto.UserPatchDTO;
 
 public interface UserService extends UpdateService<UserDTO>, SaveService<UserDTO>, PatchService<UserDTO, UserPatchDTO>,
         FindOneService<UserDTO>, FindAllService<UserDTO>, DeleteService {
-
 }

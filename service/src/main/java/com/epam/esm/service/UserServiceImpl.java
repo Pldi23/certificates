@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.converter.UserConverter;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.Order;
@@ -60,11 +61,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> findAll(PageAndSortDTO pageAndSortDTO) {
-        return userRepository.findAllSpecified(null,
+    public PageableList<UserDTO> findAll(PageAndSortDTO pageAndSortDTO) {
+        return PageableList.<UserDTO>builder().list(userRepository.findAllSpecified(null,
                 pageAndSortDTO.getSortParameter() != null ? new UserSortData(pageAndSortDTO.getSortParameter()) : null,
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
-                .map(user -> userConverter.convert(user)).collect(Collectors.toList());
+                .map(user -> userConverter.convert(user)).collect(Collectors.toList()))
+                .lastPage(userRepository.countLastPage(pageAndSortDTO.getSize()))
+                .build();
     }
 
     @Override
@@ -128,5 +131,4 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException(String.format(Translator.toLocale(USER_NOT_FOUND_MESSAGE), id));
         }
     }
-
 }

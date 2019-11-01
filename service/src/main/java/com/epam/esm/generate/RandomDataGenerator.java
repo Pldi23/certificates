@@ -72,11 +72,11 @@ public class RandomDataGenerator {
 
     public void generate(int tagsQuantity, int certificatesQuantity, int usersQuantity, int ordersQuantity) {
         generateTags(tagsQuantity);
-        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
+        List<TagDTO> tags = tagService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE)).getList();
         generateCertificates(certificatesQuantity, tags);
-        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
+        List<GiftCertificateDTO> giftCertificateDTOS = certificateService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE)).getList();
         generateUsers(usersQuantity);
-        List<UserDTO> userDTOS = userService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE));
+        List<UserDTO> userDTOS = userService.findAll(new PageAndSortDTO(null, 1, Integer.MAX_VALUE)).getList();
         generateOrders(ordersQuantity, userDTOS, giftCertificateDTOS);
 
     }

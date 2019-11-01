@@ -5,6 +5,7 @@ import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.OrderCertificate;
@@ -66,8 +67,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDTO> findAll(PageAndSortDTO pageAndSortDTO) {
-        return orderRepository.findAllSpecified(null,
+    public PageableList<OrderDTO> findAll(PageAndSortDTO pageAndSortDTO) {
+        return PageableList.<OrderDTO>builder().list(orderRepository.findAllSpecified(null,
                 pageAndSortDTO.getSortParameter() != null ? new OrderSortData(pageAndSortDTO.getSortParameter()) : null,
                 new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
                 .map(order -> {
@@ -76,7 +77,9 @@ public class OrderServiceImpl implements OrderService {
                     dto.setPrice(price);
                     return dto;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()))
+                .lastPage(orderRepository.countLastPage(null, pageAndSortDTO.getSize()))
+                .build();
     }
 
     @Override
@@ -123,48 +126,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDTO> findByCriteria(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO) {
-        List<Specification<Order>> specifications = new ArrayList<>();
-        if (criteriaDTO.getUserId() != null) {
-            specifications.add(new OrderHasUserIdSpecification(criteriaDTO.getUserId()));
-        }
-        if (criteriaDTO.getEmail() != null) {
-            specifications.add(new OrderHasUserEmailSpecification(criteriaDTO.getEmail()));
-        }
-        if (criteriaDTO.getCertificatesIds() != null && !criteriaDTO.getCertificatesIds().isEmpty()) {
-            specifications.add(new OrderHasCertificateByIdSpecification(criteriaDTO.getCertificatesIds()));
-        }
-        if (criteriaDTO.getCertificatesNames() != null && !criteriaDTO.getCertificatesNames().isEmpty()) {
-            specifications.add(new OrderHasCertificateByNameSpecification(criteriaDTO.getCertificatesNames()));
-        }
-        return orderRepository.findAllSpecified(specifications,
-                pageAndSortDTO.getSortParameter() != null ? new OrderSortData(pageAndSortDTO.getSortParameter()) : null,
-                new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
-                .map(order -> {
-                    OrderDTO dto = orderConverter.convert(order);
-                    BigDecimal price = orderCertificateRepository.calculateOrderFixedPrice(dto.getId());
-                    dto.setPrice(price != null ? price : new BigDecimal(0));
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
+    public PageableList<OrderDTO> findByCriteria(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO) {
+        List<Specification<Order>> specifications = constructSpecifications(criteriaDTO);
+        return PageableList.<OrderDTO>builder()
+                .list(orderRepository.findAllSpecified(specifications,
+                        pageAndSortDTO.getSortParameter() != null ? new OrderSortData(pageAndSortDTO.getSortParameter()) : null,
+                        new PageSizeData(pageAndSortDTO.getPage(), pageAndSortDTO.getSize())).stream()
+                        .map(order -> {
+                            OrderDTO dto = orderConverter.convert(order);
+                            BigDecimal price = orderCertificateRepository.calculateOrderFixedPrice(dto.getId());
+                            dto.setPrice(price != null ? price : new BigDecimal(0));
+                            return dto;
+                        })
+                        .collect(Collectors.toList()))
+                        .lastPage(orderRepository.countLastPage(specifications, pageAndSortDTO.getSize()))
+                .build();
 
-    @Override
-    public long lastPageNumber(OrderSearchCriteriaDTO criteriaDTO, PageAndSortDTO pageAndSortDTO) {
-        List<Specification<Order>> specifications = new ArrayList<>();
-        if (criteriaDTO.getUserId() != null) {
-            specifications.add(new OrderHasUserIdSpecification(criteriaDTO.getUserId()));
-        }
-        if (criteriaDTO.getEmail() != null) {
-            specifications.add(new OrderHasUserEmailSpecification(criteriaDTO.getEmail()));
-        }
-        if (criteriaDTO.getCertificatesIds() != null && !criteriaDTO.getCertificatesIds().isEmpty()) {
-            specifications.add(new OrderHasCertificateByIdSpecification(criteriaDTO.getCertificatesIds()));
-        }
-        if (criteriaDTO.getCertificatesNames() != null && !criteriaDTO.getCertificatesNames().isEmpty()) {
-            specifications.add(new OrderHasCertificateByNameSpecification(criteriaDTO.getCertificatesNames()));
-        }
-        return orderRepository.countLastPage(specifications, pageAndSortDTO.getSize());
     }
 
 
@@ -185,5 +162,20 @@ public class OrderServiceImpl implements OrderService {
         orderCertificateRepository.save(orderCertificates);
     }
 
-
+    private List<Specification<Order>> constructSpecifications(OrderSearchCriteriaDTO criteriaDTO) {
+        List<Specification<Order>> specifications = new ArrayList<>();
+        if (criteriaDTO.getUserId() != null) {
+            specifications.add(new OrderHasUserIdSpecification(criteriaDTO.getUserId()));
+        }
+        if (criteriaDTO.getEmail() != null) {
+            specifications.add(new OrderHasUserEmailSpecification(criteriaDTO.getEmail()));
+        }
+        if (criteriaDTO.getCertificatesIds() != null && !criteriaDTO.getCertificatesIds().isEmpty()) {
+            specifications.add(new OrderHasCertificateByIdSpecification(criteriaDTO.getCertificatesIds()));
+        }
+        if (criteriaDTO.getCertificatesNames() != null && !criteriaDTO.getCertificatesNames().isEmpty()) {
+            specifications.add(new OrderHasCertificateByNameSpecification(criteriaDTO.getCertificatesNames()));
+        }
+        return specifications;
+    }
 }

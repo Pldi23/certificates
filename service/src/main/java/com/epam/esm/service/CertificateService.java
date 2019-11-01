@@ -3,9 +3,8 @@ package com.epam.esm.service;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
-
-import java.util.List;
 
 /**
  * to encapsulate service operations around {@link GiftCertificateDTO}
@@ -16,10 +15,10 @@ import java.util.List;
 public interface CertificateService extends FindAllService<GiftCertificateDTO>, FindOneService<GiftCertificateDTO>,
         SaveService<GiftCertificateDTO>, UpdateService<GiftCertificateDTO>, DeleteService, PatchService<GiftCertificateDTO, CertificatePatchDTO> {
 
-    List<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO, PageAndSortDTO pageAndSortDTO);
+    PageableList<GiftCertificateDTO> findByCriteria(SearchCriteriaRequestDTO searchCriteriaDTO, PageAndSortDTO pageAndSortDTO);
 
-    List<GiftCertificateDTO> getByTag(long id, PageAndSortDTO pageAndSortDTO);
+    PageableList<GiftCertificateDTO> getByTag(long id, PageAndSortDTO pageAndSortDTO);
 
-    List<GiftCertificateDTO> findByOrder(Long orderId, PageAndSortDTO pageAndSortDTO);
+    PageableList<GiftCertificateDTO> findByOrder(Long orderId, PageAndSortDTO pageAndSortDTO);
 
 }

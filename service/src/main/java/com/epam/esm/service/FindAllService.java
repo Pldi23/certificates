@@ -1,11 +1,10 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.PageAndSortDTO;
-
-import java.util.List;
+import com.epam.esm.dto.PageableList;
 
 
 public interface FindAllService<T> {
 
-    List<T> findAll(PageAndSortDTO pageAndSortDTO);
+    PageableList<T> findAll(PageAndSortDTO pageAndSortDTO);
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -86,6 +87,25 @@ public class TagRepository implements AbstractTagRepository {
             cq.where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
         }
         return pageable.setPageAndSize(entityManager.createQuery(cq)).getResultList();
+    }
+
+    @Override
+    public long countLastPage(List<Specification<Tag>> specifications, int size) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cQuery = builder.createQuery(Long.class);
+        Root<Tag> from = cQuery.from(Tag.class);
+        CriteriaQuery<Long> select = cQuery.select(builder.count(from));
+        if (specifications != null) {
+            List<Predicate> predicates = new ArrayList<>();
+            for (Specification<Tag> s : specifications) {
+                predicates.addAll(s.toPredicates(from, cQuery, builder));
+            }
+            select.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
+        }
+        TypedQuery<Long> typedQuery = entityManager.createQuery(select);
+        Long numOfOrders = typedQuery.getSingleResult();
+        return numOfOrders % size == 0 ? numOfOrders / size : numOfOrders / size + 1;
+
     }
 
     @Override
