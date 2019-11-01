@@ -23,7 +23,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static com.epam.esm.constant.EndPointConstant.*;
+import static com.epam.esm.constant.EndPointConstant.AUTHENTICATE_ENDPOINT;
+import static com.epam.esm.constant.EndPointConstant.CERTIFICATE_ENDPOINT;
+import static com.epam.esm.constant.EndPointConstant.CERTIFICATE_ID_ENDPOINT;
+import static com.epam.esm.constant.EndPointConstant.ERROR_ENDPOINT;
+import static com.epam.esm.constant.EndPointConstant.LOGIN_ENDPOINT;
+import static com.epam.esm.constant.EndPointConstant.REFRESH_TOKEN_ENDPOINT;
+import static com.epam.esm.constant.EndPointConstant.USER_ENDPOINT;
 
 @Configuration
 @EnableWebSecurity

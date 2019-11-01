@@ -1,44 +1,31 @@
 package com.epam.esm.hateoas;
 
-import com.epam.esm.constant.LinkConstant;
-import com.epam.esm.controller.CertificateController;
 import com.epam.esm.controller.OrderController;
-import com.epam.esm.controller.TagController;
-import com.epam.esm.controller.UserController;
 import com.epam.esm.dto.OrderDTO;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
+import static com.epam.esm.constant.LinkConstant.DELETE_METHOD;
+import static com.epam.esm.constant.LinkConstant.GET_METHOD;
+import static com.epam.esm.constant.LinkConstant.PUT_METHOD;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static com.epam.esm.constant.LinkConstant.*;
 
 
 @Getter
+@EqualsAndHashCode(callSuper = false)
 public class OrderResource extends ResourceSupport {
 
     private final OrderDTO order;
+    private final List<CertificateResource> certificates;
 
-    public OrderResource(OrderDTO order) {
+    public OrderResource(OrderDTO order, List<CertificateResource> certificates) {
         this.order = order;
+        this.certificates = certificates;
         add(linkTo(OrderController.class).slash(order.getId()).withSelfRel().withType(GET_METHOD));
         add(linkTo(OrderController.class).slash(order.getId()).withSelfRel().withType(DELETE_METHOD));
         add(linkTo(OrderController.class).slash(order.getId()).withSelfRel().withType(PUT_METHOD));
-        add(linkTo(OrderController.class).slash(order.getId()).slash(CERTIFICATES).withSelfRel().withType(GET_METHOD));
-        add(linkTo(UserController.class).slash(order.getUserId()).withSelfRel().withType(GET_METHOD));
-
-//        add(linkTo(OrderController.class).withSelfRel().withType(POST_METHOD));
-
-//        add(order.getGiftCertificates().stream().map(giftCertificateDTO -> linkTo(CertificateController.class).slash(giftCertificateDTO.getId())
-//                .withRel(LinkConstant.CERTIFICATE_LINK_REL).withType(GET_METHOD)).collect(Collectors.toSet()));
-//        Set<Link> tagLinks = new HashSet<>();
-//        order.getGiftCertificates().forEach(giftCertificateDTO -> giftCertificateDTO.getTags().forEach(tag -> tagLinks.add(linkTo(TagController.class).slash(tag.getId()).withRel("tags").withType(GET_METHOD))));
-//        add(tagLinks);
-
-//        add(linkTo(UserController.class).slash(order.getUserId()).withRel(LinkConstant.USER_LINK_REL).withType(GET_METHOD));
     }
 }

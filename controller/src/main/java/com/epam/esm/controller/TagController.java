@@ -127,7 +127,8 @@ public class TagController {
         PageableList<GiftCertificateDTO> pageableList = certificateService.getByTag(id, pageAndSortDTO);
         if (!pageableList.getList().isEmpty()) {
             return ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
-                    .map(CertificateResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                    .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                    .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()), pageAndSortDTO.getPage(),
                     pageableList.getLastPage(), pageAndSortDTO.getSize()));
         }
         return ResponseEntity.ok(pageableList.getList());

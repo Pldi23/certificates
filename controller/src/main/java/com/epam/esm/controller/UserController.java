@@ -12,6 +12,7 @@ import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.exception.EntityAlreadyExistsException;
+import com.epam.esm.hateoas.CertificateResource;
 import com.epam.esm.hateoas.OrderListResource;
 import com.epam.esm.hateoas.OrderResource;
 import com.epam.esm.hateoas.TagDetailsListResource;
@@ -150,7 +151,9 @@ public class UserController {
                 .build();
         PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
         return ResponseEntity.ok(new OrderListResource(pageableList.getList().stream()
-                .map(OrderResource::new).collect(Collectors.toList()),
+                .map(orderDTO -> new OrderResource(orderDTO, orderDTO.getGiftCertificates().stream()
+                        .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                                .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
                 pageAndSortDTO.getPage(),
                 pageableList.getLastPage(),
                 pageAndSortDTO.getSize()));

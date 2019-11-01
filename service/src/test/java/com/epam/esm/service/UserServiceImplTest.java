@@ -6,6 +6,8 @@ import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserPatchDTO;
 import com.epam.esm.entity.Role;
 import com.epam.esm.entity.User;
+import com.epam.esm.repository.AbstractOrderCertificateRepository;
+import com.epam.esm.repository.AbstractOrderRepository;
 import com.epam.esm.repository.AbstractUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,12 @@ class UserServiceImplTest {
     @Mock
     private AbstractUserRepository userRepository;
 
+    @Mock
+    private AbstractOrderCertificateRepository orderCertificateRepository;
+
+    @Mock
+    private AbstractOrderRepository orderRepository;
+
     private UserConverter userConverter;
 
     @Mock
@@ -45,7 +53,7 @@ class UserServiceImplTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
         userConverter = new UserConverter();
-        userService = new UserServiceImpl(userRepository, userConverter, passwordEncoder);
+        userService = new UserServiceImpl(userRepository, userConverter, passwordEncoder, orderCertificateRepository, orderRepository);
 
         user = User.builder()
                 .id(1L)
@@ -80,7 +88,7 @@ class UserServiceImplTest {
 
         List<UserDTO> expected = List.of(userDTO);
 
-        assertEquals(expected, userService.findAll(pageAndSortDTO));
+        assertEquals(expected, userService.findAll(pageAndSortDTO).getList());
     }
 
     @Test

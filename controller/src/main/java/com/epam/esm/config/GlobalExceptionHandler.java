@@ -1,12 +1,12 @@
 package com.epam.esm.config;
 
 import com.epam.esm.dto.ViolationDTO;
+import com.epam.esm.exception.AccessForbiddenException;
 import com.epam.esm.exception.CriteriaSearchTypeException;
 import com.epam.esm.exception.DateNotValidException;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.exception.GenerateDataException;
 import com.epam.esm.exception.UserRoleException;
-import com.epam.esm.exception.AccessForbiddenException;
 import com.epam.esm.util.Translator;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;

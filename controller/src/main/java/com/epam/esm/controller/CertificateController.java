@@ -1,7 +1,6 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.constant.EndPointConstant;
-import com.epam.esm.constant.LinkConstant;
 import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
@@ -56,8 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-
 /**
  * certificates resource endpoint
  *
@@ -104,7 +101,9 @@ public class CertificateController {
                                       @Min(value = 0, message = "{violation.id}")
                                       @Max(value = Long.MAX_VALUE, message = "{violation.long.range}")
                                               long id) {
-        CertificateResource resource = new CertificateResource(certificateServiceImpl.findOne(id));
+        GiftCertificateDTO certificateDTO = certificateServiceImpl.findOne(id);
+        CertificateResource resource = new CertificateResource(certificateDTO, certificateDTO.getTags().stream()
+                .map(TagResource::new).collect(Collectors.toList()));
         return ResponseEntity.ok(resource);
     }
 
@@ -123,7 +122,8 @@ public class CertificateController {
                 = entityLinks.linkForSingleResource(GiftCertificateDTO.class, dto.getId());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.LOCATION, linkBuilder.toString());
-        CertificateResource resource = new CertificateResource(dto);
+        CertificateResource resource = new CertificateResource(dto, dto.getTags().stream()
+                .map(TagResource::new).collect(Collectors.toList()));
         return ResponseEntity.status(201).headers(httpHeaders).body(resource);
     }
 
@@ -133,7 +133,9 @@ public class CertificateController {
             @Valid @RequestBody GiftCertificateDTO giftCertificateDTO,
             @PathVariable("id") @Min(value = 0, message = "{violation.id}") long id) {
         try {
-            CertificateResource resource = new CertificateResource(certificateServiceImpl.update(giftCertificateDTO, id));
+            GiftCertificateDTO certificateDTO = certificateServiceImpl.update(giftCertificateDTO, id);
+            CertificateResource resource = new CertificateResource(certificateDTO, certificateDTO.getTags().stream()
+                    .map(TagResource::new).collect(Collectors.toList()));
             return ResponseEntity.ok(resource);
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(CERTIFICATE_EXIST_MESSAGE),
@@ -169,7 +171,8 @@ public class CertificateController {
         PageableList<GiftCertificateDTO> pageableList = certificateServiceImpl
                 .findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
         return ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
-                .map(CertificateResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                        .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()), pageAndSortDTO.getPage(),
                 pageableList.getLastPage(), pageAndSortDTO.getSize()));
 
     }
@@ -192,8 +195,9 @@ public class CertificateController {
     public ResponseEntity partialUpdate(@RequestBody @Valid CertificatePatchDTO certificatePatchDTO,
                                         @PathVariable("id") @Min(value = 0, message = "{violation.id}") Long id) {
         try {
-            CertificateResource resource = new CertificateResource(certificateServiceImpl.patch(certificatePatchDTO, id));
-//            resource.add(linkTo(CertificateController.class).withSelfRel().withType(LinkConstant.POST_METHOD));
+            GiftCertificateDTO certificateDTO = certificateServiceImpl.patch(certificatePatchDTO, id);
+            CertificateResource resource = new CertificateResource(certificateDTO, certificateDTO.getTags().stream()
+            .map(TagResource::new).collect(Collectors.toList()));
             return ResponseEntity.ok(resource);
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(CERTIFICATE_EXIST_MESSAGE),

@@ -7,7 +7,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 
-import static com.epam.esm.repository.constant.JpaConstant.*;
+import static com.epam.esm.repository.constant.JpaConstant.CREATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.EXPIRATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.MODIFICATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.REQUEST_CREATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.REQUEST_EXPIRATION_DATE;
+import static com.epam.esm.repository.constant.JpaConstant.REQUEST_MODIFICATION_DATE;
 
 /**
  * implementation of {@link Sortable} for {@link GiftCertificate}

@@ -6,7 +6,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import static com.epam.esm.repository.constant.JpaConstant.*;
+import static com.epam.esm.repository.constant.JpaConstant.FIXED_PRICE;
+import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.ORDER_CERTIFICATE;
+import static com.epam.esm.repository.constant.JpaConstant.PRICE;
 
 /**
  * implementation of {@link Sortable} for {@link Order}

@@ -3,6 +3,7 @@ package com.epam.esm.dto;
 import com.epam.esm.validator.ValidCertificatesSet;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,6 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@JsonIgnoreProperties(value={ "giftCertificates" }, allowSetters=true)
 public class OrderDTO {
 
     @Null(message = "{violation.input.id.should.be.null}")

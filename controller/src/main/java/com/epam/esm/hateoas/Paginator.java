@@ -16,37 +16,34 @@ import static com.epam.esm.constant.LinkConstant.SIZE_TEMPLATE;
 import static com.epam.esm.constant.LinkConstant.TEMPLATE;
 
 /**
- * gift-certificates
+ * to paginate hateoas links
  *
  * @author Dzmitry Platonov on 2019-11-01.
  * @version 0.0.1
  */
-public class Paginator {
+class Paginator {
 
-    public static List<Link> buildPaginationLinks(String segment, int pageCurrent, long pageLast, int pageSize) {
+    private Paginator() {
+    }
+
+    static List<Link> buildPaginationLinks(String segment, int pageCurrent, long pageLast, int pageSize) {
         List<Link> links = new ArrayList<>();
         if (pageCurrent != 1) {
             links.add(createLinkByTemplate(segment, PAGE_FIRST, 1, pageSize));
         }
-//        if (pageCurrent > 1) {
-//            add(createLinkByTemplate(PAGE_PREVIOUS, pageCurrent - 1, pageSize));
-//        }
         if (pageCurrent > 4) {
             links.add(createLinkByTemplate(segment, String.valueOf(pageCurrent - 2), pageCurrent - 2L, pageSize));
         }
         if (pageCurrent > 3) {
             links.add(createLinkByTemplate(segment, String.valueOf(pageCurrent - 1), pageCurrent - 1L, pageSize));
         }
-        links.add(createLinkByTemplate(segment, PAGE_CURRENT, pageCurrent, pageSize));
+        links.add(createLinkByTemplate(segment, PAGE_CURRENT + " " + pageCurrent, pageCurrent, pageSize));
         if (pageCurrent < pageLast - 2) {
             links.add(createLinkByTemplate(segment, String.valueOf(pageCurrent + 1), pageCurrent + 1L, pageSize));
         }
         if (pageCurrent < pageLast - 3) {
             links.add(createLinkByTemplate(segment, String.valueOf(pageCurrent + 2), pageCurrent + 2L, pageSize));
         }
-//        if (pageCurrent < pageLast) {
-//            add(createLinkByTemplate(PAGE_NEXT, pageCurrent + 1, pageSize));
-//        }
         if (pageCurrent != pageLast) {
             links.add(createLinkByTemplate(segment, PAGE_LAST, pageLast, pageSize));
         }

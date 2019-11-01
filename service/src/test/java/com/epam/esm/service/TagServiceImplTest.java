@@ -3,6 +3,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
@@ -78,9 +79,9 @@ class TagServiceImplTest {
 
         Mockito.when(tagRepository.findAllSpecified(any(), any(), any())).thenReturn(tags);
 
-        List<TagDTO> actual = tagServiceImpl.findAll(pageAndSortDTO);
+        PageableList<TagDTO> actual = tagServiceImpl.findAll(pageAndSortDTO);
 
-        assertEquals(tagDTOS, actual);
+        assertEquals(tagDTOS, actual.getList());
     }
 
     @Test
@@ -116,19 +117,19 @@ class TagServiceImplTest {
         Tag tag = Tag.builder().title("t").build();
         Mockito.when(certificateRepository.findById(1, true)).thenReturn(Optional.of(certificate));
         Mockito.when(tagRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(tag));
-        List<TagDTO> actual = tagServiceImpl.getTagsByCertificate(certificate.getId(),
+        PageableList<TagDTO> actual = tagServiceImpl.getTagsByCertificate(certificate.getId(),
                 PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
         List<TagDTO> expected = List.of(TagDTO.builder().title("t").build());
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
     }
 
     @Test
     void findPaginated() {
         Tag tag = Tag.builder().title("t").build();
         Mockito.when(tagRepository.findAllSpecified( any(), any(),any())).thenReturn(List.of(tag));
-        List<TagDTO> actual = tagServiceImpl.findAllPaginated(PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
+        PageableList<TagDTO> actual = tagServiceImpl.findAllPaginated(PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
         List<TagDTO> expected = List.of(TagDTO.builder().title("t").build());
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
 
     }
 
@@ -146,9 +147,9 @@ class TagServiceImplTest {
         Tag tag = Tag.builder().title("t").build();
         Mockito.when(tagRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(tag));
         Mockito.when(orderRepository.findById(1)).thenReturn(Optional.of(Order.builder().id(1L).build()));
-        List<TagDTO> actual = tagServiceImpl.findTagsByOrder(1, PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
+        PageableList<TagDTO> actual = tagServiceImpl.findTagsByOrder(1, PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
         List<TagDTO> expected = List.of(TagDTO.builder().title("t").build());
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
     }
 
     @Test
@@ -156,17 +157,17 @@ class TagServiceImplTest {
         Tag tag = Tag.builder().title("t").build();
         Mockito.when(tagRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(tag));
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(User.builder().id(1L).build()));
-        List<TagDTO> actual = tagServiceImpl.findTagsByUser(1, PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
+        PageableList<TagDTO> actual = tagServiceImpl.findTagsByUser(1, PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
         List<TagDTO> expected = List.of(TagDTO.builder().title("t").build());
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
     }
 
     @Test
     void findPopular() {
         Tag tag = Tag.builder().title("t").build();
         Mockito.when(tagRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(tag));
-        List<TagDTO> actual = tagServiceImpl.findPopular(PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
+        PageableList<TagDTO> actual = tagServiceImpl.findPopular(PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build());
         List<TagDTO> expected = List.of(TagDTO.builder().title("t").build());
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
     }
 }

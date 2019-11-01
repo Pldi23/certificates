@@ -3,15 +3,16 @@ package com.epam.esm.hateoas;
 import com.epam.esm.constant.EndPointConstant;
 import com.epam.esm.constant.LinkConstant;
 import com.epam.esm.controller.OrderController;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.hateoas.ResourceSupport;
-
 
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @Getter
+@EqualsAndHashCode(callSuper = false)
 public class OrderListResource extends ResourceSupport {
 
     private final List<OrderResource> orders;

@@ -7,6 +7,7 @@ import com.epam.esm.converter.TagConverter;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
@@ -76,6 +77,7 @@ class CertificateServiceImplTest {
                 .modificationDate(LocalDate.now())
                 .expirationDate(LocalDate.of(2021, 1, 1))
                 .tags(Set.of())
+                .activeStatus(true)
                 .build();
 
         giftCertificateDTO = new GiftCertificateDTO.Builder()
@@ -87,6 +89,7 @@ class CertificateServiceImplTest {
                 .withModificationDate(LocalDate.now())
                 .withExpirationDate(LocalDate.of(2021, 1, 1))
                 .withTags(Set.of())
+                .withIsActive(null)
                 .build();
     }
 
@@ -102,7 +105,7 @@ class CertificateServiceImplTest {
 
         List<GiftCertificateDTO> dtos = List.of(giftCertificateDTO);
 
-        assertEquals(dtos, service.findAll(pageAndSortDTO));
+        assertEquals(dtos, service.findAll(pageAndSortDTO).getList());
 
     }
 
@@ -152,10 +155,10 @@ class CertificateServiceImplTest {
         Mockito.when(certificateRepository.findAllSpecified(any(), any(), any())).thenReturn(certificates);
 
         List<GiftCertificateDTO> expected = List.of(giftCertificateDTO);
-        List<GiftCertificateDTO> actual = service.findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
+        PageableList<GiftCertificateDTO> actual = service.findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
 
 
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
 
     }
 
@@ -167,9 +170,9 @@ class CertificateServiceImplTest {
         Mockito.when(tagRepository.findById(1)).thenReturn(Optional.of(tag));
         Mockito.when(certificateRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(giftCertificate));
 
-        List<GiftCertificateDTO> actual = service.getByTag(1, pageAndSortDTO);
+        PageableList<GiftCertificateDTO> actual = service.getByTag(1, pageAndSortDTO);
         List<GiftCertificateDTO> expected = List.of(giftCertificateDTO);
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
 
     }
 
@@ -180,9 +183,9 @@ class CertificateServiceImplTest {
 
         Mockito.when(certificateRepository.findAllSpecified(any(), any(), any())).thenReturn(List.of(giftCertificate));
         Mockito.when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        List<GiftCertificateDTO> actual = service.findByOrder(order.getId(), pageAndSortDTO);
+        PageableList<GiftCertificateDTO> actual = service.findByOrder(order.getId(), pageAndSortDTO);
         List<GiftCertificateDTO> expected = List.of(giftCertificateDTO);
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getList());
     }
 
     @Test

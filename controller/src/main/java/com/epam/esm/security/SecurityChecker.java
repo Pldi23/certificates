@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 @Log4j2
 public class SecurityChecker {
 
+    private static final String FORBIDDEN_ACTION_MESSAGE = "exception.forbidden.action";
+
     private AppUserDetailsService userDetailsService;
     private OrderService orderService;
     private UserService userService;
@@ -110,7 +112,7 @@ public class SecurityChecker {
                     .collect(Collectors.toList());
             return roles.contains(RoleConstant.ROLE_ADMIN);
         } else {
-            throw new AccessForbiddenException(Translator.toLocale("exception.forbidden.action", new Object[]{principal}));
+            throw new AccessForbiddenException(Translator.toLocale(FORBIDDEN_ACTION_MESSAGE, new Object[]{principal}));
         }
     }
 
@@ -124,7 +126,7 @@ public class SecurityChecker {
                 .collect(Collectors.toList());
         if (roles.contains(RoleConstant.ROLE_USER)) {
             if (userDTO.getRole().equals(RoleConstant.ROLE_ADMIN)) {
-                throw new AccessForbiddenException(Translator.toLocale("exception.forbidden.action", new Object[]{principalValue}));
+                throw new AccessForbiddenException(Translator.toLocale(FORBIDDEN_ACTION_MESSAGE, new Object[]{principalValue}));
             }
             return userDTO.getRole().equals(RoleConstant.ROLE_USER);
         }
@@ -144,7 +146,7 @@ public class SecurityChecker {
                 .collect(Collectors.toList());
         if (roles.contains(RoleConstant.ROLE_USER)) {
             if (userPatchDTO.getRole().equals(RoleConstant.ROLE_ADMIN)) {
-                throw new AccessForbiddenException(Translator.toLocale("exception.forbidden.action", new Object[]{principalValue}));
+                throw new AccessForbiddenException(Translator.toLocale(FORBIDDEN_ACTION_MESSAGE, new Object[]{principalValue}));
             }
             return userPatchDTO.getRole().equals(RoleConstant.ROLE_USER);
         }

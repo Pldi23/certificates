@@ -9,8 +9,8 @@ import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.EntityAlreadyExistsException;
 import com.epam.esm.repository.AbstractOrderCertificateRepository;
+import com.epam.esm.repository.AbstractOrderRepository;
 import com.epam.esm.repository.AbstractUserRepository;
-import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.page.PageSizeData;
 import com.epam.esm.repository.predicate.OrderHasUserIdSpecification;
 import com.epam.esm.repository.sort.UserSortData;
@@ -36,10 +36,10 @@ public class UserServiceImpl implements UserService {
     private UserConverter userConverter;
     private PasswordEncoder passwordEncoder;
     private AbstractOrderCertificateRepository orderCertificateRepository;
-    private OrderRepository orderRepository;
+    private AbstractOrderRepository orderRepository;
 
     public UserServiceImpl(AbstractUserRepository userRepository, UserConverter userConverter, PasswordEncoder passwordEncoder,
-                           AbstractOrderCertificateRepository orderCertificateRepository, OrderRepository orderRepository) {
+                           AbstractOrderCertificateRepository orderCertificateRepository, AbstractOrderRepository orderRepository) {
         this.userRepository = userRepository;
         this.userConverter = userConverter;
         this.passwordEncoder = passwordEncoder;

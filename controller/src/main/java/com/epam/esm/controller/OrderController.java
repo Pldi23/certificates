@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -84,15 +83,18 @@ public class OrderController {
     public ResponseEntity save(@Valid @RequestBody OrderDTO orderDTO) {
         String principleEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderDTO.setUserEmail(principleEmail);
-        return ResponseEntity.ok(new OrderResource(orderService.save(orderDTO)));
+        OrderDTO order = orderService.save(orderDTO);
+        return ResponseEntity.ok(new OrderResource(order, order.getGiftCertificates().stream()
+                .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                        .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList())));
     }
 
     @PreAuthorize("@securityChecker.check(#params) or hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<OrderListResource> findAll(@PageAndSizeValid(message = "{violation.page.size}")
-                                  @OrderSortValid(message = "{violation.order.sort}")
-                                  @OrderSearchCriteriaValid(message = "{violation.order.search}")
-                                  @RequestParam Map<String, String> params) {
+                                                     @OrderSortValid(message = "{violation.order.sort}")
+                                                     @OrderSearchCriteriaValid(message = "{violation.order.search}")
+                                                     @RequestParam Map<String, String> params) {
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
         OrderSearchCriteriaDTO orderSearchCriteriaDTO = dtoParser.parseOrderSearchDTO(params);
         AppUserPrinciple principle = (AppUserPrinciple) userDetailsService
@@ -105,7 +107,10 @@ public class OrderController {
         }
         PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
         return !pageableList.getList().isEmpty() ? ResponseEntity.ok(
-                new OrderListResource(pageableList.getList().stream().map(OrderResource::new).collect(Collectors.toList()),
+                new OrderListResource(pageableList.getList().stream().map(orderDTO ->
+                        new OrderResource(orderDTO, orderDTO.getGiftCertificates().stream()
+                                .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                                        .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
                         pageAndSortDTO.getPage(),
                         pageableList.getLastPage(),
                         pageAndSortDTO.getSize())) :
@@ -115,7 +120,10 @@ public class OrderController {
     @PostAuthorize("@securityChecker.checkOrder(returnObject) or hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<OrderResource> findOne(@PathVariable @Min(value = 0, message = "{violation.id}") Long id) {
-        return ResponseEntity.ok(new OrderResource(orderService.findOne(id)));
+        OrderDTO orderDTO = orderService.findOne(id);
+        return ResponseEntity.ok(new OrderResource(orderDTO, orderDTO.getGiftCertificates().stream()
+                .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                        .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList())));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
@@ -130,7 +138,10 @@ public class OrderController {
     public ResponseEntity update(@PathVariable @Min(value = 0, message = "{violation.id}") Long id, @Valid @RequestBody OrderDTO orderDTO) {
         String principleEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderDTO.setUserEmail(principleEmail);
-        return ResponseEntity.ok(new OrderResource(orderService.update(orderDTO, id)));
+        OrderDTO order = orderService.update(orderDTO, id);
+        return ResponseEntity.ok(new OrderResource(order, order.getGiftCertificates().stream()
+                .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                        .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList())));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")
@@ -156,7 +167,8 @@ public class OrderController {
         PageableList<GiftCertificateDTO> pageableList = certificateService.findByOrder(id, pageAndSortDTO);
 
         return !pageableList.getList().isEmpty() ? ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
-                .map(CertificateResource::new).collect(Collectors.toList()), pageAndSortDTO.getPage(),
+                .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                        .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()), pageAndSortDTO.getPage(),
                 pageableList.getLastPage(), pageAndSortDTO.getSize())) :
                 ResponseEntity.status(404).body(pageableList.getList());
     }

@@ -2,6 +2,7 @@ package com.epam.esm.dto;
 
 import com.epam.esm.validator.ValidTagSet;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -22,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @NoArgsConstructor
+@JsonIgnoreProperties(value={ "tags" }, allowSetters=true)
 public class GiftCertificateDTO {
 
     @Null(message = "{violation.input.certificate.id}")

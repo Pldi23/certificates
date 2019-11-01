@@ -5,6 +5,7 @@ import com.epam.esm.converter.OrderConverter;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
+import com.epam.esm.dto.PageableList;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Role;
 import com.epam.esm.entity.User;
@@ -106,8 +107,8 @@ class OrderServiceImplTest {
         Mockito.when(orderCertificateRepository.calculateOrderFixedPrice(orderDTO.getId())).thenReturn(new BigDecimal(0));
 
         List<OrderDTO> expected = List.of(orderDTO);
-        List<OrderDTO> actual = orderService.findAll(pageAndSortDTO);
-        assertEquals(expected, actual);
+        PageableList<OrderDTO> actual = orderService.findAll(pageAndSortDTO);
+        assertEquals(expected, actual.getList());
     }
 
     @Test
@@ -160,8 +161,8 @@ class OrderServiceImplTest {
         Mockito.when(orderCertificateRepository.calculateOrderFixedPrice(orderDTO.getId())).thenReturn(new BigDecimal(0));
 
         List<OrderDTO> expected = List.of(orderDTO);
-        List<OrderDTO> actual = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
-        assertEquals(expected, actual);
+        PageableList<OrderDTO> actual = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
+        assertEquals(expected, actual.getList());
 
     }
 }
