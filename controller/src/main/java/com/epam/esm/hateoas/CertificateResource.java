@@ -1,5 +1,6 @@
 package com.epam.esm.hateoas;
 
+import com.epam.esm.constant.LinkConstant;
 import com.epam.esm.constant.RoleConstant;
 import com.epam.esm.controller.CertificateController;
 import com.epam.esm.dto.GiftCertificateDTO;
@@ -30,9 +31,9 @@ public class CertificateResource extends ResourceSupport {
         this.tags = tags;
         add(linkTo(CertificateController.class).slash(giftCertificate.getId()).withSelfRel().withType(GET_METHOD));
         if (getAuthorities().contains(RoleConstant.ROLE_ADMIN)) {
-            add(linkTo(CertificateController.class).slash(giftCertificate.getId()).withSelfRel().withType(DELETE_METHOD));
-            add(linkTo(CertificateController.class).slash(giftCertificate.getId()).withSelfRel().withType(PUT_METHOD));
-            add(linkTo(CertificateController.class).slash(giftCertificate.getId()).withSelfRel().withType(PATCH_METHOD));
+            add(linkTo(CertificateController.class).slash(giftCertificate.getId()).withRel(LinkConstant.DELETE_REL).withType(DELETE_METHOD));
+            add(linkTo(CertificateController.class).slash(giftCertificate.getId()).withRel(LinkConstant.PUT_REL).withType(PUT_METHOD));
+            add(linkTo(CertificateController.class).slash(giftCertificate.getId()).withRel(LinkConstant.PATCH_REL).withType(PATCH_METHOD));
         }
     }
 

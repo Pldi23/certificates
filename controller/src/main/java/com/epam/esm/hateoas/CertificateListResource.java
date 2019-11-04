@@ -19,10 +19,7 @@ public class CertificateListResource extends ResourceSupport {
 
     public CertificateListResource(List<CertificateResource> certificates, int pageCurrent, long pageLast, int pageSize) {
         this.certificates = certificates;
-        add(linkTo(CertificateController.class).withSelfRel().withType(LinkConstant.POST_METHOD));
-
+        add(linkTo(CertificateController.class).withRel(LinkConstant.CREATE_REL).withType(LinkConstant.POST_METHOD));
         add(Paginator.buildPaginationLinks(EndPointConstant.CERTIFICATE_ENDPOINT, pageCurrent, pageLast, pageSize));
-
-
     }
 }

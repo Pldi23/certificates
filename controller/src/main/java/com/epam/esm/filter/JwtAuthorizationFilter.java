@@ -47,7 +47,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     EndPointConstant.ERROR_ENDPOINT, "GET",
                     EndPointConstant.CERTIFICATE_ENDPOINT, "GET",
                     EndPointConstant.CERTIFICATE_ID_ENDPOINT, "GET",
-                    "/certificates/", "GET",
+                    EndPointConstant.CERTIFICATE_ENDPOINT + "/", "GET",
                     EndPointConstant.USER_ENDPOINT, "POST");
 
     @Value("${jwt.secret}")

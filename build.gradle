@@ -11,7 +11,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
 
-
     repositories {
         mavenLocal()
         maven {
@@ -28,7 +27,8 @@ subprojects {
         compile 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
         compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.6'
         compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.6'
-        compile 'org.springframework.hateoas:spring-hateoas:0.25.1.RELEASE'
+        compile group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: '2.1.9.RELEASE'
+
         compile 'org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE'
         compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.1.9.RELEASE'
         compile 'org.springframework.boot:spring-boot-starter-web:2.1.9.RELEASE'
@@ -73,3 +73,4 @@ sonarqube {
         property('sonar.password', 'admin')
     }
 }
+

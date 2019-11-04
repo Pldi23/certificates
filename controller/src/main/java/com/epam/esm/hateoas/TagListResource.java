@@ -1,6 +1,7 @@
 package com.epam.esm.hateoas;
 
 import com.epam.esm.constant.EndPointConstant;
+import com.epam.esm.constant.LinkConstant;
 import com.epam.esm.controller.TagController;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,10 +19,10 @@ public class TagListResource extends ResourceSupport {
 
     private final List<TagResource> tagList;
 
+
     public TagListResource(List<TagResource> tagList, int pageCurrent, long pageLast, int pageSize) {
         this.tagList = tagList;
-        add(linkTo(TagController.class).withSelfRel().withType(POST_METHOD));
-
+        add(linkTo(TagController.class).withRel(LinkConstant.CREATE_REL).withType(POST_METHOD));
         add(Paginator.buildPaginationLinks(EndPointConstant.TAG_ENDPOINT, pageCurrent, pageLast, pageSize));
     }
 

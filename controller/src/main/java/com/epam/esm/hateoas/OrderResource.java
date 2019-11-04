@@ -9,8 +9,10 @@ import org.springframework.hateoas.ResourceSupport;
 import java.util.List;
 
 import static com.epam.esm.constant.LinkConstant.DELETE_METHOD;
+import static com.epam.esm.constant.LinkConstant.DELETE_REL;
 import static com.epam.esm.constant.LinkConstant.GET_METHOD;
 import static com.epam.esm.constant.LinkConstant.PUT_METHOD;
+import static com.epam.esm.constant.LinkConstant.PUT_REL;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 
@@ -25,7 +27,7 @@ public class OrderResource extends ResourceSupport {
         this.order = order;
         this.certificates = certificates;
         add(linkTo(OrderController.class).slash(order.getId()).withSelfRel().withType(GET_METHOD));
-        add(linkTo(OrderController.class).slash(order.getId()).withSelfRel().withType(DELETE_METHOD));
-        add(linkTo(OrderController.class).slash(order.getId()).withSelfRel().withType(PUT_METHOD));
+        add(linkTo(OrderController.class).slash(order.getId()).withRel(DELETE_REL).withType(DELETE_METHOD));
+        add(linkTo(OrderController.class).slash(order.getId()).withRel(PUT_REL).withType(PUT_METHOD));
     }
 }

@@ -12,7 +12,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class UserListResource extends ResourceSupport {
 
-    private List<UserResource> users;
+    private final List<UserResource> users;
+
 
     public UserListResource(List<UserResource> users, int pageCurrent, long pageLast, int pageSize) {
         this.users = users;

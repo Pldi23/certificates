@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.constant.LinkConstant.DELETE_METHOD;
+import static com.epam.esm.constant.LinkConstant.DELETE_REL;
 import static com.epam.esm.constant.LinkConstant.GET_METHOD;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -28,7 +29,7 @@ public class TagResource extends ResourceSupport {
             add(linkTo(TagController.class).slash(tag.getId()).withSelfRel().withType(GET_METHOD));
         }
         if (getAuthorities().contains(RoleConstant.ROLE_ADMIN)) {
-            add(linkTo(TagController.class).slash(tag.getId()).withSelfRel().withType(DELETE_METHOD));
+            add(linkTo(TagController.class).slash(tag.getId()).withRel(DELETE_REL).withType(DELETE_METHOD));
         }
     }
 

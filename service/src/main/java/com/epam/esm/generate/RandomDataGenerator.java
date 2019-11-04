@@ -43,11 +43,6 @@ public class RandomDataGenerator {
     private static final Resource emailResource = new ClassPathResource("email");
     private static final Resource descriptionResource = new ClassPathResource("description");
 
-
-    private List<String> words;
-    private List<String> certificates;
-    private List<String> descriptions;
-    private List<String> emails;
     private TagService tagService;
     private OrderService orderService;
     private CertificateService certificateService;
@@ -56,14 +51,6 @@ public class RandomDataGenerator {
 
     public RandomDataGenerator(TagService tagService, OrderService orderService, CertificateService certificateService,
                                UserService userService) {
-        try {
-            this.words = Files.readAllLines(wordsResource.getFile().toPath());
-            this.certificates = new ArrayList<>(new HashSet<>(Files.readAllLines(certificatesResource.getFile().toPath())));
-            this.descriptions = Files.readAllLines(descriptionResource.getFile().toPath());
-            this.emails = Files.readAllLines(emailResource.getFile().toPath());
-        } catch (IOException e) {
-            throw new GenerateDataException();
-        }
         this.tagService = tagService;
         this.orderService = orderService;
         this.certificateService = certificateService;
@@ -112,6 +99,12 @@ public class RandomDataGenerator {
     }
 
     private String getRandomWord() {
+        List<String> words;
+        try {
+            words = Files.readAllLines(wordsResource.getFile().toPath());
+        } catch (IOException e) {
+            throw new GenerateDataException(e);
+        }
         String word = words.get(random.nextInt(words.size()));
         words.remove(word);
         return word;
@@ -119,6 +112,14 @@ public class RandomDataGenerator {
 
 
     private GiftCertificateDTO getRandomCertificate(List<TagDTO> tags) {
+        List<String> certificates;
+        List<String> descriptions;
+        try {
+            certificates = new ArrayList<>(new HashSet<>(Files.readAllLines(certificatesResource.getFile().toPath())));
+            descriptions = Files.readAllLines(descriptionResource.getFile().toPath());
+        } catch (IOException e) {
+            throw new GenerateDataException(e);
+        }
         String name = certificates.get(random.nextInt(certificates.size()));
         certificates.remove(name);
         String description = descriptions.get(random.nextInt(descriptions.size()));
@@ -164,6 +165,12 @@ public class RandomDataGenerator {
     }
 
     private String generateEmail() {
+        List<String> emails;
+        try {
+            emails = Files.readAllLines(emailResource.getFile().toPath());
+        } catch (IOException e) {
+            throw new GenerateDataException(e);
+        }
         String email = emails.get(random.nextInt(emails.size()));
         emails.remove(email);
         return email;

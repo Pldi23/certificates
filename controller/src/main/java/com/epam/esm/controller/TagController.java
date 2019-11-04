@@ -62,7 +62,8 @@ public class TagController {
     private DtoParser dtoParser;
 
 
-    public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl, EntityLinks entityLinks,
+    public TagController(TagService tagServiceImpl, CertificateService certificateServiceImpl,
+                         EntityLinks entityLinks,
                          DtoParser dtoParser) {
         this.tagServiceImpl = tagServiceImpl;
         this.certificateService = certificateServiceImpl;
