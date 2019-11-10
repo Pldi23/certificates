@@ -39,9 +39,11 @@ public class AppAccessDeniedHandler implements AccessDeniedHandler {
         ObjectMapper mapper = new ObjectMapper();
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(403);
+        String principal = SecurityContextHolder.getContext().getAuthentication() != null ?
+                (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal() : "anonymous";
         response.getWriter().write(mapper.writeValueAsString(
                 new ViolationDTO(List.of(Translator.toLocale("exception.forbidden",
-                        new Object[]{SecurityContextHolder.getContext().getAuthentication().getPrincipal(), request.getRequestURI()})),
+                        new Object[]{principal, request.getRequestURI()})),
                         LocalDateTime.now())));
     }
 }

@@ -4,9 +4,18 @@ import com.epam.esm.constant.EndPointConstant;
 import com.epam.esm.constant.RequestConstant;
 import com.epam.esm.constant.SecurityConstant;
 import com.epam.esm.dto.AppUserPrinciple;
+import com.epam.esm.exception.RefreshTokenException;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +26,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +41,9 @@ import java.util.stream.Collectors;
 @Log4j2
 public class SecurityController {
 
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     private TokenCreator tokenCreator;
     private AppUserDetailsService detailsService;
     private AuthenticationManager authenticationManager;
@@ -42,15 +56,37 @@ public class SecurityController {
 
     @PostMapping(EndPointConstant.REFRESH_TOKEN_ENDPOINT)
     public ResponseEntity getTokens(HttpServletRequest request) {
-        String username = request.getParameter(RequestConstant.USERNAME);
         String refreshToken = request.getHeader(SecurityConstant.REFRESH_TOKEN_HEADER);
-        AppUserPrinciple principle = (AppUserPrinciple) detailsService.loadUserByUsername(username);
-        if (principle != null && principle.getUser() != null && principle.getUser().getRefreshToken() != null
-                && principle.getUser().getRefreshToken().equals(refreshToken)) {
-            return ResponseEntity.ok().headers(buildHeaders(principle)).build();
-        } else {
-            return ResponseEntity.status(401).build();
+
+        if (refreshToken == null) {
+            throw new RefreshTokenException();
         }
+        try {
+            Jws<Claims> parsedToken = Jwts.parser()
+                    .setSigningKey(jwtSecret.getBytes())
+                    .parseClaimsJws(refreshToken);
+
+            String username = parsedToken
+                    .getBody()
+                    .getSubject();
+
+            LocalDateTime expiration =
+                    LocalDateTime.ofInstant(parsedToken.getBody().getExpiration().toInstant(), ZoneId.systemDefault());
+
+            if (username != null && !username.isEmpty() && !expiration.isAfter(LocalDateTime.now())) {
+                throw new RefreshTokenException();
+            }
+            AppUserPrinciple principle = (AppUserPrinciple) detailsService.loadUserByUsername(username);
+            if (principle != null && principle.getUser() != null && principle.getUser().getRefreshToken() != null
+                    && principle.getUser().getRefreshToken().equals(refreshToken)) {
+                return ResponseEntity.ok().headers(buildHeaders(principle)).build();
+            } else {
+                return ResponseEntity.status(401).build();
+            }
+        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException e) {
+            throw new RefreshTokenException(e);
+        }
+
     }
 
     @PostMapping(EndPointConstant.AUTHENTICATE_ENDPOINT)

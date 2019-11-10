@@ -32,7 +32,7 @@ public class TokenCreator {
                 .setIssuer(SecurityConstant.TOKEN_ISSUER)
                 .setAudience(SecurityConstant.TOKEN_AUDIENCE)
                 .setSubject(username)
-                .setExpiration(Date.from(LocalDateTime.now().plusHours(SecurityConstant.JWT_TOKEN_DURATION_HOURS).atZone(ZoneId.systemDefault()).toInstant()))
+                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(15).atZone(ZoneId.systemDefault()).toInstant()))
                 .claim("rol", roles)
                 .compact();
     }

@@ -2,12 +2,17 @@ package com.epam.esm.config;
 
 import com.epam.esm.filter.AppAccessDeniedHandler;
 import com.epam.esm.filter.ExceptionHandlerFilter;
+import com.epam.esm.filter.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.epam.esm.filter.JwtAuthorizationFilter;
-import com.epam.esm.filter.OpenIdSuccessHandler;
+import com.epam.esm.filter.OAuth2AuthenticationFailureHandler;
+import com.epam.esm.filter.OAuth2AuthenticationSuccessHandler;
 import com.epam.esm.security.TokenCreator;
 import com.epam.esm.service.AppUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -22,14 +27,11 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
-import static com.epam.esm.constant.EndPointConstant.AUTHENTICATE_ENDPOINT;
-import static com.epam.esm.constant.EndPointConstant.CERTIFICATE_ENDPOINT;
-import static com.epam.esm.constant.EndPointConstant.CERTIFICATE_ID_ENDPOINT;
-import static com.epam.esm.constant.EndPointConstant.ERROR_ENDPOINT;
-import static com.epam.esm.constant.EndPointConstant.LOGIN_ENDPOINT;
-import static com.epam.esm.constant.EndPointConstant.REFRESH_TOKEN_ENDPOINT;
-import static com.epam.esm.constant.EndPointConstant.USER_ENDPOINT;
+import java.util.Arrays;
+
+import static com.epam.esm.constant.EndPointConstant.*;
 
 @Configuration
 @EnableWebSecurity
@@ -41,27 +43,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private AppUserDetailsService userDetailsService;
 
+    @Autowired
+    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
+    @Autowired
+    private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+
     public SecurityConfig(AppUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .and()
+        http
                 .cors()
+                .and()
+                .authorizeRequests()
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(appAccessDeniedHandler())
                 .and()
                 .csrf()
-                .disable()
-//                .csrfTokenRepository(cookieCsrfTokenRepository())
-//                .and()
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .and()
                 .addFilter(jwtAuthorizationFilter(authenticationManagerBean()))
                 .addFilterBefore(exceptionHandlerFilter(), JwtAuthorizationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/", AUTHENTICATE_ENDPOINT, REFRESH_TOKEN_ENDPOINT, LOGIN_ENDPOINT, ERROR_ENDPOINT).permitAll()
+                .antMatchers("/", AUTHENTICATE_ENDPOINT, REFRESH_TOKEN_ENDPOINT, LOGIN_ENDPOINT, ERROR_ENDPOINT, "/oauth2/**").permitAll()
                 .antMatchers(HttpMethod.GET, CERTIFICATE_ENDPOINT).permitAll()
                 .antMatchers(HttpMethod.GET, CERTIFICATE_ID_ENDPOINT).permitAll()
                 .antMatchers(HttpMethod.POST, USER_ENDPOINT).permitAll()
@@ -74,7 +82,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().successForwardUrl(AUTHENTICATE_ENDPOINT)
                 .and()
                 .oauth2Login()
-                .successHandler(openIdSuccessHandler(userDetailsService, tokenCreator()));
+                .authorizationEndpoint()
+                .baseUri("/oauth2/authorize")
+                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                .and()
+                .redirectionEndpoint()
+                .baseUri("/oauth2/callback/*")
+                .and()
+                .failureHandler(oAuth2AuthenticationFailureHandler)
+                .successHandler(oAuth2AuthenticationSuccessHandler);
     }
 
     @Override
@@ -92,8 +108,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
-
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.setAllowedOrigins(Arrays.asList("https://localhost:3000","http://localhost:3000"));
+        config.setAllowedMethods(Arrays.asList("POST", "OPTIONS", "GET", "DELETE", "PUT", "PATCH"));
+        config.setAllowedHeaders(Arrays.asList("X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization",
+                "X-XSRF-TOKEN", "Access-Control-Allow-Headers", "RefreshToken"));
+        config.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken", "ExpiresIn"));
+        source.registerCorsConfiguration("/**", config);
+        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return source;
     }
 
@@ -114,11 +138,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public CookieCsrfTokenRepository cookieCsrfTokenRepository() {
-        return new CookieCsrfTokenRepository();
-    }
-
-    @Bean
     public AppAccessDeniedHandler appAccessDeniedHandler() {
         return new AppAccessDeniedHandler();
     }
@@ -128,9 +147,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new TokenCreator();
     }
 
+
     @Bean
-    public OpenIdSuccessHandler openIdSuccessHandler(AppUserDetailsService appUserDetailsService, TokenCreator tokenCreator) {
-        return new OpenIdSuccessHandler(appUserDetailsService, tokenCreator);
+    public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
     }
 
 }
