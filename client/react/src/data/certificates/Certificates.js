@@ -1,128 +1,237 @@
 import React, {Component} from 'react';
 import {
-    Container, Form, FormGroup, Jumbotron, Input, Label, Button, Col, Card, CardBody,
-    CardTitle, CardText, CardHeader, CardFooter, CardColumns, Badge, Row
+    Container, Jumbotron, Col, CardColumns, Row, Alert
 } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {search, getCertificates} from '../../util/APIUtils';
-import Alert from 'react-s-alert';
+import {getCertificatesByHref} from '../../util/APIUtils';
 import {withCookies} from 'react-cookie';
 import LoadingIndicator from "../../common/LoadingIndicator";
-import {ACCESS_TOKEN, API_BASE_URL} from "../../constants";
+import {getMessage} from "../../app/Message";
+import Search from "./Search";
+import Pages from "./Pages";
+import PageSize from "./PageSize";
+import './Certificates.css';
+import {CERTIFICATES_DEFAULT_REQUEST_URL, CERTIFICATES_HREF} from "../../constants";
+import Certificate from "./Certificate";
 
 class Certificates extends Component {
-    state = {
-        certificates: [],
-        loading: false
-    };
 
     constructor(props) {
         super(props);
-
-        const {cookies} = props;
-        this.state.csrfToken = cookies.get('XSRF-TOKEN');
+        this.state = {
+            certificates: [],
+            links: [],
+            loading: false,
+        };
     }
 
     componentDidMount() {
         this.setState({
+            loading: true,
+
+        });
+        let href = localStorage.getItem(CERTIFICATES_HREF);
+        getCertificatesByHref(this.props, href ? href : CERTIFICATES_DEFAULT_REQUEST_URL)
+            .then(json => {
+                this.setState({
+                    certificates: json.certificates,
+                    links: json._links,
+                    loading: false
+                });
+                if (this.state.links.length > 0) {
+                    this.state.links.pages.map(page => {
+                        if (page.current) {
+                            localStorage.setItem(CERTIFICATES_HREF, page.href)
+                        }
+                    });
+                }
+            });
+
+        this.props.routeHandler(true);
+    }
+
+    componentWillUnmount() {
+        localStorage.removeItem(CERTIFICATES_HREF)
+    }
+
+    pageSizeHandler = (value) => {
+        this.setState({
+            loading: true,
+
+        });
+        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
+
+        console.log('size handler before')
+        console.log(href)
+        console.log(value)
+
+        if (href.includes('size=')) {
+            console.log('replacing')
+            href = href.replace(/size=\d+/, 'size=' + value);
+
+        } else {
+            console.log('concate')
+
+            href = href.concat('&size=' + value);
+
+        }
+
+        href = href.includes('page=') ? href.replace(/page=\d+/, 'page=1') :
+            href.concat('&page=1');
+
+
+        console.log('size handler after')
+        console.log(href)
+
+        localStorage.setItem(CERTIFICATES_HREF, href);
+        getCertificatesByHref(this.props, href)
+            .then(json => {
+                this.setState({
+                    certificates: json.certificates,
+                    links: json._links,
+                    loading: false
+                });
+            });
+    };
+
+    pageHandler = (href) => {
+        this.setState({
+            loading: true,
+        });
+        localStorage.setItem(CERTIFICATES_HREF, href);
+        getCertificatesByHref(this.props, href).then(json => {
+            console.log(json)
+            this.setState({
+                certificates: json.certificates ? json.certificates : [],
+                links: json._links,
+                loading: false
+            });
+        }).catch(error => {
+            (error && error.message) ||
+            getMessage(this.props, 'error');
+        });
+    };
+
+    getCurrentPageSize() {
+        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
+        // console.log('get current size');
+        // console.log(href);
+
+        href = href.includes('size') ? href.substring(href.indexOf('size=') + 5) : '5';
+        href = href.includes('&') ? href.substring(0, href.indexOf('&')) : href;
+        // console.log(href.indexOf('&'));
+        return href;
+    }
+
+    reloadHandler = () => {
+        this.setState({
             loading: true
         });
-        getCertificates(this.state.csrfToken, this.props).then(response => {
-            this.setState({
-                certificates: response.certificates,
-                loading: false
-            });
-        });
-        // this.props.loginHandler(true);
-        // if (localStorage.getItem(ACCESS_TOKEN) && localStorage.getItem(ACCESS_TOKEN) != null) {
-        //     if (localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) && localStorage.getItem(REFRESH_TOKEN) &&
-        //         localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) < Date.now()) {
-        //         console.log('certificates refreshing token start, expired bearer: ' + localStorage.getItem(ACCESS_TOKEN));
-        //         fetch(API_BASE_URL + '/authenticate/refresh-token', {
-        //             method: 'POST',
-        //             credentials: 'include',
-        //             headers: {
-        //                 'RefreshToken': localStorage.getItem(REFRESH_TOKEN),
-        //                 'X-XSRF-TOKEN': this.state.csrfToken,
-        //                 'Accept': 'application/json',
-        //                 'Content-Type': 'application/json',
-        //             },
-        //         }).then(response => {
-        //             if (response.ok) {
-        //                 localStorage.setItem(ACCESS_TOKEN, response.headers.get("Authorization"));
-        //                 localStorage.setItem(REFRESH_TOKEN, response.headers.get("RefreshToken"));
-        //                 localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get("ExpiresIn"));
-        //                 console.log('response ok new access token set ' + localStorage.getItem(ACCESS_TOKEN));
-        //                 this.props.loginHandler(true);
-        //                 return this.fetchCertificates();
-        //
-        //             } else {
-        //                 console.log('respons not ok, something go wrong ' + response.status + ' , ' + response + ' , ' + localStorage.getItem(ACCESS_TOKEN));
-        //             }
-        //         }).catch(error => {
-        //             console.log(
-        //                 (error && error.message) || 'could not refresh token');
-        //         });
-        //     } else {
-        //         console.log(' no refreshing token needed (token not expired)' + localStorage.getItem(ACCESS_TOKEN));
-        //         return this.fetchCertificates()
-        //     }
-        // } else {
-        //     console.log(' no refreshing token needed (no token?)' + localStorage.getItem(ACCESS_TOKEN));
-        //     return this.fetchCertificates();
-        //
-        // }
-
-    }
-
-    fetchCertificates() {
-        fetch(API_BASE_URL + '/certificates', {
-            method: 'GET',
-            headers: {
-                'Authorization': localStorage.getItem(ACCESS_TOKEN),
-                'Content-Type': 'application/json',
-            }
-        }).then(response => {
-                return response.json().then(json => {
-                    if (!response.ok) {
-                        return Promise.reject(json);
-                    }
-                    return json;
+        let href = localStorage.getItem(CERTIFICATES_HREF);
+        // getCertificatesByQuery(this.props, this.state.options)
+        getCertificatesByHref(this.props, href)
+            .then(json => {
+                this.setState({
+                    certificates: json.certificates,
+                    links: json._links,
+                    loading: false
                 });
-            }
-        ).then(response => {
+            });
+    };
+
+    tagSearchHandler = (tagName) => {
+        this.setState({
+            loading: true,
+        });
+        let href = CERTIFICATES_DEFAULT_REQUEST_URL + '&tag_name=' + tagName + '&page=1&size=' + this.getCurrentPageSize();
+        localStorage.setItem(CERTIFICATES_HREF, href);
+        console.log('handling tag search')
+        getCertificatesByHref(this.props, href).then(json => {
+            console.log(json)
             this.setState({
-                certificates: response.certificates,
+                certificates: json.certificates ? json.certificates : [],
+                links: json._links,
                 loading: false
             });
+        }).catch(error => {
+            (error && error.message) ||
+            getMessage(this.props, 'error');
         });
+    };
+
+    buyHandler = () => {
+
     }
+
 
     render() {
         if (this.state.loading) {
             return <LoadingIndicator/>
         }
-
+        console.log(this.state.certificates.length)
         return <div>
             <Jumbotron fluid>
                 <Container fluid>
-                    <h1 className="display-6 text-center">Certificates</h1>
-                    <Search/>
+                    <h1 className="display-6 text-center">{getMessage(this.props, 'certificatesLabel')}</h1>
+                    <Search pageHandler={this.pageHandler} size={this.getCurrentPageSize()}/>
                 </Container>
             </Jumbotron>
-            <Container>
+            {this.state.certificates.length > 0 ? (
+                <Container>
+                    <div>
+                        <CertificatesList
+                            certificates={this.state.certificates}
+                            locale={this.props.cookies.cookies.locale}
+                            options={this.state.options}
+                            reloadHandler={this.reloadHandler}
+                            tagSearchHandler={this.tagSearchHandler}
+                            buyHandler={this.buyHandler}
+                        />
+                    </div>
+                    <Col sm="12" md={{size: 10, offset: 3}}>
+                        <Row>
+                            <Col sm={{size: 'auto', offset: 1}}>
+                                <PageSize pageSizeHandler={this.pageSizeHandler} size={this.getCurrentPageSize()}/>
+                            </Col>
+                            <Col sm={{size: 'auto'}}>
+                                <Pages pageHandler={this.pageHandler} links={this.state.links}/>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Container>
+            ) : (
                 <div>
-                    <CertificatesList certificates={this.state.certificates}/>
+                    <Container fluid>
+                        <Alert color="info">
+                            {getMessage(this.props, 'noCertificates')}
+                        </Alert>
+                    </Container>
                 </div>
-            </Container>
+            )}
         </div>
     }
 }
 
 class CertificatesList extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            certificates: this.props.certificates
+        }
+    }
+
     render() {
-        const certificates = this.props.certificates.map(giftCertificate =>
-            <Certificate key={giftCertificate.giftCertificate.id} certificate={giftCertificate}/>
+        const certificates = this.state.certificates.map(giftCertificate =>
+
+            <Certificate
+                key={giftCertificate.giftCertificate.id}
+                certificate={giftCertificate}
+                locale={this.props.locale}
+                reloadHandler={this.props.reloadHandler}
+                tagSearchHandler={this.props.tagSearchHandler}
+                buyHandler={this.props.buyHandler}
+            />
         );
         return (
             <CardColumns>
@@ -132,146 +241,6 @@ class CertificatesList extends React.Component {
     }
 }
 
-class Certificate extends React.Component {
-    render() {
-        const tags = this.props.certificate.tags.map(tag =>
-            <Tag key={tag.id} tag={tag}/>
-        );
 
-        const editLink = this.props.certificate._links.update;
-        const deleteLink = this.props.certificate._links.delete;
-        const buyLink = this.props.certificate._links.self;
-        return (
-            <Card body className="text-center">
-                <CardHeader>
-                    <Row>
-                        <Col className="text-left">
-                            {this.props.certificate.giftCertificate.name}
-                        </Col>
-                        <Col className="text-right">
-                            {this.props.certificate.giftCertificate.creationDate}
-                        </Col>
-                    </Row>
-
-                </CardHeader>
-                <CardBody>
-                    <CardTitle className="text-left">{this.props.certificate.giftCertificate.descroption}</CardTitle>
-                    <CardText>{this.props.certificate.giftCertificate.description}</CardText>
-                    <CardText>Expiring in: {this.props.certificate.giftCertificate.expirationDate}</CardText>
-                    <CardText>Tags: {tags}</CardText>
-                </CardBody>
-                <CardFooter>
-                    <Row>
-                        <HateoasEditLink className="float-left" link={editLink}/>
-                        <HateoasDeleteLink className="float-left" link={deleteLink}/>
-                        <Col className="text-right float-right">
-                            <HateoasBuyLink link={buyLink}/>
-                            <Badge color="success">{this.props.certificate.giftCertificate.price}$</Badge>
-                        </Col>
-                    </Row>
-                </CardFooter>
-            </Card>
-        )
-    }
-}
-
-class Tag extends React.Component {
-    render() {
-        return <Badge color="info">{this.props.tag.tag.title} </Badge>
-    }
-}
-
-class HateoasEditLink extends React.Component {
-    render() {
-        if (this.props.link !== undefined) {
-            return <Button color="link">Edit</Button>
-        } else {
-            return null;
-        }
-        //{this.props.link.type} : {this.props.link.href}
-    }
-}
-
-class HateoasDeleteLink extends React.Component {
-    render() {
-        if (this.props.link !== undefined) {
-            return <Button color="link">Delete</Button>
-        } else {
-            return null;
-        }
-    }
-}
-
-class HateoasBuyLink extends React.Component {
-    render() {
-        if (this.props.link !== undefined) {
-            return <Button color="link">Buy</Button>
-        } else {
-            return null;
-        }
-    }
-}
-
-
-class Search extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            params: '',
-            message: '',
-        };
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    handleInputChange(event) {
-        const target = event.target;
-        const inputName = target.name;
-        const inputValue = target.value;
-
-        this.setState({
-            [inputName]: inputValue
-        });
-    }
-
-    handleSubmit(event) {
-        event.preventDefault();
-
-        search(this.state.params)
-            .then(response => {
-                if (response.ok) {
-                    console.log(response.body);
-                    // Alert.success("You're successfully logged in!");
-                    // this.props.history.push("/certificates");
-                } else {
-                    response.json().then(response => {
-                        let message = JSON.stringify(response.messages);
-                        Alert.error(message.substring(1, message.length - 1))
-                    });
-                }
-            })
-            .catch(error => {
-                Alert.error(
-                    (error && error.message) ||
-                    'Oops! Something went wrong. Please try again!');
-            });
-    }
-
-    render() {
-        return <Form inline onSubmit={this.handleSubmit}>
-            <Col sm="12" md={{size: 9, offset: 5}}>
-                <FormGroup>
-                    <Label for="search" hidden>Search</Label>
-                    <Input type="text" name="search" id="search" placeholder="search"
-                           value={this.state.params} onChange={this.handleInputChange} required/>
-                    {' '}
-                    <Button outline color="secondary">Go!</Button>
-                </FormGroup>
-            </Col>
-        </Form>
-    }
-
-}
 
 export default withCookies(Certificates);

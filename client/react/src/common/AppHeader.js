@@ -1,40 +1,70 @@
 import React, {Component} from 'react';
-import {Link, NavLink} from 'react-router-dom';
+import {NavLink} from 'react-router-dom';
 import './AppHeader.css';
+import LocalizedStrings from 'react-localization';
+import {message} from '../app/Message'
+import {CERTIFICATES_HREF, PREV_PATH} from "../constants";
+import {Button} from "reactstrap";
 
 class AppHeader extends Component {
 
+    getPath() {
+        return localStorage.getItem(PREV_PATH) ? localStorage.getItem(PREV_PATH) : '/'
+    }
+
     render() {
+        let strings = new LocalizedStrings({data: message});
+        strings.setContent(message);
+        strings.setLanguage(this.props.locale);
         return (
             <header className="app-header">
                 <div className="container">
                     <div className="app-branding">
-                        <Link to="/" className="app-title">Gift Certificates</Link>
+                        {this.props.currentUser && this.props.currentUser.user.role === 'ROLE_ADMIN' && this.props.currentRouteCertificates ?
+                            <NavLink to="/add" className="app-title" onClick={() => {
+                                localStorage.removeItem(CERTIFICATES_HREF);
+                            }}>{strings.newCertificate}</NavLink> :
+                            <NavLink to='/' className="app-title" onClick={() => {
+                                localStorage.removeItem(CERTIFICATES_HREF);
+                            }}>{strings.name}</NavLink>
+                        }
                     </div>
                     <div className="app-options">
                         <nav className="app-nav">
                             {this.props.authenticated ? (
                                 <ul>
                                     <li>
-                                        <NavLink to="/certificates">Certificates</NavLink>
+                                        <Button color="link" onClick={this.props.onLocale}>RU/EN</Button>
                                     </li>
                                     <li>
-                                        <NavLink to="/profile">Profile</NavLink>
+                                        <NavLink to="/certificates">{strings.certificates}</NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to="/login" onClick={this.props.onLogout}>Logout</NavLink>
+                                        <NavLink to="/profile" onClick={() => {
+                                            localStorage.removeItem(CERTIFICATES_HREF);
+                                        }}>{this.props.currentUser.user.email}</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink to="/login" onClick={this.props.onLogout}>{strings.logout}</NavLink>
                                     </li>
                                 </ul>
                             ) : (
                                 <ul>
                                     <li>
-                                        <NavLink to="/certificates">Certificates</NavLink>
+                                        <Button color="link" onClick={this.props.onLocale}>RU/EN</Button>
                                     </li>
                                     <li>
-                                        <NavLink to="/login">Login</NavLink>
+                                        <NavLink to="/certificates">{strings.certificates}</NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to="/signup">Signup</NavLink>
+                                        <NavLink to="/login" onClick={() => {
+                                            localStorage.removeItem(CERTIFICATES_HREF);
+                                        }}>{strings.login}</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink to="/signup" onClick={() => {
+                                            localStorage.removeItem(CERTIFICATES_HREF);
+                                        }}>{strings.signup}</NavLink>
                                     </li>
                                 </ul>
                             )}

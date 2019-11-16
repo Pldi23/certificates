@@ -43,12 +43,12 @@ public class CertificateHasNameSpecification implements Specification<GiftCertif
                 break;
             case LIKE:
                 for (String name : nameCriteria.getCriteriaList()) {
-                    predicates.add(cb.like(root.get(NAME), "%" + name + "%"));
+                    predicates.add(cb.like(cb.lower(root.get(NAME)), "%" + name.toLowerCase() + "%"));
                 }
                 break;
             case NOT_LIKE:
                 for (String name : nameCriteria.getCriteriaList()) {
-                    predicates.add(cb.notLike(root.get(NAME), "%" + name + "%"));
+                    predicates.add(cb.notLike(cb.lower(root.get(NAME)), "%" + name.toLowerCase() + "%"));
                 }
                 break;
             default:

@@ -24,6 +24,7 @@ import com.epam.esm.repository.predicate.CertificateHasDescriptionSpecification;
 import com.epam.esm.repository.predicate.CertificateHasExpirationDateSpecification;
 import com.epam.esm.repository.predicate.CertificateHasIdSpecification;
 import com.epam.esm.repository.predicate.CertificateHasModificationdateSpecification;
+import com.epam.esm.repository.predicate.CertificateHasNameOrDescriptionSpecification;
 import com.epam.esm.repository.predicate.CertificateHasNameSpecification;
 import com.epam.esm.repository.predicate.CertificateHasOrderIdSpecification;
 import com.epam.esm.repository.predicate.CertificateHasPriceSpecification;
@@ -34,6 +35,7 @@ import com.epam.esm.repository.predicate.Specification;
 import com.epam.esm.repository.sort.CertificateSortData;
 import com.epam.esm.util.Translator;
 import com.epam.esm.validator.ExpirationDateValidator;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,7 @@ import java.util.stream.Collectors;
  * @version 0.0.1
  */
 @Service
+@Log4j2
 public class CertificateServiceImpl implements CertificateService {
 
     private static final String CERTIFICATE_NOT_FOUND_MESSAGE = "entity.certificate.not.found";
@@ -236,11 +239,18 @@ public class CertificateServiceImpl implements CertificateService {
         if (searchCriteria.getTagCriteria() != null) {
             specifications.add(new CertificateHasTagsIdSpecification(searchCriteria.getTagCriteria()));
         }
-        if (searchCriteria.getNameCriteria() != null) {
-            specifications.add(new CertificateHasNameSpecification(searchCriteria.getNameCriteria()));
-        }
-        if (searchCriteria.getDescriptionCriteria() != null) {
-            specifications.add(new CertificateHasDescriptionSpecification(searchCriteria.getDescriptionCriteria()));
+        if (searchCriteria.getNameCriteria() != null && searchCriteria.getDescriptionCriteria() != null) {
+            specifications.add(new CertificateHasNameOrDescriptionSpecification(
+                    new CertificateHasNameSpecification(searchCriteria.getNameCriteria()),
+                    new CertificateHasDescriptionSpecification(searchCriteria.getDescriptionCriteria())
+            ));
+        } else {
+            if (searchCriteria.getNameCriteria() != null) {
+                specifications.add(new CertificateHasNameSpecification(searchCriteria.getNameCriteria()));
+            } else
+            if (searchCriteria.getDescriptionCriteria() != null) {
+                specifications.add(new CertificateHasDescriptionSpecification(searchCriteria.getDescriptionCriteria()));
+            }
         }
         if (searchCriteria.getIdCriteria() != null) {
             specifications.add(new CertificateHasIdSpecification(searchCriteria.getIdCriteria()));
@@ -248,6 +258,7 @@ public class CertificateServiceImpl implements CertificateService {
         if (searchCriteria.getPriceCriteria() != null) {
             specifications.add(new CertificateHasPriceSpecification(searchCriteria.getPriceCriteria()));
         }
+        log.info(specifications);
         return specifications;
     }
 

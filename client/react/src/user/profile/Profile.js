@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import './Profile.css';
-import {Container, Col} from 'reactstrap';
+import {Container, Col, Alert} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {getMessageByLocale} from "../../app/Message";
 
 class Profile extends Component {
     constructor(props) {
@@ -9,7 +10,10 @@ class Profile extends Component {
         this.state = {
             user: this.props.currentUser
         };
-        console.log(this.state.user);
+    }
+
+    componentDidMount() {
+        this.props.routeHandler(false);
     }
 
     render() {
@@ -19,7 +23,11 @@ class Profile extends Component {
 
                 </Col>
                 <Col>
-                    <span> {this.state.user.user.id}, {this.state.user.user.email}, {this.state.user.user.role}</span>
+                    <Alert color="success">
+                    <span>{this.state.user.user.email}</span>
+                        <hr/>
+                    <b>{this.state.user.user.role === ('ROLE_ADMIN') ? getMessageByLocale(this.props.locale, 'admin') : null}</b>
+                    </Alert>
                 </Col>
 
             </Container>

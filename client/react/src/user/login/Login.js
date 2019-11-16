@@ -5,7 +5,7 @@ import {
     FACEBOOK_AUTH_URL,
     ACCESS_TOKEN,
     ACCESS_TOKEN_EXPIRES_IN,
-    REFRESH_TOKEN
+    REFRESH_TOKEN, PREV_PATH
 } from '../../constants';
 import {Link, Redirect} from 'react-router-dom'
 import fbLogo from '../../img/fb-logo.png';
@@ -13,6 +13,7 @@ import googleLogo from '../../img/google-logo.png';
 import Alert from 'react-s-alert';
 import {withCookies} from 'react-cookie';
 import {login} from "../../util/APIUtils";
+import {getMessage, getMessageByLocale} from "../../app/Message";
 
 class Login extends Component {
 
@@ -36,7 +37,7 @@ class Login extends Component {
         if (this.props.authenticated) {
             return <Redirect
                 to={{
-                    pathname: "/not found path it was just / but could be /certificates",
+                    pathname: "/",
                     state: {from: this.props.location}
                 }}/>;
         }
@@ -44,13 +45,14 @@ class Login extends Component {
         return (
             <div className="login-container">
                 <div className="login-content">
-                    <h1 className="login-title">Login to Gift Certificates</h1>
-                    <SocialLogin/>
+                    <h1 className="login-title">{getMessage(this.props, 'loginLabel')}</h1>
+                    <SocialLogin locale={this.props.cookies.cookies.locale}/>
                     <div className="or-separator">
-                        <span className="or-text">OR</span>
+                        <span className="or-text">{getMessage(this.props, 'or')}</span>
                     </div>
                     <LoginForm {...this.props} />
-                    <span className="signup-link">New user? <Link to="/signup">Sign up!</Link></span>
+                    <span className="signup-link">{getMessage(this.props, 'newUser')}
+                    <Link to="/signup">{getMessage(this.props, 'signUpLink')}</Link></span>
                 </div>
             </div>
         );
@@ -62,9 +64,9 @@ class SocialLogin extends Component {
         return (
             <div className="social-login">
                 <a className="btn btn-block social-btn google" href={GOOGLE_AUTH_URL}>
-                    <img src={googleLogo} alt="Google"/> Log in with Google</a>
+                    <img src={googleLogo} alt="Google"/>{getMessageByLocale(this.props.locale, 'loginGoogle')}</a>
                 <a className="btn btn-block social-btn facebook" href={FACEBOOK_AUTH_URL}>
-                    <img src={fbLogo} alt="Facebook"/> Log in with Facebook</a>
+                    <img src={fbLogo} alt="Facebook"/>{getMessageByLocale(this.props.locale, 'loginFacebook')}</a>
             </div>
         );
     }
@@ -73,19 +75,22 @@ class SocialLogin extends Component {
 
 class LoginForm extends Component {
 
-    state = {
-        email: '',
-        password: '',
-        message: '',
-    };
 
     constructor(props) {
         super(props);
 
-        const {cookies} = props;
-        this.state.csrfToken = cookies.get('XSRF-TOKEN');
+        this.state = {
+            email: '',
+            password: '',
+            message: '',
+        };
+
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        this.props.routeHandler(false);
     }
 
     handleInputChange(event) {
@@ -100,26 +105,15 @@ class LoginForm extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        login(this.state.email, this.state.password, this.state.csrfToken, this.props)
-        // let url = new URL(API_BASE_URL + "/authenticate?"),
-        //     params = {username: this.state.email, password: this.state.password};
-        // Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        // fetch(url, {
-        //     method: 'POST',
-        //     credentials: 'include',
-        //     headers: {
-        //         'X-XSRF-TOKEN': this.state.csrfToken,
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        // })
+        login(this.state.email, this.state.password, this.props)
             .then(response => {
                 if (response.ok) {
                     localStorage.setItem(ACCESS_TOKEN, response.headers.get("Authorization"));
                     localStorage.setItem(REFRESH_TOKEN, response.headers.get("RefreshToken"));
                     localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get("ExpiresIn"));
+                    localStorage.setItem(PREV_PATH, '/certificates');
                     this.props.loginHandler();
-                    Alert.success("You're successfully logged in! ");
+                    // Alert.success(getMessage(this.props, 'loginSuccess'));
                     this.props.history.push("/certificates");
 
                 } else {
@@ -127,13 +121,14 @@ class LoginForm extends Component {
                         let message = JSON.stringify(json.messages);
                         Alert.error(message.substring(1, message.length - 1))
                     });
+                    localStorage.setItem(PREV_PATH, '/login');
                     this.props.history.push("/login");
                 }
             })
             .catch(error => {
                 Alert.error(
                     (error && error.message) ||
-                    'Oops! Something went wrong. Please try again!');
+                    getMessage(this.props, 'error'));
             });
     }
 
@@ -144,19 +139,19 @@ class LoginForm extends Component {
                 <form onSubmit={this.handleSubmit}>
                     <div className="form-item">
                         <input type="email" name="email"
-                               className="form-control" placeholder="Enter your email"
+                               className="form-control" placeholder={getMessage(this.props, 'emailPlaceholder')}
                                value={this.state.email} onChange={this.handleInputChange} required/>
                     </div>
                     <div className="form-item">
                         <input type="password" name="password"
-                               className="form-control" placeholder="Enter password"
+                               className="form-control" placeholder={getMessage(this.props, 'passwordPlaceholder')}
                                value={this.state.password} onChange={this.handleInputChange} required/>
                     </div>
                     <div className="form-item">
-                        <button type="submit" className="btn btn-block btn-primary">Login</button>
+                        <button type="submit" className="btn btn-block btn-primary">{getMessage(this.props, 'login')}</button>
                     </div>
                 </form>
-                <Link to="/certificates" className="btn btn-block btn-primary">Cancel</Link>
+                <Link to="/certificates" className="btn btn-block btn-primary">{getMessage(this.props, 'cancel')}</Link>
             </div>
         );
     }

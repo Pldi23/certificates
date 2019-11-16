@@ -22,6 +22,7 @@ import com.epam.esm.validator.CertificateSortValid;
 import com.epam.esm.validator.PageAndSizeValid;
 import com.epam.esm.validator.RequestParametersValidator;
 import com.epam.esm.validator.TagCostSortValid;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -51,6 +52,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,6 +67,7 @@ import java.util.stream.Collectors;
 @RequestMapping(EndPointConstant.CERTIFICATE_ENDPOINT)
 @Validated
 @ExposesResourceFor(GiftCertificateDTO.class)
+@Log4j2
 public class CertificateController {
 
     private static final String CERTIFICATE_EXIST_MESSAGE = "exception.certificate.exist";
@@ -166,6 +169,13 @@ public class CertificateController {
             violationDTO.setLocalDate(LocalDateTime.now());
             return ResponseEntity.badRequest().body(violationDTO);
         }
+
+        Map<String, String> params = new HashMap<>();
+        criteriaMap.forEach((k, v) -> {
+            if (!k.equals("page") && !k.equals("size")) {
+                params.put(k, v);
+            }
+        });
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(criteriaMap);
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
         PageableList<GiftCertificateDTO> pageableList = certificateServiceImpl
@@ -173,7 +183,7 @@ public class CertificateController {
         return ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
                 .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
                         .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()), pageAndSortDTO.getPage(),
-                pageableList.getLastPage(), pageAndSortDTO.getSize()));
+                pageableList.getLastPage(), pageAndSortDTO.getSize(), params));
 
     }
 
@@ -197,7 +207,7 @@ public class CertificateController {
         try {
             GiftCertificateDTO certificateDTO = certificateServiceImpl.patch(certificatePatchDTO, id);
             CertificateResource resource = new CertificateResource(certificateDTO, certificateDTO.getTags().stream()
-            .map(TagResource::new).collect(Collectors.toList()));
+                    .map(TagResource::new).collect(Collectors.toList()));
             return ResponseEntity.ok(resource);
         } catch (DataIntegrityViolationException ex) {
             throw new EntityAlreadyExistsException(String.format(Translator.toLocale(CERTIFICATE_EXIST_MESSAGE),

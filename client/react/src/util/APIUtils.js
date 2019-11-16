@@ -4,6 +4,7 @@ const request = (options, props) => {
     const headers = new Headers({
         'Content-Type': 'application/json',
     });
+    const {cookies} = props;
     if (localStorage.getItem(ACCESS_TOKEN)) {
         if (localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) && localStorage.getItem(REFRESH_TOKEN) &&
             localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) < Date.now()) {
@@ -12,7 +13,7 @@ const request = (options, props) => {
                 credentials: 'include',
                 headers: {
                     'RefreshToken': localStorage.getItem(REFRESH_TOKEN),
-                    'X-XSRF-TOKEN': options.csrfToken,
+                    'X-XSRF-TOKEN': cookies.get('XSRF-TOKEN'),
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
@@ -37,11 +38,11 @@ const request = (options, props) => {
         }
     }
 
-    if (options.csrfToken && options.method !== 'GET') {
-        headers.append('X-XSRF-TOKEN', options.csrfToken);
+    if (options.method !== 'GET') {
+        headers.append('X-XSRF-TOKEN', cookies.get('XSRF-TOKEN'));
 
     }
-
+    headers.append("Accept-Language", cookies.get('locale') ? cookies.get('locale') : 'en');
     const defaults = {
         credentials: 'include',
         headers: headers
@@ -51,15 +52,13 @@ const request = (options, props) => {
 
 };
 
-export function getCurrentUser(csrfToken, props) {
+export function getCurrentUser(props) {
     if (!localStorage.getItem(ACCESS_TOKEN)) {
         return Promise.reject("No access token set.");
     }
-    console.log('getting user with token ' + localStorage.getItem(ACCESS_TOKEN));
     return request({
         url: API_BASE_URL + "/users/self",
         method: 'GET',
-        csrfToken: csrfToken
 
     }, props).then(response => {
             return response.json().then(json => {
@@ -72,12 +71,10 @@ export function getCurrentUser(csrfToken, props) {
     );
 }
 
-export function getCertificates(csrfToken, props) {
-    console.log('getting certificates wit token ' + localStorage.getItem(ACCESS_TOKEN));
+export function getCertificates(props) {
     return request({
         url: API_BASE_URL + "/certificates",
         method: 'GET',
-        csrfToken: csrfToken
     }, props).then(response => {
             return response.json().then(json => {
                 if (!response.ok) {
@@ -89,84 +86,110 @@ export function getCertificates(csrfToken, props) {
     );
 }
 
-export function login(email, password, csrfToken, props) {
+export function getCertificatesByQuery(props, options) {
+    let url = new URL(API_BASE_URL + "/certificates?");
+        // params = {page: page ? page : 1, size: size ? size : 5};
+    Object.keys(options).forEach(key => url.searchParams.append(key, options[key]));
+    // Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+    return request({
+        url: url,
+        method: 'GET',
+    }, props).then(response => {
+            return response.json().then(json => {
+                if (!response.ok) {
+                    return Promise.reject(json);
+                }
+                return json;
+            });
+        }
+    );
+}
+
+export function getCertificatesByHref(props, href) {
+    return request({
+        url: API_BASE_URL + href,
+        method: 'GET',
+    }, props).then(response => {
+            return response.json().then(json => {
+                if (!response.ok) {
+                    return Promise.reject(json);
+                }
+                return json;
+            });
+        }
+    )
+}
+
+export function login(email, password,  props) {
     let url = new URL(API_BASE_URL + "/authenticate?"),
         params = {username: email, password: password};
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
     return request({
         url: url,
         method: 'POST',
-        csrfToken: csrfToken
     }, props)
-
 }
 
-export function signup(userJson, csrfToken) {
+export function loadCertificate(certificateJson, props) {
+    return request({
+        url: API_BASE_URL + "/certificates",
+        method: 'POST',
+        body: certificateJson,
+    }, props)
+}
+
+export function updateCertificate(certificateJson, props, href) {
+    return request({
+        url: href,
+        method: 'PUT',
+        body: certificateJson
+    }, props)
+}
+
+export function deleteCertificate(props, href) {
+    return request({
+        url: href,
+        method: 'DELETE'
+    }, props)
+}
+
+export function getTags(props) {
+    return request({
+        url: API_BASE_URL + "/tags?page=1&size=10000",
+        method: 'GET'
+    }, props).then(response => {
+            return response.json().then(json => {
+                if (!response.ok) {
+                    return Promise.reject(json);
+                }
+                return json;
+            });
+        }
+    );
+}
+
+export function signup(userJson, props) {
     return request({
         url: API_BASE_URL + "/users",
         method: 'POST',
         body: userJson,
-        csrfToken: csrfToken
-    });
+    }, props);
 }
 
-// export function isAccessTokenExpired() {
-//     if (localStorage.getItem(ACCESS_TOKEN) && localStorage.getItem(ACCESS_TOKEN) != null) {
-//         if (localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) && localStorage.getItem(REFRESH_TOKEN) &&
-//             localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) < Date.now()) {
-//             console.log("need to refresh");
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
-// export function refreshToken(csrfToken) {
-//     // if (localStorage.getItem(ACCESS_TOKEN) && localStorage.getItem(ACCESS_TOKEN) != null) {
-//     //     if (localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) && localStorage.getItem(REFRESH_TOKEN) &&
-//     //         localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) < Date.now()) {
-//     console.log('Api utils refreshing token start, expired bearer: ' + localStorage.getItem(ACCESS_TOKEN));
-//     fetch(API_BASE_URL + '/authenticate/refresh-token', {
-//         method: 'POST',
-//         credentials: 'include',
-//         headers: {
-//             'RefreshToken': localStorage.getItem(REFRESH_TOKEN),
-//             'X-XSRF-TOKEN': csrfToken,
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/json',
-//         },
-//     }).then(response => {
-//         if (response.ok) {
-//             localStorage.setItem(ACCESS_TOKEN, response.headers.get("Authorization"));
-//             localStorage.setItem(REFRESH_TOKEN, response.headers.get("RefreshToken"));
-//             localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get("ExpiresIn"));
-//             console.log('respons ok new access token setted ' + localStorage.getItem(ACCESS_TOKEN));
-//
-//         } else {
-//             console.log('respons not ok, something go wrong ' + response.status + ' , ' + response + ' , ' + localStorage.getItem(ACCESS_TOKEN));
-//
-//             // response.json().then(response => {
-//             //     console.log(JSON.stringify(response.messages));
-//             // });
-//         }
-//     })
-//         .catch(error => {
-//             console.log(
-//                 (error && error.message) || 'could not refresh token');
-//         });
-//     //     }
-//     //     console.log('Api utils no refreshing token needed (token not expired)' + localStorage.getItem(ACCESS_TOKEN));
-//     // }
-//     // console.log('Api utils no refreshing token needed (no token?)' + localStorage.getItem(ACCESS_TOKEN));
-// }
-
-
-export function search(parameters) {
-    let url = new URL(API_BASE_URL + "/certificates?name=l:");
-    parameters.forEach(parameter => url.append(parameter, ','));
+export function addCertificateToBasket(orderJson, props) {
     return request({
-        url: url,
-        method: 'GET',
-    });
+        url: API_BASE_URL + "/orders",
+        method: 'POST',
+        body: orderJson,
+    }, props)
 }
+
+// export function search(parameters) {
+//     let url = new URL(API_BASE_URL + "/certificates?name=l:");
+//     parameters.forEach(parameter => url.append(parameter, ','));
+//     return request({
+//         url: url,
+//         method: 'GET',
+//     });
+// }
 

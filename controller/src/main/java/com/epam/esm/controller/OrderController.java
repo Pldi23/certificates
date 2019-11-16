@@ -169,7 +169,7 @@ public class OrderController {
         return !pageableList.getList().isEmpty() ? ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
                 .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
                         .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()), pageAndSortDTO.getPage(),
-                pageableList.getLastPage(), pageAndSortDTO.getSize())) :
+                pageableList.getLastPage(), pageAndSortDTO.getSize(), null)) :
                 ResponseEntity.status(404).body(pageableList.getList());
     }
 }

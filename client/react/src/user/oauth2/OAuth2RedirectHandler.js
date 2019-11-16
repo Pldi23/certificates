@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { ACCESS_TOKEN, ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN } from '../../constants';
+import {ACCESS_TOKEN, ACCESS_TOKEN_EXPIRES_IN, PREV_PATH, REFRESH_TOKEN} from '../../constants';
 import { Redirect } from 'react-router-dom'
 
 class OAuth2RedirectHandler extends Component {
     getUrlParameter(name) {
         name = name.replace(/[[]/, '[').replace(/[\]]/, '\\]');
-        // name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
         let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
 
         let results = regex.exec(this.props.location.search);
@@ -26,6 +25,7 @@ class OAuth2RedirectHandler extends Component {
             if (expiresIn) {
                 localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, expiresIn)
             }
+            localStorage.setItem(PREV_PATH, '/certificates');
             return <Redirect to={{
                 pathname: "/certificates",
                 state: { from: this.props.location }

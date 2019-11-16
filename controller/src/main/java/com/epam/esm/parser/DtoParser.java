@@ -5,6 +5,7 @@ import com.epam.esm.dto.OrderSearchCriteriaDTO;
 import com.epam.esm.dto.PageAndSortDTO;
 import com.epam.esm.dto.SearchCriteriaRequestDTO;
 import com.epam.esm.dto.SortCriteriaRequestDTO;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,7 @@ import static com.epam.esm.constant.RequestConstant.USER_ID;
  */
 @Component
 @PropertySource("app.properties")
+@Log4j2
 public class DtoParser {
 
     @Value("${default.size}")
@@ -39,13 +41,18 @@ public class DtoParser {
     private String defaultPage;
 
     public SearchCriteriaRequestDTO parseSearchCriteria(Map<String, String> requestParams) {
+        requestParams.forEach((k,v) -> log.info(k + " : " + v));
+
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = new SearchCriteriaRequestDTO();
         searchCriteriaRequestDTO.setParameters(requestParams.entrySet().stream()
-                .takeWhile(entry -> !entry.getKey().equals(SORT_PARAMETER)
+                .filter(entry -> !entry.getKey().equals(SORT_PARAMETER)
                         && !entry.getValue().equals(LIMIT_PARAMETER)
                         && !entry.getKey().equals(OFFSET_PARAMETER))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        log.info("here " + searchCriteriaRequestDTO.getParameters().size());
+        searchCriteriaRequestDTO.getParameters().forEach((k,v) -> log.info(k + " : " + v));
         return searchCriteriaRequestDTO;
+
     }
 
     public SortCriteriaRequestDTO parseSortCriteria(Map<String, String> requestParams) {

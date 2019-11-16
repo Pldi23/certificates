@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import './Home.css';
+import LocalizedStrings from 'react-localization';
+import {message} from "../app/Message";
 
 class Home extends Component {
     render() {
+        let strings = new LocalizedStrings({data: message});
+        strings.setContent(message);
+        strings.setLanguage(this.props.locale);
         return (
             <div className="home-container">
                 <div className="container">
@@ -21,7 +26,7 @@ class Home extends Component {
                             <div className="graf-circle"></div>
                         </div>
                     </div>
-                    <h1 className="home-title">Gift certificates service. Enjoy</h1>
+                    <h1 className="home-title">{strings.slogan}</h1>
                 </div>
             </div>
         )

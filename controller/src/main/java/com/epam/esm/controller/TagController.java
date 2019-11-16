@@ -130,7 +130,7 @@ public class TagController {
             return ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
                     .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
                     .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()), pageAndSortDTO.getPage(),
-                    pageableList.getLastPage(), pageAndSortDTO.getSize()));
+                    pageableList.getLastPage(), pageAndSortDTO.getSize(), null));
         }
         return ResponseEntity.ok(pageableList.getList());
     }
