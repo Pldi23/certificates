@@ -1,14 +1,14 @@
 import React from "react";
 import Tag from "./Tag";
-import {Badge, Card, CardBody, CardFooter, CardHeader, CardText, Col, Row} from "reactstrap";
+import {Badge, ButtonGroup, Card, CardBody, CardFooter, CardHeader, CardText, Col, Row} from "reactstrap";
 import CertificateModal from "./CertificateModal";
-import {getMessageByLocale} from "../../app/Message";
+import {getMessageByLocale} from "../app/Message";
 import EditLink from "./EditLink";
 import DeleteLink from "./DeleteLink";
 import {withCookies} from "react-cookie";
-import {ACCESS_TOKEN} from "../../constants";
 import BuyButtonNotAuthorizedModal from "./BuyButtonNotAuthorizedModal";
 import BuyButtonModal from "./BuyButtonModal";
+import {ACCESS_TOKEN} from "../constants";
 
 
 class Certificate extends React.Component {
@@ -24,9 +24,9 @@ class Certificate extends React.Component {
     render() {
 
         let date = this.getParsedDate(this.props.certificate.giftCertificate.expirationDate);
-        const tags = this.props.certificate.tags.map(tag =>
+        const tags = this.props.certificate.tags.map((tag, index) =>
             <Tag
-                key={tag.id}
+                key={index}
                 tag={tag}
                 tagSearchHandler={this.props.tagSearchHandler}
             />
@@ -60,8 +60,10 @@ class Certificate extends React.Component {
                         {tags}</CardText>
                 </CardBody>
                 <CardFooter>
-                    <Row>
-                        <Col className="float-left">
+                    <ButtonGroup size="sm">
+
+                    {/*<Row>*/}
+                    {/*    <Col className="float-left">*/}
                             <EditLink
                                 locale={this.props.locale}
                                 link={editLink}
@@ -79,26 +81,27 @@ class Certificate extends React.Component {
                                 reloadHandler={this.props.reloadHandler}
                                 link={deleteLink}
                                 props={this.props}/>
-                        </Col>
-                        <Col
-                            className="text-right float-right">
+                        {/*</Col>*/}
+                        {/*<Col*/}
+                        {/*    className="text-right float-right">*/}
                             {localStorage.getItem(ACCESS_TOKEN) ? (
                                 <BuyButtonModal
                                     link={buyLink}
-                                    id={this.props.certificate.giftCertificate.id}
-                                    buyHandler={this.props.buyHandler}
+                                    certificate={this.props.certificate.giftCertificate}
+                                    onAddToBasket={this.props.onAddToBasket}
                                     locale={this.props.locale}/>
                             ) : (
                                 <BuyButtonNotAuthorizedModal
                                     locale={this.props.locale}
                                 />
                             )}
-                            {' '}
+                    </ButtonGroup>
                             <Badge color="success">
                                 {this.props.certificate.giftCertificate.price}$
                             </Badge>
-                        </Col>
-                    </Row>
+                        {/*</Col>*/}
+
+                    {/*</Row>*/}
                 </CardFooter>
             </Card>
         )

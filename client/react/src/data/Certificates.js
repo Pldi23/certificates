@@ -3,18 +3,22 @@ import {
     Container, Jumbotron, Col, CardColumns, Row, Alert
 } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {getCertificatesByHref} from '../../util/APIUtils';
+import {getCertificatesByHref} from '../util/APIUtils';
 import {withCookies} from 'react-cookie';
-import LoadingIndicator from "../../common/LoadingIndicator";
-import {getMessage} from "../../app/Message";
+import LoadingIndicator from "../common/LoadingIndicator";
+import {getMessage} from "../app/Message";
 import Search from "./Search";
 import Pages from "./Pages";
 import PageSize from "./PageSize";
 import './Certificates.css';
-import {CERTIFICATES_DEFAULT_REQUEST_URL, CERTIFICATES_HREF} from "../../constants";
+import {CERTIFICATES_DEFAULT_REQUEST_URL, CERTIFICATES_HREF} from "../constants";
 import Certificate from "./Certificate";
+import Button from "reactstrap/es/Button";
+import Select from "react-select";
+import CertificatesListSelector from "./CertificatesListSelector";
 
 class Certificates extends Component {
+    _isMounted = false;
 
     constructor(props) {
         super(props);
@@ -26,6 +30,7 @@ class Certificates extends Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
         this.setState({
             loading: true,
 
@@ -39,7 +44,7 @@ class Certificates extends Component {
                     loading: false
                 });
                 if (this.state.links.length > 0) {
-                    this.state.links.pages.map(page => {
+                    this.state.links.pages.forEach(page => {
                         if (page.current) {
                             localStorage.setItem(CERTIFICATES_HREF, page.href)
                         }
@@ -51,6 +56,7 @@ class Certificates extends Component {
     }
 
     componentWillUnmount() {
+        this._isMounted = false;
         localStorage.removeItem(CERTIFICATES_HREF)
     }
 
@@ -100,7 +106,6 @@ class Certificates extends Component {
         });
         localStorage.setItem(CERTIFICATES_HREF, href);
         getCertificatesByHref(this.props, href).then(json => {
-            console.log(json)
             this.setState({
                 certificates: json.certificates ? json.certificates : [],
                 links: json._links,
@@ -127,7 +132,7 @@ class Certificates extends Component {
         this.setState({
             loading: true
         });
-        let href = localStorage.getItem(CERTIFICATES_HREF);
+        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
         // getCertificatesByQuery(this.props, this.state.options)
         getCertificatesByHref(this.props, href)
             .then(json => {
@@ -159,21 +164,28 @@ class Certificates extends Component {
         });
     };
 
-    buyHandler = () => {
-
-    }
-
+    listHandler = () => {}
 
     render() {
         if (this.state.loading) {
             return <LoadingIndicator/>
         }
-        console.log(this.state.certificates.length)
         return <div>
             <Jumbotron fluid>
                 <Container fluid>
                     <h1 className="display-6 text-center">{getMessage(this.props, 'certificatesLabel')}</h1>
+                    {/*<Row >*/}
+                    {/*    <Col sm={{ size: 'auto', offset: 1 }} className={'float-right'}>*/}
+                    {/*<CertificatesListSelector listHandler={this.listHandler}/>*/}
+                    {/*    </Col>*/}
+                    {/*    <Col sm={{ size: 'auto', offset: 1 }}>*/}
                     <Search pageHandler={this.pageHandler} size={this.getCurrentPageSize()}/>
+                    {/*    </Col>*/}
+                    {/*</Row>*/}
+                    {/*    </Col>*/}
+                    {/*    <Col>*/}
+                    {/*    </Col>*/}
+                    {/*</Row>*/}
                 </Container>
             </Jumbotron>
             {this.state.certificates.length > 0 ? (
@@ -185,7 +197,7 @@ class Certificates extends Component {
                             options={this.state.options}
                             reloadHandler={this.reloadHandler}
                             tagSearchHandler={this.tagSearchHandler}
-                            buyHandler={this.buyHandler}
+                            onAddToBasket={this.props.onAddToBasket}
                         />
                     </div>
                     <Col sm="12" md={{size: 10, offset: 3}}>
@@ -222,7 +234,7 @@ class CertificatesList extends React.Component {
     }
 
     render() {
-        const certificates = this.state.certificates.map(giftCertificate =>
+        const certificates = this.state.certificates.map((giftCertificate) =>
 
             <Certificate
                 key={giftCertificate.giftCertificate.id}
@@ -230,7 +242,7 @@ class CertificatesList extends React.Component {
                 locale={this.props.locale}
                 reloadHandler={this.props.reloadHandler}
                 tagSearchHandler={this.props.tagSearchHandler}
-                buyHandler={this.props.buyHandler}
+                onAddToBasket={this.props.onAddToBasket}
             />
         );
         return (
@@ -240,7 +252,6 @@ class CertificatesList extends React.Component {
         )
     }
 }
-
 
 
 export default withCookies(Certificates);

@@ -1,10 +1,16 @@
 import React from "react";
-import {deleteCertificate} from "../../util/APIUtils";
+import {deleteCertificate} from "../util/APIUtils";
 import Alert from "react-s-alert";
 import {Button} from "reactstrap";
 import confirm from "reactstrap-confirm";
 import {withCookies} from "react-cookie";
-import {getMessage} from "../../app/Message";
+import {getMessage} from "../app/Message";
+import {MdDelete} from "react-icons/md";
+
+const pStyle = {
+    marginLeft: '3px',
+    marginRight: '3px',
+};
 
 class DeleteLink extends React.Component {
 
@@ -26,7 +32,7 @@ class DeleteLink extends React.Component {
 
 
     render() {
-        return this.props.link ? <Button disabled={this.props.disable} onClick={
+        return this.props.link ? <Button disabled={this.props.disable} style={pStyle} onClick={
             async () => {
                 let result = await confirm({
                     title: '',
@@ -39,7 +45,8 @@ class DeleteLink extends React.Component {
                 return result ? this.deleteHandler() : null
             }
         } className="btn btn-danger btn-sm">
-            {getMessage(this.props, 'delete')}
+                <span><MdDelete /></span>
+            {/*{getMessage(this.props, 'delete')}*/}
         </Button>
             : null;
     }

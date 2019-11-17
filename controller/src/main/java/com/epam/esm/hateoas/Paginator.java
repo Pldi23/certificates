@@ -35,18 +35,18 @@ class Paginator {
         if (pageCurrent != 1) {
             links.add(createLinkByTemplate(segment, 1, pageSize, PAGE_FIRST, false));
         }
-        if (pageCurrent > 4) {
+        if (pageCurrent >= 4) {
             links.add(createLinkByTemplate(segment, pageCurrent - 2L, pageSize, String.valueOf(pageCurrent - 2), false));
         }
-        if (pageCurrent > 3) {
+        if (pageCurrent >= 3) {
             links.add(createLinkByTemplate(segment, pageCurrent - 1L, pageSize, String.valueOf(pageCurrent - 1), false));
 
         }
         links.add(createLinkByTemplate(segment, pageCurrent, pageSize, String.valueOf(pageCurrent), true));
-        if (pageCurrent < pageLast - 2) {
+        if (pageCurrent <= pageLast - 2) {
             links.add(createLinkByTemplate(segment, pageCurrent + 1L, pageSize, String.valueOf(pageCurrent + 1), false));
         }
-        if (pageCurrent < pageLast - 3) {
+        if (pageCurrent <= pageLast - 3) {
             links.add(createLinkByTemplate(segment, pageCurrent + 2L, pageSize, String.valueOf(pageCurrent + 2), false));
         }
         if (pageLast != 0 && pageCurrent != pageLast) {
@@ -60,18 +60,18 @@ class Paginator {
         if (pageCurrent != 1) {
             links.add(createLinkByTemplate(segment, 1, pageSize, PAGE_FIRST, false, params));
         }
-        if (pageCurrent > 4) {
+        if (pageCurrent >= 4) {
             links.add(createLinkByTemplate(segment, pageCurrent - 2L, pageSize, String.valueOf(pageCurrent - 2), false, params));
         }
-        if (pageCurrent > 3) {
+        if (pageCurrent >= 3) {
             links.add(createLinkByTemplate(segment, pageCurrent - 1L, pageSize, String.valueOf(pageCurrent - 1), false, params));
 
         }
         links.add(createLinkByTemplate(segment, pageCurrent, pageSize, String.valueOf(pageCurrent), true, params));
-        if (pageCurrent < pageLast - 2) {
+        if (pageCurrent <= pageLast - 2) {
             links.add(createLinkByTemplate(segment, pageCurrent + 1L, pageSize, String.valueOf(pageCurrent + 1), false, params));
         }
-        if (pageCurrent < pageLast - 3) {
+        if (pageCurrent <= pageLast - 3) {
             links.add(createLinkByTemplate(segment, pageCurrent + 2L, pageSize, String.valueOf(pageCurrent + 2), false, params));
         }
         if (pageLast != 0 && pageCurrent != pageLast) {

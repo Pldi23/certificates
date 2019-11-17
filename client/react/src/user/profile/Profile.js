@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import './Profile.css';
 import {Container, Col, Alert} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {getMessageByLocale} from "../../app/Message";

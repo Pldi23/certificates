@@ -1,7 +1,7 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
-import React from "react";
-import {getMessageByLocale} from "../../app/Message";
+import {getMessage} from "../app/Message";
+import {withCookies} from "react-cookie";
 
 const titleStyle = {
     fontWeight: 600,
@@ -11,14 +11,13 @@ const titleStyle = {
     borderLeftWidth: '0px',
     borderBottomWidth: '0px',
     borderRightWidth: '0px',
-    /* text-decoration: solid; */
 };
 
-const CertificateModal = (props) => {
+const CartCertificateModal = (props) => {
     const {
         certificate,
-        tags,
-        locale
+        // tags,
+        // locale
     } = props;
 
     const [modal, setModal] = useState(false);
@@ -31,12 +30,16 @@ const CertificateModal = (props) => {
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>{certificate.name}</ModalHeader>
                 <ModalBody>
-                    <p className="lead">{getMessageByLocale(locale, 'descriptionModal')}: {certificate.description}</p>
+                    <p className="lead">
+                        {getMessage(props, 'descriptionModal')}:
+                        {certificate.description}</p>
                     <hr className="my-2"/>
-                    <p>{getMessageByLocale(locale, 'priceModal')}: {certificate.price}$</p>
-                    <p>{getMessageByLocale(locale, 'expiresModal')}: {certificate.expirationDate}</p>
-                    <p>{getMessageByLocale(locale, 'createdModal')}: {certificate.creationDate}</p>
-                    <p>{tags}</p>
+                    <p>
+                        {getMessage(props, 'priceModal')}:
+                        {certificate.price}$</p>
+                    <p>
+                        {getMessage(props, 'expiresModal')}:
+                        {certificate.expirationDate}</p>
                     <p className="lead">
                     </p>
                 </ModalBody>
@@ -48,4 +51,4 @@ const CertificateModal = (props) => {
     );
 };
 
-export default CertificateModal;
+export default withCookies(CartCertificateModal)

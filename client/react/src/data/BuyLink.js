@@ -1,8 +1,8 @@
 import React from "react";
 import {Button} from "reactstrap";
-import {getMessage, getMessageByLocale} from "../../app/Message";
+import {getMessage, getMessageByLocale} from "../app/Message";
 import {withCookies} from "react-cookie";
-import {ACCESS_TOKEN} from "../../constants";
+import {ACCESS_TOKEN} from "../constants";
 import confirm from "reactstrap-confirm";
 import {Link} from "react-router-dom";
 

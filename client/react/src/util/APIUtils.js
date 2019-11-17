@@ -1,4 +1,5 @@
 import {API_BASE_URL, ACCESS_TOKEN, REFRESH_TOKEN, ACCESS_TOKEN_EXPIRES_IN} from '../constants';
+import Alert from "react-s-alert";
 
 const request = (options, props) => {
     const headers = new Headers({
@@ -111,6 +112,11 @@ export function getCertificatesByHref(props, href) {
         method: 'GET',
     }, props).then(response => {
             return response.json().then(json => {
+                if (response.status === 400) {
+                    let message = JSON.stringify(json.messages);
+                    Alert.error(message.substring(1, message.length - 1));
+                    return []
+                }
                 if (!response.ok) {
                     return Promise.reject(json);
                 }
@@ -176,7 +182,7 @@ export function signup(userJson, props) {
     }, props);
 }
 
-export function addCertificateToBasket(orderJson, props) {
+export function postOrder(orderJson, props) {
     return request({
         url: API_BASE_URL + "/orders",
         method: 'POST',

@@ -6,8 +6,6 @@ class Pages extends React.Component {
 
     render() {
         const pages = this.props.links.pages;
-        //onClick={this.props.pageHandler(link.href)}
-        console.log(pages);
         if (pages.length > 1) {
                 return <Pagination aria-label="Page navigation">
                     {pages.map(p =>
@@ -27,8 +25,7 @@ class PageItem extends React.Component {
         const link = this.props.link;
         return <PaginationItem active={link.current}>
             <PaginationLink onClick={ () =>
-                this.props.pageHandler(link.href)}
-                >
+                this.props.pageHandler(link.href)}>
                 {link.name}
             </PaginationLink>
         </PaginationItem>

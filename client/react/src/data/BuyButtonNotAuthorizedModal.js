@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {Button, Modal, ModalFooter, ModalHeader} from "reactstrap";
-import {getMessageByLocale} from "../../app/Message";
+import {getMessageByLocale} from "../app/Message";
 import {NavLink} from "react-router-dom";
 
 const BuyButtonNotAuthorizedModal = (props) => {

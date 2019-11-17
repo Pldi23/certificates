@@ -34,6 +34,7 @@ export let message = {
         searchViolation: "#(tagname) to search by tag, $(200-400) to search by price, usual text to search by title or description",
         noCertificates: "Nothing found",
         searchCommand: "Go!",
+        notReadableSearch: "Could not understand your query...sorry",
 
         //add/edit
         title: "Title",
@@ -72,6 +73,8 @@ export let message = {
         signUpGoogle: " Sign up with Google",
         signUpFacebook: " Sign up with Facebook",
         signUpSuccess: "You're successfully registered!",
+        passwordViolation: "Password must be minimum 8, maximum 20 symbols, and contain at least 1 number, 1 latin uppercase letter, 1 latin lowercase letter, 1 punctuation. Only latin letters available, spaces are unavailable",
+        emailViolation: "invalid email",
 
         //certificate modal
         descriptionModal: "Description ",
@@ -85,8 +88,16 @@ export let message = {
         confirmPurchase: "Please confirm your purchase",
 
         //profile
-        admin: "Admin"
+        admin: "Admin",
 
+        //basket
+        thanks: "Thanks for your order! ",
+        cart: "Cart",
+        emptyCart: "Empty cart",
+        pay: "pay total price: ",
+        del: "remove",
+        addToCart: "Add certificate to cart? ",
+        toCart: "Confirm",
     },
     ru: {
         //navbar
@@ -121,6 +132,7 @@ export let message = {
         searchViolation: "#(tagname) для поиска по имени тэга, $(200-400) для поиска по цене, обычный текст для поиска по имени или описанию",
         noCertificates: "Ничего не найдено",
         searchCommand: "Искать!",
+        notReadableSearch: "Не могу понять ваш запрос...извините",
 
         //add/edit
         title: "Название",
@@ -160,6 +172,8 @@ export let message = {
         signUpGoogle: " Зарегистрироваться с Google",
         signUpFacebook: " Зарегистрироваться с Facebook",
         signUpSuccess: "Вы успешно зарегестрировались!",
+        passwordViolation: "Пароль должен содержать не менее 8, не более 20 символов и содержать как минимум 1 цифру, 1 латинскую заглавную букву, 1 латинскую строчную букву, 1 пунктуацию. Доступны только латинские буквы, пробелы недоступны",
+        emailViolation: "не валидный email",
 
         //certificate modal
         descriptionModal: "Описание ",
@@ -173,8 +187,16 @@ export let message = {
         confirmPurchase: "Подтвердите вашу покупку",
 
         //profile
-        admin: "Админимстратор"
+        admin: "Администратор",
 
+        //basket
+        thanks: "Спасибо за ваш заказ! ",
+        cart: "Корзина",
+        emptyCart: "Ваша корзина пуста",
+        pay: "оплатить заказ на сумму: ",
+        del: "удалить",
+        addToCart: "Добавить сертификат в корзину? ",
+        toCart: "Добавить",
     }
 };
 
@@ -189,6 +211,6 @@ export function getMessage(props, key) {
 export function getMessageByLocale(locale, key) {
     let strings = new LocalizedStrings({message});
     strings.setContent(message);
-    strings.setLanguage(locale);
+    strings.setLanguage(locale ? locale : 'en');
     return strings.getString(key)
 }

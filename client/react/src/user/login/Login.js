@@ -5,7 +5,7 @@ import {
     FACEBOOK_AUTH_URL,
     ACCESS_TOKEN,
     ACCESS_TOKEN_EXPIRES_IN,
-    REFRESH_TOKEN, PREV_PATH
+    REFRESH_TOKEN, PREV_PATH, EMAIL_REGEX_PATTERN, PASSWORD_REGEX_PATTERN
 } from '../../constants';
 import {Link, Redirect} from 'react-router-dom'
 import fbLogo from '../../img/fb-logo.png';
@@ -14,6 +14,8 @@ import Alert from 'react-s-alert';
 import {withCookies} from 'react-cookie';
 import {login} from "../../util/APIUtils";
 import {getMessage, getMessageByLocale} from "../../app/Message";
+import {AvFeedback, AvForm, AvGroup, AvInput} from 'availity-reactstrap-validation';
+
 
 class Login extends Component {
 
@@ -52,7 +54,7 @@ class Login extends Component {
                     </div>
                     <LoginForm {...this.props} />
                     <span className="signup-link">{getMessage(this.props, 'newUser')}
-                    <Link to="/signup">{getMessage(this.props, 'signUpLink')}</Link></span>
+                        <Link to="/signup">{getMessage(this.props, 'signUpLink')}</Link></span>
                 </div>
             </div>
         );
@@ -80,32 +82,60 @@ class LoginForm extends Component {
         super(props);
 
         this.state = {
-            email: '',
-            password: '',
-            message: '',
+            email: {
+                value: '',
+                isValid: false
+            },
+            password: {
+                value: '',
+                isValid: false
+            }
         };
-
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentDidMount() {
         this.props.routeHandler(false);
     }
 
-    handleInputChange(event) {
-        const target = event.target;
-        const inputName = target.name;
-        const inputValue = target.value;
+    handleInputEmail = (event) => {
+        if (event.target.value.match(EMAIL_REGEX_PATTERN) && event.target.value.length > 0) {
+            this.setState({
+                email: {
+                    value: event.target.value,
+                    isValid: true
+                }
+            })
+        } else {
+            this.setState({
+                email: {
+                    value: event.target.value,
+                    isValid: false
+                }
+            })
+        }
+    };
 
-        this.setState({
-            [inputName]: inputValue
-        });
-    }
+    handleInputPassword = (event) => {
+        if (event.target.value.match(PASSWORD_REGEX_PATTERN) &&
+            event.target.value.length > 0) {
+            this.setState({
+                password: {
+                    value: event.target.value,
+                    isValid: true
+                }
+            })
+        } else {
+            this.setState({
+                password: {
+                    value: event.target.value,
+                    isValid: false
+                }
+            })
+        }
+    };
 
-    handleSubmit(event) {
-        event.preventDefault();
-        login(this.state.email, this.state.password, this.props)
+    handleSubmit = () => {
+        login(this.state.email.value, this.state.password.value, this.props)
             .then(response => {
                 if (response.ok) {
                     localStorage.setItem(ACCESS_TOKEN, response.headers.get("Authorization"));
@@ -130,27 +160,49 @@ class LoginForm extends Component {
                     (error && error.message) ||
                     getMessage(this.props, 'error'));
             });
-    }
+    };
 
     render() {
 
+        const isFormValid = this.state.email.isValid && this.state.password.isValid;
+
         return (
             <div className="form-item">
-                <form onSubmit={this.handleSubmit}>
+                <AvForm onSubmit={this.handleSubmit}>
+                    <AvGroup className="form-item">
+                        <AvInput type="text"
+                                 name="email"
+                                 className="form-control"
+                                 placeholder={getMessage(this.props, 'emailPlaceholder')}
+                                 value={this.state.email.value}
+                                 onChange={this.handleInputEmail}
+                                 pattern={EMAIL_REGEX_PATTERN}
+
+                        />
+                        <AvFeedback>
+                            {getMessage(this.props, 'emailViolation')}
+                        </AvFeedback>
+                    </AvGroup>
+                    <AvGroup className="form-item">
+                        <AvInput type="password"
+                                 name="password"
+                                 className="form-control"
+                                 placeholder={getMessage(this.props, 'passwordPlaceholder')}
+                                 value={this.state.password.value}
+                                 onChange={this.handleInputPassword}
+                                 pattern={PASSWORD_REGEX_PATTERN}/>
+                        <AvFeedback>
+                            {getMessage(this.props, 'passwordViolation')}
+                        </AvFeedback>
+                    </AvGroup>
                     <div className="form-item">
-                        <input type="email" name="email"
-                               className="form-control" placeholder={getMessage(this.props, 'emailPlaceholder')}
-                               value={this.state.email} onChange={this.handleInputChange} required/>
+                        <button type="submit"
+                                disabled={!isFormValid}
+                                className="btn btn-block btn-primary">
+                            {getMessage(this.props, 'login')}
+                        </button>
                     </div>
-                    <div className="form-item">
-                        <input type="password" name="password"
-                               className="form-control" placeholder={getMessage(this.props, 'passwordPlaceholder')}
-                               value={this.state.password} onChange={this.handleInputChange} required/>
-                    </div>
-                    <div className="form-item">
-                        <button type="submit" className="btn btn-block btn-primary">{getMessage(this.props, 'login')}</button>
-                    </div>
-                </form>
+                </AvForm>
                 <Link to="/certificates" className="btn btn-block btn-primary">{getMessage(this.props, 'cancel')}</Link>
             </div>
         );

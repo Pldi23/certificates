@@ -5,6 +5,8 @@ import LocalizedStrings from 'react-localization';
 import {message} from '../app/Message'
 import {CERTIFICATES_HREF, PREV_PATH} from "../constants";
 import {Button} from "reactstrap";
+import Basket from "../basket/Basket";
+
 
 class AppHeader extends Component {
 
@@ -46,6 +48,13 @@ class AppHeader extends Component {
                                     </li>
                                     <li>
                                         <NavLink to="/login" onClick={this.props.onLogout}>{strings.logout}</NavLink>
+                                    </li>
+                                    <li>
+                                        <Basket
+                                            basketCertificates={this.props.basketCertificates}
+                                            onRemoveFromBasket={this.props.onRemoveFromBasket}
+                                            onRefreshBasket={this.props.onRefreshBasket}
+                                        />
                                     </li>
                                 </ul>
                             ) : (
