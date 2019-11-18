@@ -13,13 +13,4 @@ it('renders without crashing', () => {
 });
 
 
-// describe('App component testing', function() {
-//   it('renders welcome message', function() {
-//     const wrapper = shallow(<App />);
-//     // const expected = <h1 className='App-title'>Welcome to React</h1>;
-//     const expected = <div className="app"></div>
-//     expect(wrapper.contains(expected)).to.equal(true);
-//   });
-// });
-
 

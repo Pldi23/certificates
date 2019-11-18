@@ -2,7 +2,6 @@ import React from "react";
 import {Link} from "react-router-dom";
 import {withCookies} from "react-cookie";
 import {MdModeEdit} from "react-icons/md";
-import {getMessageByLocale} from "../app/Message";
 
 const pStyle = {
     fontSize: '15px',

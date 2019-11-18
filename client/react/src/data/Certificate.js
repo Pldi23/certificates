@@ -31,7 +31,6 @@ class Certificate extends React.Component {
                 tagSearchHandler={this.props.tagSearchHandler}
             />
         );
-
         const editLink = this.props.certificate._links.update;
         const deleteLink = this.props.certificate._links.delete;
         const buyLink = this.props.certificate._links.self;
@@ -60,10 +59,9 @@ class Certificate extends React.Component {
                         {tags}</CardText>
                 </CardBody>
                 <CardFooter>
-                    <ButtonGroup size="sm">
+                    {this.props.showButtons ? (
 
-                    {/*<Row>*/}
-                    {/*    <Col className="float-left">*/}
+                    <ButtonGroup size="sm">
                             <EditLink
                                 locale={this.props.locale}
                                 link={editLink}
@@ -81,9 +79,6 @@ class Certificate extends React.Component {
                                 reloadHandler={this.props.reloadHandler}
                                 link={deleteLink}
                                 props={this.props}/>
-                        {/*</Col>*/}
-                        {/*<Col*/}
-                        {/*    className="text-right float-right">*/}
                             {localStorage.getItem(ACCESS_TOKEN) ? (
                                 <BuyButtonModal
                                     link={buyLink}
@@ -96,12 +91,10 @@ class Certificate extends React.Component {
                                 />
                             )}
                     </ButtonGroup>
+                    ) : (null)}
                             <Badge color="success">
                                 {this.props.certificate.giftCertificate.price}$
                             </Badge>
-                        {/*</Col>*/}
-
-                    {/*</Row>*/}
                 </CardFooter>
             </Card>
         )

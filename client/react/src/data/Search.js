@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Col, Label} from "reactstrap";
+import {Button, Label} from "reactstrap";
 import {withCookies} from "react-cookie";
 import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
 import {getMessage} from "../app/Message";
@@ -98,7 +98,6 @@ class Search extends React.Component {
 
     render() {
         return <AvForm inline onSubmit={this.handleSubmit}>
-            <Col sm="12" md={{size: 9, offset: 3}}>
                 <AvGroup>
                     <Label for="search" hidden>Search</Label>
                     <AvInput
@@ -121,8 +120,8 @@ class Search extends React.Component {
                     <AvFeedback>{getMessage(this.props, 'searchViolation')}</AvFeedback>
                     <Button outline color="secondary">{getMessage(this.props, 'searchCommand')}</Button>
                 </AvGroup>
-            </Col>
-        </AvForm>
+            </AvForm>
+
     }
 
 }

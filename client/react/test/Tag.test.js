@@ -1,9 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { configure, shallow } from 'enzyme';
-import { expect } from 'chai'
-import Tag from './Tag';
+const mocha = require('mocha');
+const chai = require('chai');
+import Tag from '../src/data/Tag';
 import Adapter from 'enzyme-adapter-react-16'
+let assert = require('assert');
 
 
 configure({ adapter: new Adapter() });

@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {Button, Modal, ModalFooter, ModalHeader} from "reactstrap";
 import {getMessageByLocale} from "../app/Message";
 import {MdShoppingCart} from "react-icons/md";
+import {withCookies} from "react-cookie";
 
 const pStyle = {
     marginLeft: '3px',
@@ -13,11 +14,18 @@ const BuyButtonModal = (props) => {
         locale,
         certificate,
         onAddToBasket,
+        cookies
     } = props;
 
     const [modal, setModal] = useState(false);
 
     const toggle = () => setModal(!modal);
+
+    const onClick = () => {
+        let certificatesViewed = cookies.get('seen') ? cookies.get('seen') : 'name=';
+        cookies.set('seen', certificatesViewed + ',' + certificate.name);
+        toggle()
+    };
 
     const buyHandler = (certificate) => {
         console.log(certificate);
@@ -27,7 +35,7 @@ const BuyButtonModal = (props) => {
 
     return (
         <div>
-            <Button color={'danger'} style={pStyle} onClick={toggle}>
+            <Button color={'danger'} style={pStyle} onClick={onClick}>
                 <span><MdShoppingCart /></span>
                 {/*{getMessageByLocale(locale, 'buy')}*/}
             </Button>
@@ -42,4 +50,4 @@ const BuyButtonModal = (props) => {
     );
 };
 
-export default BuyButtonModal;
+export default withCookies(BuyButtonModal);

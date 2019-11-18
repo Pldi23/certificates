@@ -156,7 +156,7 @@ public class UserController {
                                 .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
                 pageAndSortDTO.getPage(),
                 pageableList.getLastPage(),
-                pageAndSortDTO.getSize()));
+                pageAndSortDTO.getSize(), false));
     }
 
     @PreAuthorize("@securityChecker.check(#id) or @securityChecker.checkUser(#id)")

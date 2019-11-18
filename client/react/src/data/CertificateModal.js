@@ -2,6 +2,7 @@ import {useState} from "react";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import React from "react";
 import {getMessageByLocale} from "../app/Message";
+import {withCookies} from "react-cookie";
 
 const titleStyle = {
     fontWeight: 600,
@@ -17,16 +18,23 @@ const CertificateModal = (props) => {
     const {
         certificate,
         tags,
-        locale
+        locale,
+        cookies
     } = props;
 
     const [modal, setModal] = useState(false);
 
     const toggle = () => setModal(!modal);
 
+    const onClick = () => {
+        let certificatesViewed = cookies.get('seen') ? cookies.get('seen') : 'name=';
+        cookies.set('seen', certificatesViewed + ',' + certificate.name);
+        toggle()
+    };
+
     return (
         <div>
-            <button style={titleStyle} onClick={toggle}>{certificate.name}</button>
+            <button style={titleStyle} onClick={onClick}>{certificate.name}</button>
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>{certificate.name}</ModalHeader>
                 <ModalBody>
@@ -47,4 +55,4 @@ const CertificateModal = (props) => {
     );
 };
 
-export default CertificateModal;
+export default withCookies(CertificateModal);

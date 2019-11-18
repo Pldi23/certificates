@@ -5,6 +5,8 @@ import { expect } from 'chai';
 import App from '../src/app/App';
 import Adapter from 'enzyme-adapter-react-16'
 import {describe} from "mocha";
+
+
 configure({ adapter: new Adapter() });
 describe('App component testing', function() {
     it('renders welcome message', function() {

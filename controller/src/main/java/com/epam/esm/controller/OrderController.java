@@ -67,15 +67,17 @@ public class OrderController {
     private TagService tagService;
     private CertificateService certificateService;
     private AppUserDetailsService userDetailsService;
+    private AppUserDetailsService detailsService;
 
-    public OrderController(OrderService orderService, DtoParser dtoParser,
-                           TagService tagService, CertificateService certificateService,
-                           AppUserDetailsService userDetailsService) {
+    public OrderController(OrderService orderService, DtoParser dtoParser, TagService tagService,
+                           CertificateService certificateService, AppUserDetailsService userDetailsService,
+                           AppUserDetailsService detailsService) {
         this.orderService = orderService;
         this.dtoParser = dtoParser;
         this.tagService = tagService;
         this.certificateService = certificateService;
         this.userDetailsService = userDetailsService;
+        this.detailsService = detailsService;
     }
 
     @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
@@ -113,7 +115,7 @@ public class OrderController {
                                         .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
                         pageAndSortDTO.getPage(),
                         pageableList.getLastPage(),
-                        pageAndSortDTO.getSize())) :
+                        pageAndSortDTO.getSize(), false)) :
                 ResponseEntity.status(404).build();
     }
 
@@ -142,6 +144,27 @@ public class OrderController {
         return ResponseEntity.ok(new OrderResource(order, order.getGiftCertificates().stream()
                 .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
                         .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList())));
+    }
+
+    @Secured({RoleConstant.ROLE_USER, RoleConstant.ROLE_ADMIN})
+    @GetMapping("/self")
+    public ResponseEntity findUserOrders(
+            @PageAndSizeValid(message = "{violation.page.size}")
+            @OrderSortValid(message = "{violation.order.sort}") @RequestParam Map<String, String> params) {
+        AppUserPrinciple principle = (AppUserPrinciple) detailsService
+                .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
+        OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder()
+                .userId(principle.getUser().getId())
+                .build();
+        PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
+        return ResponseEntity.ok(new OrderListResource(pageableList.getList().stream()
+                .map(orderDTO -> new OrderResource(orderDTO, orderDTO.getGiftCertificates().stream()
+                        .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
+                                .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
+                pageAndSortDTO.getPage(),
+                pageableList.getLastPage(),
+                pageAndSortDTO.getSize(), true));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")

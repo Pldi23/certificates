@@ -87,23 +87,25 @@ export function getCertificates(props) {
     );
 }
 
-export function getCertificatesByQuery(props, options) {
-    let url = new URL(API_BASE_URL + "/certificates?");
-        // params = {page: page ? page : 1, size: size ? size : 5};
-    Object.keys(options).forEach(key => url.searchParams.append(key, options[key]));
-    // Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+export function getOrdersSelf(props, href) {
     return request({
-        url: url,
-        method: 'GET',
+        url: API_BASE_URL + href,
+        method: 'GET'
     }, props).then(response => {
             return response.json().then(json => {
+                if (response.status === 400) {
+                    let message = JSON.stringify(json.messages);
+                    Alert.error(message.substring(1, message.length - 1));
+                    return []
+                }
                 if (!response.ok) {
                     return Promise.reject(json);
                 }
                 return json;
             });
         }
-    );
+    )
+
 }
 
 export function getCertificatesByHref(props, href) {
@@ -189,13 +191,4 @@ export function postOrder(orderJson, props) {
         body: orderJson,
     }, props)
 }
-
-// export function search(parameters) {
-//     let url = new URL(API_BASE_URL + "/certificates?name=l:");
-//     parameters.forEach(parameter => url.append(parameter, ','));
-//     return request({
-//         url: url,
-//         method: 'GET',
-//     });
-// }
 
