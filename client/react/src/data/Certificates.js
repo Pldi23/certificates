@@ -23,7 +23,6 @@ import CertificatesListSelector from "./CertificatesListSelector";
 import OrdersCertificatesList from "./OrdersCertificatesList";
 
 class Certificates extends Component {
-    _isMounted = false;
 
     constructor(props) {
         super(props);
@@ -37,7 +36,6 @@ class Certificates extends Component {
     }
 
     componentDidMount() {
-        this._isMounted = true;
         this.setState({
             loading: true,
 
@@ -74,19 +72,13 @@ class Certificates extends Component {
         this.props.routeHandler(true);
     }
 
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
-
     pageSizeHandler = (value) => {
         this.setState({
             loading: true,
         });
         let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
-
         href = href.includes(SIZE_API_PARAMETER) ? href.replace(/size=\d+/, SIZE_API_PARAMETER + value) :
             href.concat('&size=' + value);
-
         href = href.includes(PAGE_API_PARAMETER) ? href.replace(/page=\d+/, 'page=1') :
             href.concat('&page=1');
         localStorage.setItem(CERTIFICATES_HREF, href);
@@ -275,7 +267,8 @@ class Certificates extends Component {
                                 <PageSize pageSizeHandler={this.pageSizeHandler} size={this.getCurrentPageSize()}/>
                             </Col>
                             <Col sm={{size: 'auto'}}>
-                                <Pages pageHandler={this.pageHandler} links={this.state.links}/>
+                                <Pages pageHandler={this.pageHandler} links={this.state.links}
+                                       locale={this.props.cookies.cookies.locale}/>
                             </Col>
                         </Row>
                     </Col>

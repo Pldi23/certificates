@@ -29,7 +29,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts src/app/test",
+    "test": "react-scripts src/test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -99,6 +99,10 @@ export let message = {
         del: "remove",
         addToCart: "Add certificate to cart? ",
         toCart: "Confirm",
+
+        //pagination
+        firstPage: "first",
+        lastPage: "last",
     },
     ru: {
         //navbar
@@ -198,6 +202,10 @@ export let message = {
         del: "удалить",
         addToCart: "Добавить сертификат в корзину? ",
         toCart: "Добавить",
+
+        //pagination
+        firstPage: "первая",
+        lastPage: "последняя",
     }
 };
 
