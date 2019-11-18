@@ -41,7 +41,6 @@ class EditLink extends React.Component {
             }}
                   className="btn btn-danger btn-sm" style={pStyle}>
                 <span><MdModeEdit /></span>
-                {/*{getMessageByLocale(this.props.locale, 'edit')}*/}
             </Link>
             : null;
 

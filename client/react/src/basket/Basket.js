@@ -41,8 +41,6 @@ class Basket extends React.Component {
                             <ConfirmPurchaseModal
                                 onRefreshBasket={this.props.onRefreshBasket}
                                 basketCertificates={this.props.basketCertificates}
-                                // paymentHandler={this.paymentHandler(this.props.basketCertificates)}
-                                // sum={this.sumPrice(this.props.basketCertificates)}
                             />
                         </div>
                     ) : (

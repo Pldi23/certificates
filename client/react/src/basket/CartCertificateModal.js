@@ -16,8 +16,6 @@ const titleStyle = {
 const CartCertificateModal = (props) => {
     const {
         certificate,
-        // tags,
-        // locale
     } = props;
 
     const [modal, setModal] = useState(false);

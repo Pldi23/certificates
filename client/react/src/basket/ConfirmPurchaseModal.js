@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Button, Modal, ModalFooter, ModalHeader} from "reactstrap";
 import {getMessage} from "../app/Message";
 import {withCookies} from "react-cookie";
-import {postOrder} from "../util/APIUtils";
+import {postOrder} from "../service/APIService";
 import Alert from "react-s-alert";
 
 const ConfirmPurchaseModal = (props) => {

@@ -1,5 +1,5 @@
 import React from "react";
-import {deleteCertificate} from "../util/APIUtils";
+import {deleteCertificate} from "../service/APIService";
 import Alert from "react-s-alert";
 import {Button} from "reactstrap";
 import confirm from "reactstrap-confirm";
@@ -46,7 +46,6 @@ class DeleteLink extends React.Component {
             }
         } className="btn btn-danger btn-sm">
                 <span><MdDelete /></span>
-            {/*{getMessage(this.props, 'delete')}*/}
         </Button>
             : null;
     }

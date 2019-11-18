@@ -3,7 +3,7 @@ import {
     Container, Jumbotron, Col, CardColumns, Row, Alert
 } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {getCertificatesByHref, getOrdersSelf} from '../util/APIUtils';
+import {getCertificatesByHref, getOrdersSelf} from '../service/APIService';
 import {withCookies} from 'react-cookie';
 import LoadingIndicator from "../common/LoadingIndicator";
 import {getMessage} from "../app/Message";
@@ -11,7 +11,13 @@ import Search from "./Search";
 import Pages from "./Pages";
 import PageSize from "./PageSize";
 import './Certificates.css';
-import {ACCESS_TOKEN, CERTIFICATES_DEFAULT_REQUEST_URL, CERTIFICATES_HREF} from "../constants";
+import {
+    ACCESS_TOKEN,
+    CERTIFICATES_DEFAULT_REQUEST_URL,
+    CERTIFICATES_HREF,
+    ORDERS_SELF_URL, PAGE_API_PARAMETER,
+    SIZE_API_PARAMETER
+} from "../constants";
 import Certificate from "./Certificate";
 import CertificatesListSelector from "./CertificatesListSelector";
 import OrdersCertificatesList from "./OrdersCertificatesList";
@@ -36,8 +42,8 @@ class Certificates extends Component {
             loading: true,
 
         });
-        let href = localStorage.getItem(CERTIFICATES_HREF)  ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
-        if (href.includes('orders/self')) {
+        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
+        if (href.includes(ORDERS_SELF_URL)) {
             getOrdersSelf(this.props, href)
                 .then(json => {
                     this.setState({
@@ -70,7 +76,6 @@ class Certificates extends Component {
 
     componentWillUnmount() {
         this._isMounted = false;
-        // localStorage.removeItem(CERTIFICATES_HREF)
     }
 
     pageSizeHandler = (value) => {
@@ -79,16 +84,13 @@ class Certificates extends Component {
         });
         let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
 
-        if (href.includes('size=')) {
-            href = href.replace(/size=\d+/, 'size=' + value);
-        } else {
-            href = href.concat('&size=' + value);
-        }
+        href = href.includes(SIZE_API_PARAMETER) ? href.replace(/size=\d+/, SIZE_API_PARAMETER + value) :
+            href.concat('&size=' + value);
 
-        href = href.includes('page=') ? href.replace(/page=\d+/, 'page=1') :
+        href = href.includes(PAGE_API_PARAMETER) ? href.replace(/page=\d+/, 'page=1') :
             href.concat('&page=1');
         localStorage.setItem(CERTIFICATES_HREF, href);
-        if (href.includes('orders/self')) {
+        if (href.includes(ORDERS_SELF_URL)) {
             getOrdersSelf(this.props, href)
                 .then(json => {
                     this.setState({
@@ -117,7 +119,7 @@ class Certificates extends Component {
         localStorage.setItem(CERTIFICATES_HREF, href);
 
         getCertificatesByHref(this.props, href).then(json => {
-            if (href.includes('orders/self')) {
+            if (href.includes(ORDERS_SELF_URL)) {
                 this.setState({
                     orders: json.orders ? json.orders : [],
                     showOrders: true,
@@ -140,7 +142,6 @@ class Certificates extends Component {
 
     getCurrentPageSize() {
         let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
-
         href = href.includes('size') ? href.substring(href.indexOf('size=') + 5) : '5';
         href = href.includes('&') ? href.substring(0, href.indexOf('&')) : href;
         return href;
@@ -202,13 +203,12 @@ class Certificates extends Component {
         });
         let href = CERTIFICATES_DEFAULT_REQUEST_URL + '&tag_name=' + tagName + '&page=1&size=' + this.getCurrentPageSize();
         localStorage.setItem(CERTIFICATES_HREF, href);
-        console.log('handling tag search')
         getCertificatesByHref(this.props, href).then(json => {
-            console.log(json)
             this.setState({
                 certificates: json.certificates ? json.certificates : [],
                 links: json._links,
-                loading: false
+                loading: false,
+                showOrders: false,
             });
         }).catch(error => {
             (error && error.message) ||
@@ -224,23 +224,23 @@ class Certificates extends Component {
             <Jumbotron fluid>
                 <Container fluid>
                     <h1 className="display-6 text-center">{getMessage(this.props, 'certificatesLabel')}</h1>
-                        <Col sm={{ size: 9, offset: 3 }}>
-                    <Row>
-                    {localStorage.getItem(ACCESS_TOKEN) ? (
-                        <CertificatesListSelector
-                            reloadHandler={this.selectCertificatesHandler}
-                            ordersHandler={this.ordersHandler}
-                            selected={this.state.showOrders}
-                        />
-                    ) : (null)}
-                    {this.state.showOrders ? (
-                        null
-                    ) : (
-                        <Search pageHandler={this.pageHandler} size={this.getCurrentPageSize()}/>
+                    <Col sm={{size: 9, offset: 3}}>
+                        <Row>
+                            {localStorage.getItem(ACCESS_TOKEN) ? (
+                                <CertificatesListSelector
+                                    reloadHandler={this.selectCertificatesHandler}
+                                    ordersHandler={this.ordersHandler}
+                                    selected={this.state.showOrders}
+                                />
+                            ) : (null)}
+                            {this.state.showOrders ? (
+                                null
+                            ) : (
+                                <Search pageHandler={this.pageHandler} size={this.getCurrentPageSize()}/>
 
-                    )}
-                    </Row>
-                        </Col>
+                            )}
+                        </Row>
+                    </Col>
 
                 </Container>
             </Jumbotron>

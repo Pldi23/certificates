@@ -54,7 +54,6 @@ class Search extends React.Component {
                 function (match) {
                     return `&name=l:${match}&description=l:${match}`
                 });
-            // console.log(search);
             if (search.includes('#(')) {
                 search = search.replace('#(', '&tag_name=').replace(')', '');
                 while (search.includes('#(')) {
@@ -64,14 +63,10 @@ class Search extends React.Component {
                             return `,${p1}`
                         })
                 }
-                // console.log(search);
-
             }
             search = search.replace(/\$\u0028([<>]?)\d+\u002E?\d?\d?(.\d+\u002E?\d?\d?)?\u0029/,
                 function (match) {
-                    // console.log(match)
                     match = match.replace('$(', '').replace(')', '');
-                    // console.log(match)
                     if (search.includes('>')) {
                         match = match.replace('>', '');
                         let max = Number.MAX_SAFE_INTEGER.toString();
@@ -81,8 +76,6 @@ class Search extends React.Component {
                         return `&price=bw:0,${match}`
                     } else if (search.includes('-')) {
                         let array = match.split('-');
-                        // console.log(array);
-                        // console.log(match);
                         return `&price=bw:${array[0]},${array[1]}`
                     } else {
                         return `&price=${match}`
@@ -90,8 +83,6 @@ class Search extends React.Component {
                 });
             search = search.replace(/\s/g, '');
             let href = CERTIFICATES_DEFAULT_REQUEST_URL + search + '&page=1&size=' + this.props.size;
-
-            // console.log(href)
             this.props.pageHandler(href);
         }
     };
@@ -105,17 +96,11 @@ class Search extends React.Component {
                         name="params"
                         id="search"
                         placeholder={getMessage(this.props, 'searchParams')}
-
-                        // required
-                        // pattern={"([a-zA-Z ]+)|(#\u0028[a-zA-Z]+( ?)[a-zA-Z]+\u0029)|(\$\u0028([<>]?)\d+\u002E?\d?\d?(.\d+\u002E?\d?\d?)?\u0029)"}
-                        // pattern={SEARCH_REGEX_PATTERN}
                         maxLength="100"
                         minLength="1"
                         value={this.state.params.value}
                         onChange={this.handleInputChange}
-                        style={
-                            pStyle
-                        }
+                        style={pStyle}
                     />
                     <AvFeedback>{getMessage(this.props, 'searchViolation')}</AvFeedback>
                     <Button outline color="secondary">{getMessage(this.props, 'searchCommand')}</Button>

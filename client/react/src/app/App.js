@@ -10,8 +10,14 @@ import Profile from '../user/profile/Profile';
 import OAuth2RedirectHandler from '../user/oauth2/OAuth2RedirectHandler';
 import NotFound from '../common/NotFound';
 import LoadingIndicator from '../common/LoadingIndicator';
-import {getCurrentUser} from '../util/APIUtils';
-import {ACCESS_TOKEN, ACCESS_TOKEN_EXPIRES_IN, CERTIFICATES_HREF, PREV_PATH, REFRESH_TOKEN} from '../constants';
+import {getCurrentUser} from '../service/APIService';
+import {
+    ACCESS_TOKEN,
+    ACCESS_TOKEN_EXPIRES_IN, APP_DEFAULT_LOCALE,
+    CERTIFICATES_HREF,
+    COOKIES_LOCALE,
+    REFRESH_TOKEN
+} from '../constants';
 import PrivateRoute from '../common/PrivateRoute';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -36,7 +42,7 @@ class App extends Component {
             currentUser: null,
             loading: false,
             currentRouteCertificates: false,
-            locale: cookies.get('locale') ? cookies.get('locale') : 'en',
+            locale: cookies.get(COOKIES_LOCALE) ? cookies.get(COOKIES_LOCALE) : APP_DEFAULT_LOCALE,
             basketCertificates: []
         };
 
@@ -72,11 +78,11 @@ class App extends Component {
         const {cookies} = this.props;
         if (this.state.locale === 'en') {
 
-            cookies.set('locale', 'ru', {path: '/'});
+            cookies.set(COOKIES_LOCALE, 'ru', {path: '/'});
             this.setState({locale: 'ru'});
         }
         if (this.state.locale === 'ru') {
-            cookies.set('locale', 'en', {path: '/'});
+            cookies.set(COOKIES_LOCALE, 'en', {path: '/'});
             this.setState({locale: 'en'});
         }
     };
@@ -87,7 +93,6 @@ class App extends Component {
         localStorage.removeItem(ACCESS_TOKEN_EXPIRES_IN);
         localStorage.removeItem(REFRESH_TOKEN);
         localStorage.removeItem(CERTIFICATES_HREF);
-        localStorage.setItem(PREV_PATH, '/login');
         this.setState({
             authenticated: false,
             currentUser: null
@@ -122,8 +127,6 @@ class App extends Component {
         this.setState(prevState => ({
             basketCertificates: [...prevState.basketCertificates, newCertificate]
         }));
-        console.log('addihg to basket');
-
     };
 
     onRemoveFromBasket = (oldCertificate) => {
@@ -158,7 +161,6 @@ class App extends Component {
                 <CookiesProvider>
                     <div className="app">
                         <div className="fixed-top">
-                            {/*<h1 className='App-title'>Welcome to React</h1>*/}
                             <AppHeader authenticated={this.state.authenticated}
                                        currentUser={this.state.currentUser}
                                        currentRouteCertificates={this.state.currentRouteCertificates}
@@ -192,6 +194,7 @@ class App extends Component {
                                        render={(props) => <Login authenticated={this.state.authenticated}
                                                                  loginHandler={this.loginHandler}
                                                                  routeHandler={this.routeHandler}
+                                                                 locale={this.state.locale}
                                                                  {...props} />}/>
                                 <Route path="/signup"
                                        render={(props) => <Signup
@@ -209,11 +212,6 @@ class App extends Component {
                                            routeHandler={this.routeHandler}
                                            {...props} />}
                                 />
-                                {/*<Route path="/basket"*/}
-                                {/*render={(props) => <Basket*/}
-
-                                {/*        {...props} />*/}
-                                {/*    }/>*/}
                                 <Route path="/oauth2/redirect" component={OAuth2RedirectHandler}/>
                                 <Route path="/delete" component={DeleteLink}/>
                                 <Route render={(props) => <NotFound

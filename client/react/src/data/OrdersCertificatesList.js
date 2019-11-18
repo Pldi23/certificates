@@ -15,6 +15,10 @@ class OrdersCertificatesList extends React.Component {
                 locale={this.props.locale}
                 created={item.order.createdAt}
                 price={item.order.price}
+                reloadHandler={this.props.reloadHandler}
+                tagSearchHandler={this.props.tagSearchHandler}
+                onAddToBasket={this.props.onAddToBasket}
+                showButtons={false}
             />);
 
 
@@ -25,16 +29,6 @@ class OrdersCertificatesList extends React.Component {
 export default withCookies(OrdersCertificatesList)
 
 class OrderCertificates extends React.Component {
-
-    constructor(props) {
-        super(props);
-
-        this.keyCount = 0;
-    }
-
-    getKey = (index) => {
-        return index + this.keyCount++;
-    };
 
     getParsedDate(date) {
         date = String(date).split('-');
@@ -48,7 +42,7 @@ class OrderCertificates extends React.Component {
 
         const certificates = this.props.certificates.map((certificate, index) =>
             <Certificate
-                key={this.getKey(index)}
+                key={index}
                 certificate={certificate}
                 locale={this.props.locale}
                 reloadHandler={this.props.reloadHandler}

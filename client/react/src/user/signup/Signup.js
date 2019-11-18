@@ -6,9 +6,15 @@ import {
     FACEBOOK_AUTH_URL,
     ACCESS_TOKEN,
     REFRESH_TOKEN,
-    ACCESS_TOKEN_EXPIRES_IN, PREV_PATH, EMAIL_REGEX_PATTERN, PASSWORD_REGEX_PATTERN
+    ACCESS_TOKEN_EXPIRES_IN,
+    PREV_PATH,
+    EMAIL_REGEX_PATTERN,
+    PASSWORD_REGEX_PATTERN,
+    ROLE_USER,
+    AUTHORIZATION_HEADER,
+    REFRESH_HEADER, EXPIRES_IN_HEADER
 } from '../../constants';
-import {signup} from '../../util/APIUtils';
+import {signup} from '../../service/APIService';
 import fbLogo from '../../img/fb-logo.png';
 import googleLogo from '../../img/google-logo.png';
 import Alert from 'react-s-alert';
@@ -128,15 +134,15 @@ class SignupForm extends Component {
         const userJson = JSON.stringify({
             email: this.state.email.value,
             password: this.state.password.value,
-            role: 'ROLE_USER'
+            role: ROLE_USER
         });
 
         signup(userJson, this.props)
             .then(response => {
                 if (response.ok) {
-                    localStorage.setItem(ACCESS_TOKEN, response.headers.get("Authorization"));
-                    localStorage.setItem(REFRESH_TOKEN, response.headers.get("RefreshToken"));
-                    localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get("ExpiresIn"));
+                    localStorage.setItem(ACCESS_TOKEN, response.headers.get(AUTHORIZATION_HEADER));
+                    localStorage.setItem(REFRESH_TOKEN, response.headers.get(REFRESH_HEADER));
+                    localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get(EXPIRES_IN_HEADER));
                     response.json().then(json => {
                         this.props.signUpHandler(json);
                         Alert.success(getMessage(this.props, 'signUpSuccess'));

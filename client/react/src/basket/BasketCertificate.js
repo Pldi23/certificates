@@ -29,7 +29,6 @@ class BasketCertificate extends React.Component {
         return <div>
             <Row style={rowStyle}>
                 <Col>
-                    {/*{this.props.certificate.name}*/}
                     <CartCertificateModal certificate={this.props.certificate}/>
                 </Col>
                 <Col>

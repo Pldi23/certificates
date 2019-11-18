@@ -3,7 +3,7 @@ import {withCookies} from 'react-cookie';
 import {WithContext as ReactTags} from 'react-tag-input';
 import {Button, Col, Container, Jumbotron, Label} from "reactstrap";
 import {AvFeedback, AvForm, AvGroup, AvInput} from 'availity-reactstrap-validation';
-import {deleteCertificate, getTags, loadCertificate, updateCertificate} from "../util/APIUtils";
+import {deleteCertificate, getTags, loadCertificate, updateCertificate} from "../service/APIService";
 import Alert from "react-s-alert";
 import './CreateCertificate.css';
 import {getMessage} from "../app/Message";
@@ -73,7 +73,7 @@ class EditCertificate extends React.Component {
 
     handleInputName = (event) => {
         if (event.target.value.match(CERTIFICATE_NAME_REGEX_PATTERN) &&
-            event.target.value.length > 0 && event.target.value.length < 30) {
+            event.target.value.length > 0 && event.target.value.length <= 30) {
             this.setState({
                 name: {
                     value: event.target.value,
@@ -311,7 +311,6 @@ class EditCertificate extends React.Component {
                                     name="description"
                                     id="certificateDescription"
                                     placeholder={getMessage(this.props, 'description')}
-                                    // required
                                     minLength="1"
                                     maxLength="1000"
                                     value={this.state.description.value}
@@ -326,7 +325,6 @@ class EditCertificate extends React.Component {
                                     name="price"
                                     id="certificatePrice"
                                     placeholder={getMessage(this.props, 'price')}
-                                    // required
                                     pattern={CERTIFICATE_PRICE_PATTERN}
                                     min={"0"}
                                     step="0.01"
@@ -342,7 +340,6 @@ class EditCertificate extends React.Component {
                                     name="expiration"
                                     id="certificateExpiration"
                                     placeholder={getMessage(this.props, 'expiration')}
-                                    // required
                                     min={Date.now()}
                                     value={this.state.expiration.value}
                                     onChange={this.handleInputExpiration}

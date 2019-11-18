@@ -1,4 +1,5 @@
 import LocalizedStrings from "react-localization";
+import {APP_DEFAULT_LOCALE, COOKIES_LOCALE} from "../constants";
 
 export let message = {
     en: {
@@ -204,13 +205,13 @@ export function getMessage(props, key) {
     const {cookies} = props;
     let strings = new LocalizedStrings({message});
     strings.setContent(message);
-    strings.setLanguage(cookies.get('locale') ? cookies.get('locale') : 'en');
+    strings.setLanguage(cookies.get(COOKIES_LOCALE) ? cookies.get(COOKIES_LOCALE) : APP_DEFAULT_LOCALE);
     return strings.getString(key)
 }
 
 export function getMessageByLocale(locale, key) {
     let strings = new LocalizedStrings({message});
     strings.setContent(message);
-    strings.setLanguage(locale ? locale : 'en');
+    strings.setLanguage(locale ? locale : APP_DEFAULT_LOCALE);
     return strings.getString(key)
 }

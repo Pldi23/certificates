@@ -3,6 +3,7 @@ import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import React from "react";
 import {getMessageByLocale} from "../app/Message";
 import {withCookies} from "react-cookie";
+import {COOKIES_VIEWED_CERTIFICATES} from "../constants";
 
 const titleStyle = {
     fontWeight: 600,
@@ -27,8 +28,8 @@ const CertificateModal = (props) => {
     const toggle = () => setModal(!modal);
 
     const onClick = () => {
-        let certificatesViewed = cookies.get('seen') ? cookies.get('seen') : 'name=';
-        cookies.set('seen', certificatesViewed + ',' + certificate.name);
+        let certificatesViewed = cookies.get(COOKIES_VIEWED_CERTIFICATES) ? cookies.get(COOKIES_VIEWED_CERTIFICATES) : 'name=';
+        cookies.set(COOKIES_VIEWED_CERTIFICATES, certificatesViewed + ',' + certificate.name);
         toggle()
     };
 

@@ -1,17 +1,16 @@
 import React, {Component} from "react";
 import {
     ACCESS_TOKEN,
-    ACCESS_TOKEN_EXPIRES_IN,
-    EMAIL_REGEX_PATTERN,
-    PASSWORD_REGEX_PATTERN, PREV_PATH,
+    ACCESS_TOKEN_EXPIRES_IN, AUTHORIZATION_HEADER,
+    EMAIL_REGEX_PATTERN, EXPIRES_IN_HEADER,
+    PASSWORD_REGEX_PATTERN, PREV_PATH, REFRESH_HEADER,
     REFRESH_TOKEN
 } from "../../constants";
-import {login} from "../../util/APIUtils";
+import {login} from "../../service/APIService";
 import Alert from "react-s-alert";
-import {getMessage} from "../../app/Message";
+import {getMessage, getMessageByLocale} from "../../app/Message";
 import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
 import {Link} from "react-router-dom";
-import {withCookies} from "react-cookie";
 
 class LoginForm extends Component {
 
@@ -54,6 +53,7 @@ class LoginForm extends Component {
     };
 
     handleInputPassword = (event) => {
+
         if (event.target.value.match(PASSWORD_REGEX_PATTERN) &&
             event.target.value.length > 0) {
             this.setState({
@@ -76,12 +76,11 @@ class LoginForm extends Component {
         login(this.state.email.value, this.state.password.value, this.props)
             .then(response => {
                 if (response.ok) {
-                    localStorage.setItem(ACCESS_TOKEN, response.headers.get("Authorization"));
-                    localStorage.setItem(REFRESH_TOKEN, response.headers.get("RefreshToken"));
-                    localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get("ExpiresIn"));
+                    localStorage.setItem(ACCESS_TOKEN, response.headers.get(AUTHORIZATION_HEADER));
+                    localStorage.setItem(REFRESH_TOKEN, response.headers.get(REFRESH_HEADER));
+                    localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get(EXPIRES_IN_HEADER));
                     localStorage.setItem(PREV_PATH, '/certificates');
                     this.props.loginHandler();
-                    // Alert.success(getMessage(this.props, 'loginSuccess'));
                     this.props.history.push("/certificates");
 
                 } else {
@@ -104,6 +103,8 @@ class LoginForm extends Component {
 
         const isFormValid = this.state.email.isValid && this.state.password.isValid;
 
+        const locale = this.props.locale;
+
         return (
             <div className="form-item">
                 <AvForm onSubmit={this.handleSubmit}>
@@ -111,40 +112,42 @@ class LoginForm extends Component {
                         <AvInput type="text"
                                  name="email"
                                  className="form-control"
-                                 placeholder={getMessage(this.props, 'emailPlaceholder')}
+                                 placeholder={getMessageByLocale(locale, 'emailPlaceholder')}
                                  value={this.state.email.value}
                                  onChange={this.handleInputEmail}
                                  pattern={EMAIL_REGEX_PATTERN}
 
                         />
                         <AvFeedback>
-                            {getMessage(this.props, 'emailViolation')}
+                            {getMessageByLocale(locale, 'emailViolation')}
                         </AvFeedback>
                     </AvGroup>
                     <AvGroup className="form-item">
                         <AvInput type="password"
                                  name="password"
                                  className="form-control"
-                                 placeholder={getMessage(this.props, 'passwordPlaceholder')}
+                                 placeholder={getMessageByLocale(locale, 'passwordPlaceholder')}
                                  value={this.state.password.value}
                                  onChange={this.handleInputPassword}
                                  pattern={PASSWORD_REGEX_PATTERN}/>
                         <AvFeedback>
-                            {getMessage(this.props, 'passwordViolation')}
+                            {getMessageByLocale(locale, 'passwordViolation')}
                         </AvFeedback>
                     </AvGroup>
                     <div className="form-item">
                         <button type="submit"
                                 disabled={!isFormValid}
                                 className="btn btn-block btn-primary">
-                            {getMessage(this.props, 'login')}
+                            {getMessageByLocale(locale, 'login')}
                         </button>
                     </div>
                 </AvForm>
-                <Link to="/certificates" className="btn btn-block btn-primary">{getMessage(this.props, 'cancel')}</Link>
+                <Link to="/certificates" className="btn btn-block btn-primary">
+                    {getMessageByLocale(locale, 'cancel')}
+                </Link>
             </div>
         );
     }
 }
 
-export default withCookies(LoginForm);
+export default LoginForm;

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Container, Col, Alert} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {getMessageByLocale} from "../../app/Message";
+import {ROLE_ADMIN} from "../../constants";
 
 class Profile extends Component {
     constructor(props) {
@@ -25,7 +26,7 @@ class Profile extends Component {
                     <Alert color="success">
                     <span>{this.state.user.user.email}</span>
                         <hr/>
-                    <b>{this.state.user.user.role === ('ROLE_ADMIN') ? getMessageByLocale(this.props.locale, 'admin') : null}</b>
+                    <b>{this.state.user.user.role === (ROLE_ADMIN) ? getMessageByLocale(this.props.locale, 'admin') : null}</b>
                     </Alert>
                 </Col>
 

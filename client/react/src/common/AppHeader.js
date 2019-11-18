@@ -3,16 +3,12 @@ import {NavLink} from 'react-router-dom';
 import './AppHeader.css';
 import LocalizedStrings from 'react-localization';
 import {message} from '../app/Message'
-import {CERTIFICATES_HREF, PREV_PATH} from "../constants";
+import {CERTIFICATES_HREF, ROLE_ADMIN} from "../constants";
 import {Button} from "reactstrap";
 import Basket from "../basket/Basket";
 
 
 class AppHeader extends Component {
-
-    getPath() {
-        return localStorage.getItem(PREV_PATH) ? localStorage.getItem(PREV_PATH) : '/'
-    }
 
     render() {
         let strings = new LocalizedStrings({data: message});
@@ -22,7 +18,7 @@ class AppHeader extends Component {
             <header className="app-header">
                 <div className="container">
                     <div className="app-branding">
-                        {this.props.currentUser && this.props.currentUser.user.role === 'ROLE_ADMIN' && this.props.currentRouteCertificates ?
+                        {this.props.currentUser && this.props.currentUser.user.role === ROLE_ADMIN && this.props.currentRouteCertificates ?
                             <NavLink to="/add" className="app-title" onClick={() => {
                                 localStorage.removeItem(CERTIFICATES_HREF);
                             }}>{strings.newCertificate}</NavLink> :
