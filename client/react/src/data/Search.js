@@ -3,7 +3,7 @@ import {Button, Label} from "reactstrap";
 import {withCookies} from "react-cookie";
 import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
 import {getMessage} from "../app/Message";
-import {CERTIFICATES_DEFAULT_REQUEST_URL, SEARCH_REGEX_PATTERN} from "../constants";
+import {CERTIFICATES_DEFAULT_REQUEST_URL, SEARCH_PARAMETERS, SEARCH_REGEX_PATTERN} from "../constants";
 import Alert from 'react-s-alert';
 
 const pStyle = {
@@ -18,7 +18,7 @@ class Search extends React.Component {
         super(props);
         this.state = {
             params: {
-                value: '',
+                value: localStorage.getItem(SEARCH_PARAMETERS) ? localStorage.getItem(SEARCH_PARAMETERS) : '',
                 isValid: false
             }
         };
@@ -47,6 +47,7 @@ class Search extends React.Component {
 
     handleSubmit = () => {
         if (!this.state.params.isValid) {
+            localStorage.setItem(SEARCH_PARAMETERS, this.state.params.value);
             Alert.info(getMessage(this.props, 'notReadableSearch'))
         } else {
             let search = this.state.params.value;
@@ -83,6 +84,7 @@ class Search extends React.Component {
                 });
             search = search.replace(/\s/g, '');
             let href = CERTIFICATES_DEFAULT_REQUEST_URL + search + '&page=1&size=' + this.props.size;
+            localStorage.setItem(SEARCH_PARAMETERS, this.state.params.value);
             this.props.pageHandler(href);
         }
     };
@@ -103,7 +105,7 @@ class Search extends React.Component {
                         style={pStyle}
                     />
                     <AvFeedback>{getMessage(this.props, 'searchViolation')}</AvFeedback>
-                    <Button outline color="secondary">{getMessage(this.props, 'searchCommand')}</Button>
+                    <Button outline color="secondary" >{getMessage(this.props, 'searchCommand')}</Button>
                 </AvGroup>
             </AvForm>
 

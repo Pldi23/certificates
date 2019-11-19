@@ -27,6 +27,7 @@ export const XSRF_HEADER = 'X-XSRF-TOKEN';
 
 export const PREV_PATH = 'prev_path';
 export const CERTIFICATES_HREF = 'cert_href';
+export const SEARCH_PARAMETERS = 'params';
 
 export const EMAIL_REGEX_PATTERN = "[A-Za-z0-9]{1,64}@[A-Za-z]{1,254}\u002E[A-Za-z]{1,5}";
 export const PASSWORD_REGEX_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+={};:><.,/?`~±§-])(?=[^\r\n\t\f\v]+$).{8,20}$";

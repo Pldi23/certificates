@@ -16,7 +16,7 @@ import {
     ACCESS_TOKEN_EXPIRES_IN, APP_DEFAULT_LOCALE,
     CERTIFICATES_HREF,
     COOKIES_LOCALE,
-    REFRESH_TOKEN
+    REFRESH_TOKEN, SEARCH_PARAMETERS
 } from '../constants';
 import PrivateRoute from '../common/PrivateRoute';
 import Alert from 'react-s-alert';
@@ -43,7 +43,8 @@ class App extends Component {
             loading: false,
             currentRouteCertificates: false,
             locale: cookies.get(COOKIES_LOCALE) ? cookies.get(COOKIES_LOCALE) : APP_DEFAULT_LOCALE,
-            basketCertificates: []
+            basketCertificates: [],
+            certificatesUrl: ''
         };
 
         this.loadCurrentlyLoggedInUser = this.loadCurrentlyLoggedInUser.bind(this);
@@ -93,6 +94,7 @@ class App extends Component {
         localStorage.removeItem(ACCESS_TOKEN_EXPIRES_IN);
         localStorage.removeItem(REFRESH_TOKEN);
         localStorage.removeItem(CERTIFICATES_HREF);
+        localStorage.removeItem(SEARCH_PARAMETERS);
         this.setState({
             authenticated: false,
             currentUser: null
@@ -150,6 +152,10 @@ class App extends Component {
         this.loadCurrentlyLoggedInUser();
     }
 
+    certificatesUrlHandler = (href) => {
+        return href;
+    };
+
     render() {
 
 
@@ -169,6 +175,7 @@ class App extends Component {
                                        basketCertificates={this.state.basketCertificates}
                                        onRemoveFromBasket={this.onRemoveFromBasket}
                                        onRefreshBasket={this.onRefreshBasket}
+                                       href={this.certificatesUrlHandler}
                                        locale={this.state.locale}/>
                         </div>
                         <div className="app-body">
@@ -189,6 +196,7 @@ class App extends Component {
                                                                         routeHandler={this.routeHandler}
                                                                         authenticated={this.state.authenticated}
                                                                         onAddToBasket={this.onAddToBasket}
+                                                                        certificatesUrlHandler={this.certificatesUrlHandler}
                                                                         {...props} />}/>
                                 <Route path="/login"
                                        render={(props) => <Login authenticated={this.state.authenticated}

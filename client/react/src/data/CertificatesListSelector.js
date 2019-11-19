@@ -1,10 +1,11 @@
 import React from 'react';
 import Select from 'react-select';
 import {withCookies} from "react-cookie";
+import {SEARCH_PARAMETERS} from "../constants";
 
 const options = [
-    { value: 'All', label: 'All' },
-    { value: 'My Certificates', label: 'My Certificates' },
+    {value: 'All', label: 'All'},
+    {value: 'My Certificates', label: 'My Certificates'},
 ];
 
 const colourStyles = {
@@ -12,7 +13,8 @@ const colourStyles = {
         ...styles,
         width: '150px',
         right: '5px',
-    top: '4px'})
+        top: '4px'
+    })
 
 };
 
@@ -29,12 +31,18 @@ class CertificatesListSelector extends React.Component {
     }
 
     handleChange = selectedOption => {
-        this.setState({ selectedOption });
-        selectedOption.value === 'All' ? this.props.reloadHandler() : this.props.ordersHandler()
+        this.setState({selectedOption});
+
+        if (selectedOption.value === 'All') {
+            this.props.reloadHandler()
+        } else {
+            localStorage.removeItem(SEARCH_PARAMETERS);
+            this.props.ordersHandler()
+        }
     };
 
     render() {
-        const { selectedOption } = this.state;
+        const {selectedOption} = this.state;
 
         return (
             <Select styles={colourStyles}
