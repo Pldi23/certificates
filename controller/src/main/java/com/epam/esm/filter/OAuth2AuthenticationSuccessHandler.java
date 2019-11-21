@@ -63,6 +63,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         clearAuthenticationAttributes(request, response);
+        log.info("redirected to " + targetUrl);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
@@ -72,7 +73,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
 
-//        String token = tokenProvider.createToken(authentication);
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = (String) oAuth2User.getAttributes().get("email");
         List<String> roles;

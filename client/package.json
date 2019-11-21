@@ -1,0 +1,45 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --mode development --open --hot",
+    "build": "webpack --mode production"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
+    "@babel/preset-react": "^7.7.0",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "html-webpack-plugin": "^3.2.0",
+    "image-webpack-loader": "^6.0.0",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0",
+    "webpack-hot-middleware": "^2.25.0"
+  },
+  "dependencies": {
+    "availity-reactstrap-validation": "latest",
+    "file-loader": "^4.2.0",
+    "prop-types": "latest",
+    "react": "^16.12.0",
+    "react-cookie": "latest",
+    "react-dnd": "^5.0.0",
+    "react-dnd-html5-backend": "^3.0.2",
+    "react-dom": "^16.12.0",
+    "react-icons": "latest",
+    "react-localization": "latest",
+    "react-router-dom": "latest",
+    "react-s-alert": "latest",
+    "react-select": "latest",
+    "react-tag-input": "latest",
+    "reactstrap": "latest",
+    "reactstrap-confirm": "latest"
+  }
+}

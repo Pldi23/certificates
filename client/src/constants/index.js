@@ -34,9 +34,8 @@ export const PASSWORD_REGEX_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!
 export const CERTIFICATE_NAME_REGEX_PATTERN = "^([\\w\\s-]{1,30})$";
 export const CERTIFICATE_PRICE_PATTERN = "[0-9]+(.[0-9][0-9]?)?";
 export const SEARCH_REGEX_PATTERN = "([\\w\\s]+)|(\\#\u0028\\w+(\\s?)\\w+\u0029)|(\\$\u0028([<>]?)\\d+\u002E?\\d?\\d?(.\\d+\u002E?\\d?\\d?)?\u0029)";
-// export const SEARCH_REGEX_PATTERN = "([\\w ]+)|(\\#\u0028\\w+( ?)\\w+\u0029)|(\\$\u0028([<>]?)\\d+\u002E?\\d?\\d?(.\\d+\u002E?\\d?\\d?)?\u0029)";
 
-export const OAUTH2_REDIRECT_URI = 'http://localhost:3000/oauth2/redirect';
+export const OAUTH2_REDIRECT_URI = 'http://localhost:3000/oauth2';
 
 export const GOOGLE_AUTH_URL = API_BASE_URL + '/oauth2/authorize/google?redirect_uri=' + OAUTH2_REDIRECT_URI;
 export const FACEBOOK_AUTH_URL = API_BASE_URL + '/oauth2/authorize/facebook?redirect_uri=' + OAUTH2_REDIRECT_URI;

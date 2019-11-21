@@ -9,7 +9,7 @@
 
 .pStyle {
     margin-left: 3px;
-    margin-right: 3px,
+    margin-right: 3px
 }
 
 .titleStyle {
@@ -28,11 +28,12 @@
 }
 
 .editStyle {
-    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    padding-top: 9px;
     margin-left: 3px;
-    margin-right: 3px
+    margin-right: 7px;
 }
 
 .searchStyle {

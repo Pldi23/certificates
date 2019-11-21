@@ -219,7 +219,7 @@ class App extends Component {
                                     routeHandler={this.routeHandler}
 
                                 />
-                                <Route path="/oauth2/redirect"
+                                <Route path="/oauth2"
                                        loginHandler={this.loginHandler}
                                        component={OAuth2RedirectHandler}/>
                                 <PrivateRoute path="/delete"

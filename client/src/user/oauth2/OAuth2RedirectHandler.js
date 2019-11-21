@@ -16,7 +16,8 @@ class OAuth2RedirectHandler extends Component {
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     };
 
-    render() {        
+    render() {
+        console.log('handler oath')
         const token = this.getUrlParameter('token');
         const error = this.getUrlParameter('error');
         const refreshToken = this.getUrlParameter('refresh');

@@ -1,9 +1,10 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import {withCookies} from "react-cookie";
 import {MdModeEdit} from "react-icons/md";
 import * as PropTypes from "prop-types";
 import './Certificates.css'
+import Button from "reactstrap/es/Button";
 
 class EditLink extends React.Component {
 
@@ -20,7 +21,7 @@ class EditLink extends React.Component {
 
     render() {
         return this.props.link ?
-            <Link to={{
+            <Link className={'editStyle btn btn-danger btn-sm'} to={{
                 pathname: '/edit',
                 state: {
                     name: {
@@ -44,7 +45,8 @@ class EditLink extends React.Component {
                     isBlocking: true
                 }
             }}
-                  className="btn btn-danger btn-sm editStyle">
+                  // className="btn btn-danger btn-sm deleteStyle"
+            >
                 <span><MdModeEdit /></span>
             </Link>
             : null;
