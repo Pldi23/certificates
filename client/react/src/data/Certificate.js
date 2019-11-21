@@ -15,7 +15,7 @@ import * as PropTypes from "prop-types";
 class Certificate extends React.Component {
 
     static propTypes = {
-        key: PropTypes.number.isRequired,
+        key: PropTypes.number,
         certificate: PropTypes.object.isRequired,
         locale: PropTypes.string.isRequired,
         reloadHandler: PropTypes.func.isRequired,

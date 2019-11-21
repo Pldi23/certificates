@@ -7,7 +7,7 @@ import * as PropTypes from "prop-types";
 class Pages extends React.Component {
 
     static propTypes = {
-        links: PropTypes.array.isRequired,
+        links: PropTypes.object.isRequired,
         locale: PropTypes.string.isRequired,
         pageHandler: PropTypes.func.isRequired
     };
@@ -32,7 +32,6 @@ class Pages extends React.Component {
 class PageItem extends React.Component {
 
     static propTypes = {
-        key: PropTypes.number.isRequired,
         link: PropTypes.object.isRequired,
         locale: PropTypes.string.isRequired,
         pageHandler: PropTypes.func.isRequired

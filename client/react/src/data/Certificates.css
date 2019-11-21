@@ -2,3 +2,40 @@
 
     min-width: 400px;
 }
+
+.hintStyle {
+    margin-bottom: 1rem
+}
+
+.pStyle {
+    margin-left: 3px;
+    margin-right: 3px,
+}
+
+.titleStyle {
+    font-weight: 600;
+    color: chocolate;
+    background-color: #F7F7F7;
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    border-right-width: 0px
+}
+
+.deleteStyle {
+    margin-left: 3px;
+    margin-right: 3px
+}
+
+.editStyle {
+    font-size: 15px;
+    text-align: center;
+    padding-top: 9px;
+    margin-left: 3px;
+    margin-right: 3px
+}
+
+.searchStyle {
+    min-width: 435px;
+    margin-right: 10px
+}

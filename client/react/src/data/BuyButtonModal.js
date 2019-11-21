@@ -5,11 +5,7 @@ import {MdShoppingCart} from "react-icons/md";
 import {withCookies} from "react-cookie";
 import {COOKIES_VIEWED_CERTIFICATES} from "../constants";
 import * as PropTypes from "prop-types";
-
-const pStyle = {
-    marginLeft: '3px',
-    marginRight: '3px',
-};
+import './Certificates.css'
 
 const BuyButtonModal = (props) => {
 
@@ -44,7 +40,7 @@ const BuyButtonModal = (props) => {
 
     return (
         <div>
-            <Button color={'danger'} style={pStyle} onClick={onClick}>
+            <Button color={'danger'} className={'pStyle'} onClick={onClick}>
                 <span><MdShoppingCart /></span>
             </Button>
             <Modal isOpen={modal} toggle={toggle}>

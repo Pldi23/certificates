@@ -7,16 +7,12 @@ import {withCookies} from "react-cookie";
 import {getMessage} from "../app/Message";
 import {MdDelete} from "react-icons/md";
 import * as PropTypes from "prop-types";
-
-const pStyle = {
-    marginLeft: '3px',
-    marginRight: '3px',
-};
+import './Certificates.css'
 
 class DeleteLink extends React.Component {
 
     static propTypes = {
-        link: PropTypes.object.isRequired,
+        link: PropTypes.object,
         reloadHandler: PropTypes.func.isRequired,
     };
 
@@ -38,7 +34,7 @@ class DeleteLink extends React.Component {
 
 
     render() {
-        return this.props.link ? <Button disabled={this.props.disable} style={pStyle} onClick={
+        return this.props.link ? <Button disabled={this.props.disable} onClick={
             async () => {
                 let result = await confirm({
                     title: '',
@@ -50,7 +46,7 @@ class DeleteLink extends React.Component {
                 });
                 return result ? this.deleteHandler() : null
             }
-        } className="btn btn-danger btn-sm">
+        } className="btn btn-danger btn-sm deleteStyle">
                 <span><MdDelete /></span>
         </Button>
             : null;

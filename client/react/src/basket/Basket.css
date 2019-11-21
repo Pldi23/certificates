@@ -1,0 +1,32 @@
+.button {
+
+    background-color: #eee;
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    border-right-width: 0px;
+}
+
+.minusStyle {
+
+    background-color: #eee;
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    border-right-width: 0px;
+}
+
+.rowStyle {
+    padding-bottom: 5px;
+    border-bottom-color: #6c757d
+}
+
+.titleStyle {
+    font-weight: 600;
+    color: chocolate;
+    background-color: #F7F7F7;
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    border-right-width: 0px;
+}

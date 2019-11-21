@@ -7,18 +7,14 @@ import {CERTIFICATES_DEFAULT_REQUEST_URL, SEARCH_PARAMETERS} from "../constants"
 import Alert from 'react-s-alert';
 import AlertHint from "./AlertHint";
 import * as PropTypes from "prop-types";
-
-const pStyle = {
-    width: '435px',
-    marginRight: '10px',
-};
+import './Certificates.css'
 
 class Search extends React.Component {
 
     static propTypes = {
         searchValue: PropTypes.string.isRequired,
         pageHandler: PropTypes.func.isRequired,
-        size: PropTypes.number.isRequired,
+        size: PropTypes.string.isRequired,
     };
 
 
@@ -57,13 +53,14 @@ class Search extends React.Component {
         const target = event.target;
         const inputValue = target.value;
 
-        let check = /([a-z0-9 ]+)*(#\u0028[a-z]+( ?)[a-z]+\u0029)*(\$\u0028([<>]?)[0-9]+\u002E?[0-9]?[0-9]?(.[0-9]+\u002E?[0-9]?[0-9]?)?\u0029)?/gi;
+        let check = /([a-z0-9 ]+)|(#\u0028[a-z]+( ?)[a-z]+\u0029)|(\$\u0028([<>]?)[0-9]+\u002E?[0-9]?[0-9]?(.[0-9]+\u002E?[0-9]?[0-9]?)?\u0029)?/gi;
 
         if (inputValue.match(check)) {
             this.setState({
                 params: {
                     value: inputValue,
-                    isValid: true
+                    isValid: false
+                    // isValid: true
                 },
             });
         } else {
@@ -140,7 +137,7 @@ class Search extends React.Component {
                         minLength="1"
                         value={this.state.params.value}
                         onChange={this.handleInputChange}
-                        style={pStyle}
+                        className={'searchStyle'}
                     />
                     <AvFeedback>{getMessage(this.props, 'searchViolation')}</AvFeedback>
                     <Button outline color="secondary" >{getMessage(this.props, 'searchCommand')}</Button>
@@ -148,7 +145,6 @@ class Search extends React.Component {
             </AvForm>
 
     }
-
 }
 
 export default withCookies(Search);

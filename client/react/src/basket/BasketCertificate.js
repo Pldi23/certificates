@@ -4,21 +4,7 @@ import {MdClear} from "react-icons/md";
 import CartCertificateModal from "./CartCertificateModal";
 import {Badge, Col, Row} from "reactstrap";
 import * as PropTypes from "prop-types";
-
-
-const minusStyle = {
-
-    backgroundColor: '#eee',
-    borderTopWidth: '0px',
-    borderLeftWidth: '0px',
-    borderBottomWidth: '0px',
-    borderRightWidth: '0px',
-};
-
-const rowStyle = {
-    paddingBottom: '5px',
-    borderBottomColor: '#6c757d'
-};
+import './Basket.css'
 
 class BasketCertificate extends React.Component {
 
@@ -29,7 +15,7 @@ class BasketCertificate extends React.Component {
 
     render() {
         return <div>
-            <Row style={rowStyle}>
+            <Row className={'rowStyle'}>
                 <Col>
                     <CartCertificateModal certificate={this.props.certificate}/>
                 </Col>
@@ -39,7 +25,7 @@ class BasketCertificate extends React.Component {
                     </Badge>
                 </Col>
                 <Col>
-                    <button style={minusStyle}
+                    <button className={'minusStyle'}
                             onClick={() => this.props.onRemoveFromBasket(this.props.certificate)}>
                         <span><MdClear/></span>
                     </button>

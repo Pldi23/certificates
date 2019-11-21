@@ -415,7 +415,6 @@ class Certificates extends Component {
                             <OrdersCertificatesList
                                 orders={this.state.orders}
                                 locale={this.props.cookies.cookies.locale}
-                                // options={this.state.options}
                                 reloadHandler={this.reloadHandler}
                                 tagSearchHandler={this.tagSearchHandler}
                                 onAddToBasket={this.props.onAddToBasket}
@@ -424,7 +423,6 @@ class Certificates extends Component {
                             < CertificatesList
                                 certificates={this.state.certificates}
                                 locale={this.props.cookies.cookies.locale}
-                                // options={this.state.options}
                                 reloadHandler={this.reloadHandler}
                                 tagSearchHandler={this.tagSearchHandler}
                                 onAddToBasket={this.props.onAddToBasket}

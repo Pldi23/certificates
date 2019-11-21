@@ -6,7 +6,7 @@ import * as PropTypes from "prop-types";
 class Tag extends React.Component {
 
     static propTypes = {
-        key: PropTypes.number.isRequired,
+        key: PropTypes.string,
         tag: PropTypes.object.isRequired,
         tagSearchHandler: PropTypes.func.isRequired
     };

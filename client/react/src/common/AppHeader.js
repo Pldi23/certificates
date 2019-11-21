@@ -13,7 +13,7 @@ class AppHeader extends Component {
 
     static propTypes = {
         locale: PropTypes.string.isRequired,
-        currentUser: PropTypes.object.isRequired,
+        currentUser: PropTypes.object,
         currentRouteCertificates: PropTypes.bool.isRequired,
         authenticated: PropTypes.bool.isRequired,
         onLocale: PropTypes.func.isRequired,

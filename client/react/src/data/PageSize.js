@@ -20,7 +20,7 @@ const colourStyles = {
 class PageSize extends React.Component {
 
     static propTypes = {
-        size: PropTypes.number.isRequired,
+        size: PropTypes.string.isRequired,
         pageSizeHandler: PropTypes.func.isRequired
     };
 

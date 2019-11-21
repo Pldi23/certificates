@@ -2,8 +2,7 @@ import {Card, CardBody, Collapse} from "reactstrap";
 import {withCookies} from "react-cookie";
 import {getMessage} from "../app/Message";
 import React, {useState} from "react";
-
-const hintStyle = { marginBottom: '1rem' };
+import './Certificates.css'
 
 const AlertHint = (props) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +13,7 @@ const AlertHint = (props) => {
         <div>
             <span>{getMessage(props, 'notReadableSearch')}</span>
             <hr></hr>
-            <button className={'badge badge-info'} onClick={toggle} style={hintStyle}>{getMessage(props, 'hint')}</button>
+            <button className={'badge badge-info hintStyle'} onClick={toggle}>{getMessage(props, 'hint')}</button>
             <Collapse isOpen={isOpen}>
                 <Card>
                     <CardBody>

@@ -6,15 +6,7 @@ import {withCookies} from "react-cookie";
 import {FaCartArrowDown} from "react-icons/fa";
 import ConfirmPurchaseModal from "./ConfirmPurchaseModal";
 import * as PropTypes from "prop-types";
-
-const cartStyle = {
-
-    backgroundColor: '#eee',
-    borderTopWidth: '0px',
-    borderLeftWidth: '0px',
-    borderBottomWidth: '0px',
-    borderRightWidth: '0px',
-};
+import './Basket.css'
 
 class Basket extends React.Component {
 
@@ -34,7 +26,7 @@ class Basket extends React.Component {
             />
         );
         return <div>
-            <button style={cartStyle} id="PopoverLegacy" type="button">
+            <button className={'button'}  id="PopoverLegacy" type="button">
                 <span><FaCartArrowDown/></span>
             </button>
             <UncontrolledPopover trigger="legacy" placement="bottom" target="PopoverLegacy">

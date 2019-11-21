@@ -3,23 +3,16 @@ import {Link} from "react-router-dom";
 import {withCookies} from "react-cookie";
 import {MdModeEdit} from "react-icons/md";
 import * as PropTypes from "prop-types";
-
-const pStyle = {
-    fontSize: '15px',
-    textAlign: 'center',
-    paddingTop: '9px',
-    marginLeft: '3px',
-    marginRight: '3px',
-};
+import './Certificates.css'
 
 class EditLink extends React.Component {
 
     static propTypes = {
         locale: PropTypes.string.isRequired,
-        link: PropTypes.object.isRequired,
+        link: PropTypes.object,
         name: PropTypes.string.isRequired,
         description: PropTypes.string.isRequired,
-        price: PropTypes.string.isRequired,
+        price: PropTypes.number.isRequired,
         expiration: PropTypes.string.isRequired,
         tags: PropTypes.array.isRequired,
 
@@ -51,7 +44,7 @@ class EditLink extends React.Component {
                     isBlocking: true
                 }
             }}
-                  className="btn btn-danger btn-sm" style={pStyle}>
+                  className="btn btn-danger btn-sm editStyle">
                 <span><MdModeEdit /></span>
             </Link>
             : null;

@@ -3,16 +3,7 @@ import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {getMessage} from "../app/Message";
 import {withCookies} from "react-cookie";
 import * as PropTypes from "prop-types";
-
-const titleStyle = {
-    fontWeight: 600,
-    color: 'chocolate',
-    backgroundColor: '#F7F7F7',
-    borderTopWidth: '0px',
-    borderLeftWidth: '0px',
-    borderBottomWidth: '0px',
-    borderRightWidth: '0px',
-};
+import './Basket.css'
 
 const CartCertificateModal = (props) => {
 
@@ -30,7 +21,7 @@ const CartCertificateModal = (props) => {
 
     return (
         <div>
-            <button style={titleStyle} onClick={toggle}>{certificate.name}</button>
+            <button className={'titleStyle'} onClick={toggle}>{certificate.name}</button>
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>{certificate.name}</ModalHeader>
                 <ModalBody>

@@ -41,7 +41,6 @@ export default withCookies(OrdersCertificatesList)
 class OrderCertificates extends React.Component {
 
     static propTypes = {
-        key: PropTypes.number.isRequired,
         certificates: PropTypes.array.isRequired,
         locale: PropTypes.string.isRequired,
         created: PropTypes.string.isRequired,

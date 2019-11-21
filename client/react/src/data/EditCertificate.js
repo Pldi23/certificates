@@ -57,7 +57,6 @@ class EditCertificate extends React.Component {
             loading: true
         });
         this.setState(this.props.location.state);
-        console.log('mounting /edit')
         getTags(this.props).then(json => {
             this.setState({
                 suggestions: json.tagList.map(data => {
@@ -247,11 +246,15 @@ class EditCertificate extends React.Component {
         const {tags} = this.state;
         this.setState({
             tags: tags.filter((tag, index) => index !== i),
+            isBlocking: tags.length > 0
         });
     };
 
     handleAddition = (tag) => {
-        this.setState(state => ({tags: [...state.tags, tag]}));
+        this.setState(state => ({
+            tags: [...state.tags, tag],
+            isBlocking: true
+        }));
     };
 
     handleDrag = (tag, currPos, newPos) => {
@@ -278,7 +281,7 @@ class EditCertificate extends React.Component {
         return (
             <div>
                 <Prompt
-                    when={isBlocking || tags.length > 0}
+                    when={isBlocking}
                     message={
                         getMessage(this.props, 'unsavedData')
                     }

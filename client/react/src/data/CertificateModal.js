@@ -5,16 +5,7 @@ import {getMessageByLocale} from "../app/Message";
 import {withCookies} from "react-cookie";
 import {COOKIES_VIEWED_CERTIFICATES} from "../constants";
 import * as PropTypes from "prop-types";
-
-const titleStyle = {
-    fontWeight: 600,
-    color: 'chocolate',
-    backgroundColor: '#F7F7F7',
-    borderTopWidth: '0px',
-    borderLeftWidth: '0px',
-    borderBottomWidth: '0px',
-    borderRightWidth: '0px',
-};
+import './Certificates.css'
 
 const CertificateModal = (props) => {
 
@@ -43,7 +34,7 @@ const CertificateModal = (props) => {
 
     return (
         <div>
-            <button style={titleStyle} onClick={onClick}>{certificate.name}</button>
+            <button className={'titleStyle'} onClick={onClick}>{certificate.name}</button>
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>{certificate.name}</ModalHeader>
                 <ModalBody>

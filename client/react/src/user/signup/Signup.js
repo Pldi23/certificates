@@ -21,7 +21,6 @@ import Alert from 'react-s-alert';
 import {withCookies} from 'react-cookie';
 import {getMessage, getMessageByLocale} from "../../app/Message";
 import {AvFeedback, AvForm, AvGroup, AvInput} from 'availity-reactstrap-validation';
-import * as PropTypes from "prop-types";
 
 
 class Signup extends Component {
@@ -57,9 +56,6 @@ class Signup extends Component {
 
 class SocialSignup extends Component {
 
-    static propTypes = {
-        locale: PropTypes.string.isRequired
-    };
     render() {
         return (
             <div className="social-signup">
@@ -75,12 +71,6 @@ class SocialSignup extends Component {
 
 
 class SignupForm extends Component {
-
-    static propTypes = {
-        locale: PropTypes.string.isRequired,
-        routeHandler: PropTypes.func.isRequired,
-    };
-
 
     constructor(props) {
         super(props);
