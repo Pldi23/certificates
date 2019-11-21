@@ -3,8 +3,10 @@ import {Button, Label} from "reactstrap";
 import {withCookies} from "react-cookie";
 import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
 import {getMessage} from "../app/Message";
-import {CERTIFICATES_DEFAULT_REQUEST_URL, SEARCH_PARAMETERS, SEARCH_REGEX_PATTERN} from "../constants";
+import {CERTIFICATES_DEFAULT_REQUEST_URL, SEARCH_PARAMETERS} from "../constants";
 import Alert from 'react-s-alert';
+import AlertHint from "./AlertHint";
+import * as PropTypes from "prop-types";
 
 const pStyle = {
     width: '435px',
@@ -13,21 +15,51 @@ const pStyle = {
 
 class Search extends React.Component {
 
+    static propTypes = {
+        searchValue: PropTypes.string.isRequired,
+        pageHandler: PropTypes.func.isRequired,
+        size: PropTypes.number.isRequired,
+    };
+
 
     constructor(props) {
         super(props);
         this.state = {
             params: {
-                value: localStorage.getItem(SEARCH_PARAMETERS) ? localStorage.getItem(SEARCH_PARAMETERS) : '',
-                isValid: false
+                value: '',
+                isValid: true
             }
         };
+    }
+
+    componentDidMount() {
+        let value = this.props.searchValue || '';
+        let check = /([a-z0-9 ]+)*(#\u0028[a-z]+( ?)[a-z]+\u0029)*(\$\u0028([<>]?)[0-9]+\u002E?[0-9]?[0-9]?(.[0-9]+\u002E?[0-9]?[0-9]?)?\u0029)?/gi;
+        value === '' || value.match(check) ?
+        this.setState({
+            params: {
+                value: value,
+                isValid: true
+            }
+
+        }) :
+            this.setState({
+                params: {
+                    value: value,
+                    isValid: false
+                }
+
+            })
+
     }
 
     handleInputChange = (event) => {
         const target = event.target;
         const inputValue = target.value;
-        if (inputValue.match(SEARCH_REGEX_PATTERN)) {
+
+        let check = /([a-z0-9 ]+)*(#\u0028[a-z]+( ?)[a-z]+\u0029)*(\$\u0028([<>]?)[0-9]+\u002E?[0-9]?[0-9]?(.[0-9]+\u002E?[0-9]?[0-9]?)?\u0029)?/gi;
+
+        if (inputValue.match(check)) {
             this.setState({
                 params: {
                     value: inputValue,
@@ -46,25 +78,31 @@ class Search extends React.Component {
     };
 
     handleSubmit = () => {
+
         if (!this.state.params.isValid) {
             localStorage.setItem(SEARCH_PARAMETERS, this.state.params.value);
-            Alert.info(getMessage(this.props, 'notReadableSearch'))
+            Alert.info(<AlertHint {...this.props}/>, {
+                timeout: 'none'
+            })
         } else {
             let search = this.state.params.value;
             search = search.replace(/(?<!\u0028)\b[\w\s]+\b(?![\w\s]*[\u0029])/,
-                function (match) {
+                 (match) => {
                     return `&name=l:${match}&description=l:${match}`
                 });
             if (search.includes('#(')) {
                 search = search.replace('#(', '&tag_name=').replace(')', '');
                 while (search.includes('#(')) {
+                search = search.replace(/\s+#/, '#');
                     search = search.replace(/(#\u0028\w+( ?)\w+\u0029)/,
-                        function (match, p1) {
+                         (match, p1) => {
                             p1 = p1.replace('#', '').replace('(', '').replace(')', '');
+                            console.log(p1)
                             return `,${p1}`
                         })
                 }
             }
+            search = search.replace(/\s+\$/, '$');
             search = search.replace(/\$\u0028([<>]?)\d+\u002E?\d?\d?(.\d+\u002E?\d?\d?)?\u0029/,
                 function (match) {
                     match = match.replace('$(', '').replace(')', '');
@@ -82,8 +120,8 @@ class Search extends React.Component {
                         return `&price=${match}`
                     }
                 });
-            search = search.replace(/\s/g, '');
-            let href = CERTIFICATES_DEFAULT_REQUEST_URL + search + '&page=1&size=' + this.props.size;
+            search = search.replace(' &', '&');
+            let href = CERTIFICATES_DEFAULT_REQUEST_URL + '&page=1&size=' + this.props.size + search;
             localStorage.setItem(SEARCH_PARAMETERS, this.state.params.value);
             this.props.pageHandler(href);
         }

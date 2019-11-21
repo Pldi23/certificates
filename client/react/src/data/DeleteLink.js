@@ -6,6 +6,7 @@ import confirm from "reactstrap-confirm";
 import {withCookies} from "react-cookie";
 import {getMessage} from "../app/Message";
 import {MdDelete} from "react-icons/md";
+import * as PropTypes from "prop-types";
 
 const pStyle = {
     marginLeft: '3px',
@@ -13,6 +14,11 @@ const pStyle = {
 };
 
 class DeleteLink extends React.Component {
+
+    static propTypes = {
+        link: PropTypes.object.isRequired,
+        reloadHandler: PropTypes.func.isRequired,
+    };
 
     deleteHandler = () => {
         deleteCertificate(this.props, this.props.link.href).then(response => {

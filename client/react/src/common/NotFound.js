@@ -3,10 +3,13 @@ import './NotFound.css';
 import {PREV_PATH} from "../constants";
 import LocalizedStrings from 'react-localization';
 import {message} from "../app/Message";
+import * as PropTypes from "prop-types";
 
 class NotFound extends Component {
 
-
+    static propTypes = {
+        locale: PropTypes.string.isRequired,
+    };
 
     render() {
         const path = this.props.location;

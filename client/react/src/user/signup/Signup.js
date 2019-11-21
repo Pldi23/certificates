@@ -12,7 +12,7 @@ import {
     PASSWORD_REGEX_PATTERN,
     ROLE_USER,
     AUTHORIZATION_HEADER,
-    REFRESH_HEADER, EXPIRES_IN_HEADER
+    REFRESH_HEADER, EXPIRES_IN_HEADER, CERTIFICATES_DEFAULT_REQUEST_URL
 } from '../../constants';
 import {signup} from '../../service/APIService';
 import fbLogo from '../../img/fb-logo.png';
@@ -21,9 +21,13 @@ import Alert from 'react-s-alert';
 import {withCookies} from 'react-cookie';
 import {getMessage, getMessageByLocale} from "../../app/Message";
 import {AvFeedback, AvForm, AvGroup, AvInput} from 'availity-reactstrap-validation';
+import * as PropTypes from "prop-types";
 
 
 class Signup extends Component {
+
+
+
     render() {
         if (this.props.authenticated) {
             return <Redirect
@@ -52,6 +56,10 @@ class Signup extends Component {
 
 
 class SocialSignup extends Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired
+    };
     render() {
         return (
             <div className="social-signup">
@@ -67,6 +75,11 @@ class SocialSignup extends Component {
 
 
 class SignupForm extends Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired,
+        routeHandler: PropTypes.func.isRequired,
+    };
 
 
     constructor(props) {
@@ -147,8 +160,7 @@ class SignupForm extends Component {
                         this.props.signUpHandler(json);
                         Alert.success(getMessage(this.props, 'signUpSuccess'));
                     });
-                    localStorage.setItem(PREV_PATH, '/certificates');
-                    this.props.history.push("/certificates");
+                    this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL);
                 } else {
                     response.json().then(json => {
                         let message = JSON.stringify(json.messages);

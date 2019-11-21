@@ -6,13 +6,24 @@ import {message} from '../app/Message'
 import {CERTIFICATES_HREF, ROLE_ADMIN, SEARCH_PARAMETERS} from "../constants";
 import {Button} from "reactstrap";
 import Basket from "../basket/Basket";
+import * as PropTypes from "prop-types";
 
 
 class AppHeader extends Component {
 
+    static propTypes = {
+        locale: PropTypes.string.isRequired,
+        currentUser: PropTypes.object.isRequired,
+        currentRouteCertificates: PropTypes.bool.isRequired,
+        authenticated: PropTypes.bool.isRequired,
+        onLocale: PropTypes.func.isRequired,
+        onLogout: PropTypes.func.isRequired,
+        basketCertificates: PropTypes.array.isRequired,
+        onRemoveFromBasket: PropTypes.func.isRequired,
+        onRefreshBasket: PropTypes.func.isRequired
+    };
 
     render() {
-        // console.log(this.props.certificatesUrl)
         let strings = new LocalizedStrings({data: message});
         strings.setContent(message);
         strings.setLanguage(this.props.locale);
@@ -41,14 +52,10 @@ class AppHeader extends Component {
                                     </li>
                                     <li>
                                         <NavLink
-                                            to="/certificates"
-                                            // to={{
-                                            //     pathname: '/certificates',
-                                            //     // search: this.props.certificatesUrlHandler,
-                                            //     // hash: '#the-hash',
-                                            //     // state: { fromDashboard: true }
-                                            // }}
-                                            // onClick={localStorage.setItem(CERTIFICATES_HREF, new URL(window.location.pathname))}
+                                            to={{
+                                                pathname: '/certificates',
+                                                search: '?sort=creationdate',
+                                            }}
 
                                         >{strings.certificates}</NavLink>
                                     </li>
@@ -76,14 +83,10 @@ class AppHeader extends Component {
                                     </li>
                                     <li>
                                         <NavLink
-                                            to="/certificates"
-                                                 // to={{
-                                                 //     pathname: '/certificates',
-                                                 //     // search: this.props.certificatesUrlHandler,
-                                                 //     // hash: '#the-hash',
-                                                 //     // state: { fromDashboard: true }
-                                                 // }}
-                                                 // onClick={localStorage.setItem(CERTIFICATES_HREF, window.location.pathname)}
+                                            to={{
+                                                pathname: '/certificates',
+                                                search: '?sort=creationdate',
+                                            }}
                                         >{strings.certificates}</NavLink>
                                     </li>
                                     <li>

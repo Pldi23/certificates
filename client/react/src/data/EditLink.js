@@ -2,6 +2,7 @@ import React from "react";
 import {Link} from "react-router-dom";
 import {withCookies} from "react-cookie";
 import {MdModeEdit} from "react-icons/md";
+import * as PropTypes from "prop-types";
 
 const pStyle = {
     fontSize: '15px',
@@ -12,6 +13,17 @@ const pStyle = {
 };
 
 class EditLink extends React.Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired,
+        link: PropTypes.object.isRequired,
+        name: PropTypes.string.isRequired,
+        description: PropTypes.string.isRequired,
+        price: PropTypes.string.isRequired,
+        expiration: PropTypes.string.isRequired,
+        tags: PropTypes.array.isRequired,
+
+    };
 
     render() {
         return this.props.link ?

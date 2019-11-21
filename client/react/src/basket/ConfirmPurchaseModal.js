@@ -4,8 +4,15 @@ import {getMessage} from "../app/Message";
 import {withCookies} from "react-cookie";
 import {postOrder} from "../service/APIService";
 import Alert from "react-s-alert";
+import * as PropTypes from "prop-types";
 
 const ConfirmPurchaseModal = (props) => {
+
+    ConfirmPurchaseModal.propTypes = {
+        basketCertificates: PropTypes.array.isRequired,
+        onRefreshBasket: PropTypes.func.isRequired,
+    };
+
     const {
         basketCertificates,
         onRefreshBasket

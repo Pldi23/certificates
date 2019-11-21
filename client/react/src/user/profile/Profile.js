@@ -3,8 +3,14 @@ import {Container, Col, Alert} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {getMessageByLocale} from "../../app/Message";
 import {ROLE_ADMIN} from "../../constants";
+import * as PropTypes from "prop-types";
 
 class Profile extends Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired
+    };
+
     constructor(props) {
         super(props);
         this.state = {

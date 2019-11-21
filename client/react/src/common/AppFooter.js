@@ -2,8 +2,13 @@ import React, {Component} from "react";
 import {Container, Navbar, Col} from "reactstrap";
 import LocalizedStrings from 'react-localization';
 import { message } from '../app/Message'
+import * as PropTypes from "prop-types";
 
 class AppFooter extends Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired,
+    };
 
     render() {
         let strings = new LocalizedStrings({data: message});

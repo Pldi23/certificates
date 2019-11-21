@@ -32,10 +32,12 @@ export let message = {
         buy: "Buy",
         certificatesLabel: "Certificates",
         searchParams: "Search...",
-        searchViolation: "#(tagname) to search by tag, $(200-400) to search by price, usual text to search by title or description",
+        searchViolation: "#(tagname) to search by tag, $(200-400) to search by price, usual text to search by title or description. Punctuation in search query does not supported",
         noCertificates: "Nothing found",
         searchCommand: "Go!",
         notReadableSearch: "Could not understand your query...sorry",
+        hint: "hint",
+        invalidQuery: "query could not be synchronized with search panel",
 
         //add/edit
         title: "Title",
@@ -138,6 +140,8 @@ export let message = {
         noCertificates: "Ничего не найдено",
         searchCommand: "Искать!",
         notReadableSearch: "Не могу понять ваш запрос...извините",
+        hint: "подсказка",
+        invalidQuery: "запрос не может быть синхронизирован со строкой поиска",
 
         //add/edit
         title: "Название",
@@ -213,13 +217,13 @@ export function getMessage(props, key) {
     const {cookies} = props;
     let strings = new LocalizedStrings({message});
     strings.setContent(message);
-    strings.setLanguage(cookies.get(COOKIES_LOCALE) ? cookies.get(COOKIES_LOCALE) : APP_DEFAULT_LOCALE);
+    strings.setLanguage(cookies.get(COOKIES_LOCALE) || APP_DEFAULT_LOCALE);
     return strings.getString(key)
 }
 
 export function getMessageByLocale(locale, key) {
     let strings = new LocalizedStrings({message});
     strings.setContent(message);
-    strings.setLanguage(locale ? locale : APP_DEFAULT_LOCALE);
+    strings.setLanguage(locale || APP_DEFAULT_LOCALE);
     return strings.getString(key)
 }

@@ -24,7 +24,7 @@ import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import './App.css';
 import {CookiesProvider, withCookies} from 'react-cookie';
-import CreateCertificate from "../data/EditCertificate";
+import EditCertificate from "../data/EditCertificate";
 import LocalizedStrings from 'react-localization';
 import {message} from './Message'
 import DeleteLink from "../data/DeleteLink";
@@ -32,7 +32,6 @@ import {BrowserRouter as Router} from 'react-router-dom';
 
 
 class App extends Component {
-
 
     constructor(props) {
         super(props);
@@ -44,19 +43,11 @@ class App extends Component {
             currentRouteCertificates: false,
             locale: cookies.get(COOKIES_LOCALE) ? cookies.get(COOKIES_LOCALE) : APP_DEFAULT_LOCALE,
             basketCertificates: [],
-            certificatesUrl: ''
+
         };
-
-        this.loadCurrentlyLoggedInUser = this.loadCurrentlyLoggedInUser.bind(this);
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.cookies.cookies.locale !== this.props.cookies.cookies.locale)
-            this.setState({locale: this.props.cookies.cookies.locale})
-    }
-
-
-    loadCurrentlyLoggedInUser() {
+    loadCurrentlyLoggedInUser = () => {
         this.setState({
             loading: true
         });
@@ -69,11 +60,13 @@ class App extends Component {
                 });
             }).catch(error => {
             this.setState({
-                loading: false
+                loading: false,
+                authenticated: false,
             });
-            console.log(error)
+
+            console.log(error);
         });
-    }
+    };
 
     handleLocale = () => {
         const {cookies} = this.props;
@@ -106,7 +99,9 @@ class App extends Component {
     };
 
     loginHandler = () => {
-        this.loadCurrentlyLoggedInUser();
+        if (!this.state.currentUser) {
+            this.loadCurrentlyLoggedInUser();
+        }
     };
 
     routeHandler = (value) => {
@@ -117,11 +112,13 @@ class App extends Component {
     };
 
     signUpHandler = (currentUser) => {
-        this.setState({
-            currentUser: currentUser,
-            authenticated: true,
-            loading: false
-        })
+        if (!this.state.currentUser) {
+            this.setState({
+                currentUser: currentUser,
+                authenticated: true,
+                loading: false
+            })
+        }
     };
 
     onAddToBasket = (newCertificate) => {
@@ -149,12 +146,17 @@ class App extends Component {
     };
 
     componentDidMount() {
+        console.log('mounting app')
         this.loadCurrentlyLoggedInUser();
     }
 
-    certificatesUrlHandler = (href) => {
-        return href;
-    };
+    componentWillUnmount() {
+        console.log('unmountinfg app')
+    }
+
+    componentWillMount() {
+        document.title = 'Certificates'
+    }
 
     render() {
 
@@ -175,7 +177,6 @@ class App extends Component {
                                        basketCertificates={this.state.basketCertificates}
                                        onRemoveFromBasket={this.onRemoveFromBasket}
                                        onRefreshBasket={this.onRefreshBasket}
-                                       href={this.certificatesUrlHandler}
                                        locale={this.state.locale}/>
                         </div>
                         <div className="app-body">
@@ -186,18 +187,19 @@ class App extends Component {
                                            {...props}
                                        />}
                                 />
-                                <PrivateRoute path="/profile" authenticated={this.state.authenticated}
+                                <PrivateRoute path="/profile"
+                                              authenticated={this.state.authenticated}
                                               currentUser={this.state.currentUser}
                                               routeHandler={this.routeHandler}
                                               locale={this.state.locale}
                                               component={Profile}/>
-                                <Route path="/certificates"
+                                <Route path={["/certificates", "/orders/self"]}
                                        render={(props) => <Certificates loginHandler={this.loginHandler}
                                                                         routeHandler={this.routeHandler}
                                                                         authenticated={this.state.authenticated}
                                                                         onAddToBasket={this.onAddToBasket}
-                                                                        certificatesUrlHandler={this.certificatesUrlHandler}
-                                                                        {...props} />}/>
+                                                                        {...props}
+                                       />}/>
                                 <Route path="/login"
                                        render={(props) => <Login authenticated={this.state.authenticated}
                                                                  loginHandler={this.loginHandler}
@@ -210,18 +212,18 @@ class App extends Component {
                                            signUpHandler={this.signUpHandler}
                                            routeHandler={this.routeHandler}
                                            {...props} />}/>
-                                <Route path="/add"
-                                       render={(props) => <CreateCertificate
-                                           routeHandler={this.routeHandler}
-                                           {...props} />}
+                                <PrivateRoute
+                                    path={["/add", "/edit"]}
+                                    authenticated={this.state.authenticated}
+                                    component={EditCertificate}
+                                    routeHandler={this.routeHandler}
+
                                 />
-                                <Route path="/edit"
-                                       render={(props) => <CreateCertificate
-                                           routeHandler={this.routeHandler}
-                                           {...props} />}
-                                />
-                                <Route path="/oauth2/redirect" component={OAuth2RedirectHandler}/>
-                                <Route path="/delete" component={DeleteLink}/>
+                                <Route path="/oauth2/redirect"
+                                       loginHandler={this.loginHandler}
+                                       component={OAuth2RedirectHandler}/>
+                                <PrivateRoute path="/delete"
+                                              component={DeleteLink}/>
                                 <Route render={(props) => <NotFound
                                     locale={this.state.locale}{...props}/>}/>
                             </Switch>
@@ -231,7 +233,9 @@ class App extends Component {
                         />
                         <Alert stack={{limit: 5}}
                                timeout={5000}
-                               position='top-right' effect='slide' offset={65}/>
+                               position='top-right'
+                               effect='slide'
+                               offset={65}/>
                     </div>
                 </CookiesProvider>
             </Router>

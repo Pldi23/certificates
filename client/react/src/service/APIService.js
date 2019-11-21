@@ -13,6 +13,7 @@ import {
     XSRF_HEADER, USER_SELF_URL, LOGIN_URL, CERTIFICATES_URL, TAGS_ALL_URL, SIGN_UP_URL, POST_ORDERS_URL
 } from '../constants';
 import Alert from "react-s-alert";
+import {getMessage} from "../app/Message";
 
 const request = (options, props) => {
     const headers = new Headers({
@@ -22,7 +23,7 @@ const request = (options, props) => {
     if (localStorage.getItem(ACCESS_TOKEN)) {
         if (localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) && localStorage.getItem(REFRESH_TOKEN) &&
             localStorage.getItem(ACCESS_TOKEN_EXPIRES_IN) < Date.now()) {
-            fetch(API_BASE_URL + REFRESH_TOKEN_URL, {
+            return fetch(API_BASE_URL + REFRESH_TOKEN_URL, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -38,31 +39,59 @@ const request = (options, props) => {
                         localStorage.setItem(REFRESH_TOKEN, response.headers.get(REFRESH_HEADER));
                         localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get(EXPIRES_IN_HEADER));
                         headers.append(AUTHORIZATION_HEADER, response.headers.get(AUTHORIZATION_HEADER));
-                        props.loginHandler(true);
+                        console.log('token setted');
+                        console.log(headers.get(AUTHORIZATION_HEADER));
+                        // props.loginHandler(true);
+                        if (options.method !== 'GET') {
+                            headers.append(XSRF_HEADER, cookies.get(COOKIES_XSRF));
+
+                        }
+                        headers.append("Accept-Language", cookies.get(COOKIES_LOCALE) || APP_DEFAULT_LOCALE);
+                        const defaults = {
+                            credentials: 'include',
+                            headers: headers
+                        };
+                        options = Object.assign({}, defaults, options);
+                        return fetch(options.url, options)
+
+
                     } else {
-                        console.log('Token failed to refresh' + response.status + ' , ' + response + ' , ' + localStorage.getItem(ACCESS_TOKEN));
+
+                        console.log('Token failed to refresh ' + response + ' , ' + localStorage.getItem(ACCESS_TOKEN));
+                        return Promise.reject("No valid refresh token set.");
+
                     }
-                })
-                .catch(error => {
-                    console.log(
-                        (error && error.message) || 'could not refresh token');
-                });
+                }).catch(error => {
+                console.log(
+                    (error && error.message) || 'could not refresh token');
+            });
         } else {
-            headers.append(AUTHORIZATION_HEADER, localStorage.getItem(ACCESS_TOKEN))
+            headers.append(AUTHORIZATION_HEADER, localStorage.getItem(ACCESS_TOKEN));
+            if (options.method !== 'GET') {
+                headers.append(XSRF_HEADER, cookies.get(COOKIES_XSRF));
+
+            }
+            headers.append("Accept-Language", cookies.get(COOKIES_LOCALE) || APP_DEFAULT_LOCALE);
+            const defaults = {
+                credentials: 'include',
+                headers: headers
+            };
+            options = Object.assign({}, defaults, options);
+            return fetch(options.url, options)
         }
-    }
+    } else {
+        if (options.method !== 'GET') {
+            headers.append(XSRF_HEADER, cookies.get(COOKIES_XSRF));
 
-    if (options.method !== 'GET') {
-        headers.append(XSRF_HEADER, cookies.get(COOKIES_XSRF));
-
+        }
+        headers.append("Accept-Language", cookies.get(COOKIES_LOCALE) || APP_DEFAULT_LOCALE);
+        const defaults = {
+            credentials: 'include',
+            headers: headers
+        };
+        options = Object.assign({}, defaults, options);
+        return fetch(options.url, options)
     }
-    headers.append("Accept-Language", cookies.get(COOKIES_LOCALE) ? cookies.get(COOKIES_LOCALE) : APP_DEFAULT_LOCALE);
-    const defaults = {
-        credentials: 'include',
-        headers: headers
-    };
-    options = Object.assign({}, defaults, options);
-    return fetch(options.url, options)
 
 };
 
@@ -86,6 +115,7 @@ export function getCurrentUser(props) {
 }
 
 export function getOrdersSelf(props, href) {
+
     return request({
         url: API_BASE_URL + href,
         method: 'GET'
@@ -107,15 +137,14 @@ export function getOrdersSelf(props, href) {
 }
 
 export function getCertificatesByHref(props, href) {
+
     return request({
         url: API_BASE_URL + href,
         method: 'GET',
     }, props).then(response => {
             return response.json().then(json => {
                 if (response.status === 400) {
-                    let message = JSON.stringify(json.messages);
-                    Alert.error(message.substring(1, message.length - 1));
-                    return []
+                    Alert.error(getMessage(props, 'notReadableSearch'));
                 }
                 if (!response.ok) {
                     return Promise.reject(json);
@@ -126,7 +155,7 @@ export function getCertificatesByHref(props, href) {
     )
 }
 
-export function login(email, password,  props) {
+export function login(email, password, props) {
     let url = new URL(API_BASE_URL + LOGIN_URL),
         params = {username: email, password: password};
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
@@ -160,18 +189,17 @@ export function deleteCertificate(props, href) {
 }
 
 export function getTags(props) {
+
     return request({
         url: API_BASE_URL + TAGS_ALL_URL,
         method: 'GET'
-    }, props).then(response => {
-            return response.json().then(json => {
-                if (!response.ok) {
-                    return Promise.reject(json);
-                }
-                return json;
-            });
-        }
-    );
+    }, props)
+        .then(response => {
+            if (!response.ok)  {
+                return Promise.reject(response.json())
+            }
+            return response.json()
+        });
 }
 
 export function signup(userJson, props) {

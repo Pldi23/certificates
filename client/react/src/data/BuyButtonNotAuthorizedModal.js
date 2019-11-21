@@ -3,8 +3,14 @@ import {Button, Modal, ModalFooter, ModalHeader} from "reactstrap";
 import {getMessageByLocale} from "../app/Message";
 import {NavLink} from "react-router-dom";
 import {MdShoppingCart} from "react-icons/md";
+import * as PropTypes from "prop-types";
 
 const BuyButtonNotAuthorizedModal = (props) => {
+
+    BuyButtonNotAuthorizedModal.propTypes = {
+        locale: PropTypes.string.isRequired,
+    };
+
     const {
         locale
     } = props;
@@ -17,7 +23,6 @@ const BuyButtonNotAuthorizedModal = (props) => {
         <div>
             <Button color={'danger'} onClick={toggle}>
                 <span><MdShoppingCart /></span>
-                {/*{getMessageByLocale(locale, 'buy')}*/}
             </Button>
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>{getMessageByLocale(locale, 'notAuthorized')}</ModalHeader>

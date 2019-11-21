@@ -11,9 +11,14 @@ import Alert from 'react-s-alert';
 import {withCookies} from 'react-cookie';
 import {getMessage, getMessageByLocale} from "../../app/Message";
 import LoginForm from "./LoginForm";
+import * as PropTypes from "prop-types";
 
 
 class Login extends Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired
+    };
 
     componentDidMount() {
         if (this.props.location.state && this.props.location.state.error) {

@@ -8,7 +8,11 @@ import Alert from "react-s-alert";
 import './CreateCertificate.css';
 import {getMessage} from "../app/Message";
 import {Prompt} from "react-router-dom";
-import {CERTIFICATE_NAME_REGEX_PATTERN, CERTIFICATE_PRICE_PATTERN} from "../constants";
+import {
+    CERTIFICATE_NAME_REGEX_PATTERN,
+    CERTIFICATE_PRICE_PATTERN,
+    CERTIFICATES_DEFAULT_REQUEST_URL
+} from "../constants";
 
 const KeyCodes = {
     comma: 188,
@@ -17,9 +21,7 @@ const KeyCodes = {
 
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-
 class EditCertificate extends React.Component {
-
 
     constructor(props) {
         super(props);
@@ -49,12 +51,14 @@ class EditCertificate extends React.Component {
         };
     }
 
-    async componentDidMount() {
-        this.setState(this.props.location.state);
+
+    componentDidMount() {
         this.setState({
             loading: true
         });
-        await getTags(this.props).then(json => {
+        this.setState(this.props.location.state);
+        console.log('mounting /edit')
+        getTags(this.props).then(json => {
             this.setState({
                 suggestions: json.tagList.map(data => {
                     return {
@@ -65,9 +69,7 @@ class EditCertificate extends React.Component {
                 loading: false
             });
         });
-        this.setState({
-            loading: false
-        });
+
         this.props.routeHandler(false);
     }
 
@@ -162,7 +164,7 @@ class EditCertificate extends React.Component {
                 response.json().then(json => {
                     Alert.success(getMessage(this.props, 'certificateUpdated'));
                 });
-                this.props.history.push("/certificates");
+                this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL);
             } else {
                 response.json().then(json => {
                     let message = JSON.stringify(json.messages);
@@ -209,7 +211,7 @@ class EditCertificate extends React.Component {
                     response.json().then(json => {
                         Alert.success(getMessage(this.props, 'certificateAdded'));
                     });
-                    this.props.history.push("/certificates");
+                    this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL);
                 } else {
                     response.json().then(json => {
                         let message = JSON.stringify(json.messages);
@@ -228,7 +230,7 @@ class EditCertificate extends React.Component {
         deleteCertificate(this.props, this.state.link.href).then(response => {
             if (response.ok) {
                 Alert.success(getMessage(this.props, 'certificateDeleted'));
-                this.props.history.push('/certificates')
+                this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL)
             } else {
                 response.json().then(json => {
                     let message = JSON.stringify(json.messages);
@@ -267,7 +269,8 @@ class EditCertificate extends React.Component {
         const {tags, suggestions} = this.state;
         const nameLength = this.state.name.length;
         const descriptionLength = this.state.name.description;
-        const path = this.props.location.pathname;
+        let url = new URL(window.location);
+        let href = url.pathname + url.search;
         const isBlocking = this.state.isBlocking;
         const isFormValid = this.state.name.isValid && this.state.description.isValid && this.state.price.isValid &&
             this.state.expiration.isValid;
@@ -275,7 +278,7 @@ class EditCertificate extends React.Component {
         return (
             <div>
                 <Prompt
-                    when={isBlocking}
+                    when={isBlocking || tags.length > 0}
                     message={
                         getMessage(this.props, 'unsavedData')
                     }
@@ -290,22 +293,22 @@ class EditCertificate extends React.Component {
                     <AvForm>
                         <Col sm="12" md={{size: 6, offset: 3}}>
                             <AvGroup>
-                                <Label for="certificateName">{getMessage(this.props, 'title')}</Label>
+                                <Label for="certificateName">{getMessage(this.props, 'title')}*</Label>
                                 <AvInput
                                     type="text"
                                     name="name"
                                     id="certificateName"
                                     placeholder={getMessage(this.props, 'title')}
                                     pattern={CERTIFICATE_NAME_REGEX_PATTERN}
-                                    minLength="1"
-                                    maxLength="30"
+                                    minLength={"1"}
+                                    maxLength={"30"}
                                     value={this.state.name.value}
                                     onChange={this.handleInputName}
                                 />
                                 <AvFeedback>{getMessage(this.props, 'titleViolation')} {nameLength}/30</AvFeedback>
                             </AvGroup>
                             <AvGroup>
-                                <Label for="certificateDescription">{getMessage(this.props, 'description')}</Label>
+                                <Label for="certificateDescription">{getMessage(this.props, 'description')}*</Label>
                                 <AvInput
                                     type="text"
                                     name="description"
@@ -319,7 +322,7 @@ class EditCertificate extends React.Component {
                                 <AvFeedback>{getMessage(this.props, 'descriptionViolation')} {descriptionLength}/1000</AvFeedback>
                             </AvGroup>
                             <AvGroup>
-                                <Label for="certificatePrice">{getMessage(this.props, 'price')}</Label>
+                                <Label for="certificatePrice">{getMessage(this.props, 'price')}*</Label>
                                 <AvInput
                                     type="number"
                                     name="price"
@@ -334,7 +337,7 @@ class EditCertificate extends React.Component {
                                 <AvFeedback>{getMessage(this.props, 'priceViolation')}</AvFeedback>
                             </AvGroup>
                             <AvGroup>
-                                <Label for="certificateExpiration">{getMessage(this.props, 'expiration')}</Label>
+                                <Label for="certificateExpiration">{getMessage(this.props, 'expiration')}*</Label>
                                 <AvInput
                                     type="date"
                                     name="expiration"
@@ -366,7 +369,7 @@ class EditCertificate extends React.Component {
                         </Col>
                         <Col sm="12" md={{size: 7, offset: 7}}>
                             <div>
-                                {path === '/add' ? (
+                                {href.includes('/add') ? (
                                     <Button disabled={!isFormValid} type="button" color="danger"
                                             onClick={this.handleAdd}>{getMessage(this.props, 'add')}</Button>
                                 ) : (

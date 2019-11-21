@@ -9,9 +9,23 @@ import {withCookies} from "react-cookie";
 import BuyButtonNotAuthorizedModal from "./BuyButtonNotAuthorizedModal";
 import BuyButtonModal from "./BuyButtonModal";
 import {ACCESS_TOKEN} from "../constants";
+import * as PropTypes from "prop-types";
 
 
 class Certificate extends React.Component {
+
+    static propTypes = {
+        key: PropTypes.number.isRequired,
+        certificate: PropTypes.object.isRequired,
+        locale: PropTypes.string.isRequired,
+        reloadHandler: PropTypes.func.isRequired,
+        tagSearchHandler: PropTypes.func.isRequired,
+        onAddToBasket: PropTypes.func.isRequired,
+        showButtons: PropTypes.bool.isRequired,
+
+    };
+
+
 
     getParsedDate(date) {
         date = String(date).split('/');

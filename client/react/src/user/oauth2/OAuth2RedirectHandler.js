@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
-import {ACCESS_TOKEN, ACCESS_TOKEN_EXPIRES_IN, PREV_PATH, REFRESH_TOKEN} from '../../constants';
+import {
+    ACCESS_TOKEN,
+    ACCESS_TOKEN_EXPIRES_IN,
+    CERTIFICATES_DEFAULT_REQUEST_URL,
+    REFRESH_TOKEN
+} from '../../constants';
 import { Redirect } from 'react-router-dom'
 
 class OAuth2RedirectHandler extends Component {
@@ -25,9 +30,8 @@ class OAuth2RedirectHandler extends Component {
             if (expiresIn) {
                 localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, expiresIn)
             }
-            localStorage.setItem(PREV_PATH, '/certificates');
             return <Redirect to={{
-                pathname: "/certificates",
+                pathname: CERTIFICATES_DEFAULT_REQUEST_URL,
                 state: { from: this.props.location }
             }}/>;
         } else {

@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {getMessage} from "../app/Message";
 import {withCookies} from "react-cookie";
+import * as PropTypes from "prop-types";
 
 const titleStyle = {
     fontWeight: 600,
@@ -14,6 +15,11 @@ const titleStyle = {
 };
 
 const CartCertificateModal = (props) => {
+
+    CartCertificateModal.propTypes = {
+        certificate: PropTypes.object.isRequired,
+    };
+
     const {
         certificate,
     } = props;

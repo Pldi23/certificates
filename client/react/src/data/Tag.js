@@ -1,8 +1,15 @@
 import React from "react";
 import {withCookies} from "react-cookie";
+import * as PropTypes from "prop-types";
 
 
 class Tag extends React.Component {
+
+    static propTypes = {
+        key: PropTypes.number.isRequired,
+        tag: PropTypes.object.isRequired,
+        tagSearchHandler: PropTypes.func.isRequired
+    };
 
 
     render() {

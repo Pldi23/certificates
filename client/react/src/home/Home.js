@@ -2,8 +2,14 @@ import React, { Component } from 'react';
 import './Home.css';
 import LocalizedStrings from 'react-localization';
 import {message} from "../app/Message";
+import * as PropTypes from "prop-types";
 
 class Home extends Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired
+    };
+
     render() {
         let strings = new LocalizedStrings({data: message});
         strings.setContent(message);

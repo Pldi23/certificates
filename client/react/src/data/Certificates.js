@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {
-    Container, Jumbotron, Col, CardColumns, Row, Alert
+    Container, Jumbotron, Col, Row
 } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {getCertificatesByHref, getOrdersSelf} from '../service/APIService';
@@ -18,11 +18,21 @@ import {
     ORDERS_SELF_URL, PAGE_API_PARAMETER, SEARCH_PARAMETERS,
     SIZE_API_PARAMETER
 } from "../constants";
-import Certificate from "./Certificate";
 import CertificatesListSelector from "./CertificatesListSelector";
 import OrdersCertificatesList from "./OrdersCertificatesList";
+import CertificatesList from "./CertificatesList";
+import Alert from "react-s-alert";
+import * as PropTypes from "prop-types";
 
 class Certificates extends Component {
+
+    static propTypes = {
+        loginHandler: PropTypes.func.isRequired,
+        routeHandler: PropTypes.func.isRequired,
+        authenticated: PropTypes.bool.isRequired,
+        onAddToBasket: PropTypes.func.isRequired,
+    };
+
 
     constructor(props) {
         super(props);
@@ -32,18 +42,28 @@ class Certificates extends Component {
             loading: false,
             orders: [],
             showOrders: false,
-            url: window.location.pathname
-            // url: localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL
+            url: '',
         };
     }
 
     componentDidMount() {
+        window.addEventListener("popstate", () => this.popStateListener());
         this.setState({
             loading: true,
 
         });
-        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
-        // let href = this.state.url;
+
+        let url = new URL(window.location);
+        let href = url.pathname + url.search;
+        this.setStateFromUrl(href);
+        this.props.routeHandler(true);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("popstate", () => this.popStateListener());
+    }
+
+    setStateFromUrl(href) {
         if (href.includes(ORDERS_SELF_URL)) {
             getOrdersSelf(this.props, href)
                 .then(json => {
@@ -52,9 +72,15 @@ class Certificates extends Component {
                         showOrders: true,
                         links: json._links,
                         loading: false,
-                        url: window.location.pathname
+                        url: href
                     })
                 })
+                .catch(error => {
+                    this.setState({
+                        loading: false
+                    });
+                    console.log(error)
+                });
         } else {
             getCertificatesByHref(this.props, href)
                 .then(json => {
@@ -62,7 +88,7 @@ class Certificates extends Component {
                         certificates: json.certificates,
                         links: json._links,
                         loading: false,
-                        url: window.location.pathname
+                        url: href
                     });
                     if (this.state.links.length > 0) {
                         this.state.links.pages.forEach(page => {
@@ -71,28 +97,63 @@ class Certificates extends Component {
                             }
                         });
                     }
+                })
+                .catch(error => {
+                    this.setState({
+                        loading: false
+                    });
+                    console.log(error)
                 });
         }
-
-        this.props.routeHandler(true);
     }
 
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //
-    //     console.log('certificates updated')
-    //     console.log(this.state.url)
-    //     if (prevState.url !== this.state.url) {
-    //         window.history.pushState(this.state, '', this.state.url)
-    //
-    //     }
-    // }
+    popStateListener = () => {
+        this.setState({
+            loading: true,
+        });
+        let url = new URL(window.location);
+        let href = url.pathname + url.search;
+
+        if (href.includes(ORDERS_SELF_URL)) {
+            getOrdersSelf(this.props, href)
+                .then(json => {
+                    this.setState({
+                        orders: json.orders,
+                        showOrders: true,
+                        links: json._links,
+                        loading: false,
+                    })
+                })
+                .catch(error => {
+                    this.setState({
+                        loading: false
+                    });
+                    console.log(error)
+                });
+        }
+        if (href.includes('/certificates')) {
+            getCertificatesByHref(this.props, href)
+                .then(json => {
+                    this.setState({
+                        certificates: json.certificates,
+                        links: json._links,
+                        loading: false,
+                    });
+                })
+                .catch(error => {
+                    this.setState({
+                        loading: false
+                    });
+                    console.log(error)
+                });
+        }
+    };
 
     pageSizeHandler = (value) => {
         this.setState({
             loading: true,
         });
-        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
-        // let href = this.state.url;
+        let href = this.state.url;
         href = href.includes(SIZE_API_PARAMETER) ? href.replace(/size=\d+/, SIZE_API_PARAMETER + value) :
             href.concat('&size=' + value);
         href = href.includes(PAGE_API_PARAMETER) ? href.replace(/page=\d+/, 'page=1') :
@@ -106,9 +167,15 @@ class Certificates extends Component {
                         orders: json.orders,
                         showOrders: true,
                         links: json._links,
-                        url: window.location.pathname
+                        url: href
                     })
                 })
+                .catch(error => {
+                    this.setState({
+                        loading: false
+                    });
+                    console.log(error)
+                });
         } else {
             getCertificatesByHref(this.props, href)
                 .then(json => {
@@ -116,10 +183,17 @@ class Certificates extends Component {
                         certificates: json.certificates,
                         links: json._links,
                         loading: false,
-                        url: window.location.pathname
+                        url: href
                     });
+                })
+                .catch(error => {
+                    this.setState({
+                        loading: false
+                    });
+                    console.log(error)
                 });
         }
+        this.props.history.push(href)
     };
 
     pageHandler = (href) => {
@@ -135,25 +209,31 @@ class Certificates extends Component {
                     showOrders: true,
                     links: json._links,
                     loading: false,
-                    url: window.location.pathname
+                    url: href
                 })
             } else {
                 this.setState({
                     certificates: json.certificates ? json.certificates : [],
                     links: json._links,
                     loading: false,
-                    url: window.location.pathname
+                    url: href
                 });
 
             }
-        }).catch(error => {
-            (error && error.message) ||
-            getMessage(this.props, 'error');
-        });
+        })
+            .catch(error => {
+                this.setState({
+                    loading: false
+                });
+                console.log(error)
+            });
+        this.props.history.push(href)
+
     };
 
     getCurrentPageSize() {
-        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
+        let url = new URL(window.location);
+        let href = url.pathname + url.search;
         href = href.includes('size') ? href.substring(href.indexOf('size=') + 5) : '5';
         href = href.includes('&') ? href.substring(0, href.indexOf('&')) : href;
         return href;
@@ -163,16 +243,25 @@ class Certificates extends Component {
         this.setState({
             loading: true
         });
-        let href = localStorage.getItem(CERTIFICATES_HREF) ? localStorage.getItem(CERTIFICATES_HREF) : CERTIFICATES_DEFAULT_REQUEST_URL;
+        let url = new URL(window.location);
+        let href = url.pathname + url.search;
+
         getCertificatesByHref(this.props, href)
             .then(json => {
                 this.setState({
                     certificates: json.certificates,
                     links: json._links,
                     loading: false,
-                    url: window.location.pathname
+                    url: href
                 });
+            })
+            .catch(error => {
+                this.setState({
+                    loading: false
+                });
+                console.log(error)
             });
+        this.props.history.push(href)
 
     };
 
@@ -189,9 +278,16 @@ class Certificates extends Component {
                     links: json._links,
                     loading: false,
                     showOrders: false,
-                    url: window.location.pathname
+                    url: href
                 });
+            })
+            .catch(error => {
+                this.setState({
+                    loading: false
+                });
+                console.log(error)
             });
+        this.props.history.push(href)
 
     };
 
@@ -208,9 +304,16 @@ class Certificates extends Component {
                     orders: json.orders,
                     showOrders: true,
                     links: json._links,
-                    url: window.location.pathname
+                    url: href
                 })
             })
+            .catch(error => {
+                this.setState({
+                    loading: false
+                });
+                console.log(error)
+            });
+        this.props.history.push(href)
 
 
     };
@@ -228,12 +331,47 @@ class Certificates extends Component {
                 links: json._links,
                 loading: false,
                 showOrders: false,
-                url: window.location.pathname
+                url: href
             });
-        }).catch(error => {
-            (error && error.message) ||
-            getMessage(this.props, 'error');
-        });
+        })
+            .catch(error => {
+                this.setState({
+                    loading: false
+                });
+                console.log(error)
+            });
+        this.props.history.push(href)
+
+    };
+
+    getSearchValue = () => {
+        const queryString = require('query-string');
+        const parsed = queryString.parse(window.location.search);
+        let query = '';
+        if (parsed.name && parsed.description) {
+            if (!parsed.name.startsWith('l:') || parsed.description !== parsed.name ) {
+                Alert.error(getMessage(this.props, 'invalidQuery'));
+                return '';
+            }
+            query = query.concat(parsed.name.replace('l:', ''));
+        }
+        if (parsed.tag_name) {
+            let array = parsed.tag_name.split(',');
+            array.forEach(value => query = query.concat(' #(' + value + ')'))
+        }
+        if (parsed.price) {
+            let price = parsed.price;
+            if (price.startsWith('bw:')) {
+                price = price.replace('bw:', '');
+                price = price.replace(',','-');
+                price = price.startsWith('0-') ? price.replace('0-', '<') : price;
+                if ( price.endsWith('-9007199254740991')) {
+                    price = '>' + price.replace('-9007199254740991', '')
+                }
+            }
+            query = query + ' $(' + price + ')'
+        }
+        return query
 
     };
 
@@ -241,7 +379,8 @@ class Certificates extends Component {
         if (this.state.loading) {
             return <LoadingIndicator/>
         }
-        console.log(this.state.url)
+        const query = this.getSearchValue();
+
         return <div>
             <Jumbotron fluid>
                 <Container fluid>
@@ -258,7 +397,10 @@ class Certificates extends Component {
                             {this.state.showOrders ? (
                                 null
                             ) : (
-                                <Search pageHandler={this.pageHandler} size={this.getCurrentPageSize()}/>
+                                <Search
+                                    searchValue={query}
+                                    pageHandler={this.pageHandler}
+                                    size={this.getCurrentPageSize()}/>
 
                             )}
                         </Row>
@@ -273,8 +415,7 @@ class Certificates extends Component {
                             <OrdersCertificatesList
                                 orders={this.state.orders}
                                 locale={this.props.cookies.cookies.locale}
-
-                                options={this.state.options}
+                                // options={this.state.options}
                                 reloadHandler={this.reloadHandler}
                                 tagSearchHandler={this.tagSearchHandler}
                                 onAddToBasket={this.props.onAddToBasket}
@@ -283,7 +424,7 @@ class Certificates extends Component {
                             < CertificatesList
                                 certificates={this.state.certificates}
                                 locale={this.props.cookies.cookies.locale}
-                                options={this.state.options}
+                                // options={this.state.options}
                                 reloadHandler={this.reloadHandler}
                                 tagSearchHandler={this.tagSearchHandler}
                                 onAddToBasket={this.props.onAddToBasket}
@@ -306,45 +447,14 @@ class Certificates extends Component {
             ) : (
                 <div>
                     <Container fluid>
-                        <Alert color="info">
+                        <p className="text-info">
                             {getMessage(this.props, 'noCertificates')}
-                        </Alert>
+                        </p>
                     </Container>
                 </div>
             )}
         </div>
     }
 }
-
-class CertificatesList extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            certificates: this.props.certificates
-        }
-    }
-
-    render() {
-        const certificates = this.state.certificates.map((giftCertificate) =>
-
-            <Certificate
-                key={giftCertificate.giftCertificate.id}
-                certificate={giftCertificate}
-                locale={this.props.locale}
-                reloadHandler={this.props.reloadHandler}
-                tagSearchHandler={this.props.tagSearchHandler}
-                onAddToBasket={this.props.onAddToBasket}
-                showButtons={true}
-            />
-        );
-        return (
-            <CardColumns>
-                {certificates}
-            </CardColumns>
-        )
-    }
-}
-
 
 export default withCookies(Certificates);

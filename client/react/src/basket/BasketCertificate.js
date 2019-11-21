@@ -1,11 +1,9 @@
 import React from "react";
 import {withCookies} from "react-cookie";
-// import Badge from "reactstrap/es/Badge";
-// import Row from "reactstrap/es/Row";
-// import Col from "reactstrap/es/Col";
 import {MdClear} from "react-icons/md";
 import CartCertificateModal from "./CartCertificateModal";
 import {Badge, Col, Row} from "reactstrap";
+import * as PropTypes from "prop-types";
 
 
 const minusStyle = {
@@ -24,6 +22,10 @@ const rowStyle = {
 
 class BasketCertificate extends React.Component {
 
+    static propTypes = {
+        certificate: PropTypes.object.isRequired,
+        onRemoveFromBasket: PropTypes.func.isRequired,
+    };
 
     render() {
         return <div>

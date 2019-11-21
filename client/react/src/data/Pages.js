@@ -2,8 +2,15 @@ import * as React from "react";
 import {Pagination, PaginationItem, PaginationLink} from "reactstrap";
 import {withCookies} from "react-cookie";
 import {getMessageByLocale} from "../app/Message";
+import * as PropTypes from "prop-types";
 
 class Pages extends React.Component {
+
+    static propTypes = {
+        links: PropTypes.array.isRequired,
+        locale: PropTypes.string.isRequired,
+        pageHandler: PropTypes.func.isRequired
+    };
 
     render() {
         const pages = this.props.links.pages;
@@ -23,6 +30,14 @@ class Pages extends React.Component {
 }
 
 class PageItem extends React.Component {
+
+    static propTypes = {
+        key: PropTypes.number.isRequired,
+        link: PropTypes.object.isRequired,
+        locale: PropTypes.string.isRequired,
+        pageHandler: PropTypes.func.isRequired
+    };
+
     render() {
         const link = this.props.link;
         return <PaginationItem active={link.current}>

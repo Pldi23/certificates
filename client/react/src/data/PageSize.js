@@ -1,6 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 import {withCookies} from "react-cookie";
+import * as PropTypes from "prop-types";
 
 const options = [
     { value: '5', label: '5' },
@@ -17,6 +18,11 @@ const colourStyles = {
 };
 
 class PageSize extends React.Component {
+
+    static propTypes = {
+        size: PropTypes.number.isRequired,
+        pageSizeHandler: PropTypes.func.isRequired
+    };
 
     constructor(props) {
         super(props);

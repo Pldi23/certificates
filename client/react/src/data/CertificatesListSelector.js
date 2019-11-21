@@ -2,6 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 import {withCookies} from "react-cookie";
 import {SEARCH_PARAMETERS} from "../constants";
+import * as PropTypes from "prop-types";
 
 const options = [
     {value: 'All', label: 'All'},
@@ -19,6 +20,12 @@ const colourStyles = {
 };
 
 class CertificatesListSelector extends React.Component {
+
+    static propTypes = {
+        selected: PropTypes.bool.isRequired,
+        reloadHandler: PropTypes.func.isRequired,
+        ordersHandler: PropTypes.func.isRequired,
+    };
 
     constructor(props) {
         super(props);

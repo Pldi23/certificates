@@ -4,6 +4,7 @@ import {getMessageByLocale} from "../app/Message";
 import {MdShoppingCart} from "react-icons/md";
 import {withCookies} from "react-cookie";
 import {COOKIES_VIEWED_CERTIFICATES} from "../constants";
+import * as PropTypes from "prop-types";
 
 const pStyle = {
     marginLeft: '3px',
@@ -11,6 +12,14 @@ const pStyle = {
 };
 
 const BuyButtonModal = (props) => {
+
+    BuyButtonModal.propTypes = {
+        locale: PropTypes.string.isRequired,
+        certificate: PropTypes.object.isRequired,
+        onAddToBasket: PropTypes.func.isRequired,
+        link: PropTypes.object.isRequired,
+    };
+
     const {
         locale,
         certificate,

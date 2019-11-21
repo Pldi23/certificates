@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {
     ACCESS_TOKEN,
-    ACCESS_TOKEN_EXPIRES_IN, AUTHORIZATION_HEADER,
+    ACCESS_TOKEN_EXPIRES_IN, AUTHORIZATION_HEADER, CERTIFICATES_DEFAULT_REQUEST_URL,
     EMAIL_REGEX_PATTERN, EXPIRES_IN_HEADER,
     PASSWORD_REGEX_PATTERN, PREV_PATH, REFRESH_HEADER,
     REFRESH_TOKEN
@@ -11,8 +11,15 @@ import Alert from "react-s-alert";
 import {getMessage, getMessageByLocale} from "../../app/Message";
 import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
 import {Link} from "react-router-dom";
+import * as PropTypes from "prop-types";
 
 class LoginForm extends Component {
+
+    static propTypes = {
+        locale: PropTypes.string.isRequired,
+        routeHandler: PropTypes.func.isRequired,
+        loginHandler: PropTypes.func.isRequired,
+    };
 
 
     constructor(props) {
@@ -79,9 +86,8 @@ class LoginForm extends Component {
                     localStorage.setItem(ACCESS_TOKEN, response.headers.get(AUTHORIZATION_HEADER));
                     localStorage.setItem(REFRESH_TOKEN, response.headers.get(REFRESH_HEADER));
                     localStorage.setItem(ACCESS_TOKEN_EXPIRES_IN, response.headers.get(EXPIRES_IN_HEADER));
-                    localStorage.setItem(PREV_PATH, '/certificates');
                     this.props.loginHandler();
-                    this.props.history.push("/certificates");
+                    this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL);
 
                 } else {
                     response.json().then(json => {

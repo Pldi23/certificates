@@ -5,6 +5,7 @@ import {getMessage} from "../app/Message";
 import {withCookies} from "react-cookie";
 import {FaCartArrowDown} from "react-icons/fa";
 import ConfirmPurchaseModal from "./ConfirmPurchaseModal";
+import * as PropTypes from "prop-types";
 
 const cartStyle = {
 
@@ -17,7 +18,11 @@ const cartStyle = {
 
 class Basket extends React.Component {
 
-
+    static propTypes = {
+        basketCertificates: PropTypes.array.isRequired,
+        onRemoveFromBasket: PropTypes.func.isRequired,
+        onRefreshBasket: PropTypes.func.isRequired,
+    };
 
     render() {
         const certificates = this.props.basketCertificates.map((giftCertificate, index) =>
@@ -36,7 +41,7 @@ class Basket extends React.Component {
                 <PopoverHeader>{getMessage(this.props, 'cart')}</PopoverHeader>
                 <PopoverBody>
                     {certificates}
-                    {certificates.length > 0 ? (
+                    {certificates.length ? (
                         <div>
                             <ConfirmPurchaseModal
                                 onRefreshBasket={this.props.onRefreshBasket}

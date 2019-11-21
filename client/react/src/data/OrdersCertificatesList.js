@@ -2,15 +2,25 @@ import React from 'react';
 import {withCookies} from 'react-cookie';
 import Certificate from "./Certificate";
 import {CardColumns, Col} from "reactstrap";
+import * as PropTypes from "prop-types";
 
 class OrdersCertificatesList extends React.Component {
 
+    static propTypes = {
+        orders: PropTypes.array.isRequired,
+        locale: PropTypes.string.isRequired,
+        reloadHandler: PropTypes.func.isRequired,
+        tagSearchHandler: PropTypes.func.isRequired,
+        onAddToBasket: PropTypes.func.isRequired,
+
+    };
+
     render() {
 
-        const orders = this.props.orders.map((item, index) =>
+        const orders = this.props.orders.map((item) =>
 
             <OrderCertificates
-                key={index}
+                key={item.order.id}
                 certificates={item.certificates}
                 locale={this.props.locale}
                 created={item.order.createdAt}
@@ -29,6 +39,19 @@ class OrdersCertificatesList extends React.Component {
 export default withCookies(OrdersCertificatesList)
 
 class OrderCertificates extends React.Component {
+
+    static propTypes = {
+        key: PropTypes.number.isRequired,
+        certificates: PropTypes.array.isRequired,
+        locale: PropTypes.string.isRequired,
+        created: PropTypes.string.isRequired,
+        reloadHandler: PropTypes.func.isRequired,
+        tagSearchHandler: PropTypes.func.isRequired,
+        onAddToBasket: PropTypes.func.isRequired,
+        showButtons: PropTypes.bool.isRequired,
+
+    };
+
 
     getParsedDate(date) {
         date = String(date).split('-');

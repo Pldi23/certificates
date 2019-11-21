@@ -4,6 +4,7 @@ import React from "react";
 import {getMessageByLocale} from "../app/Message";
 import {withCookies} from "react-cookie";
 import {COOKIES_VIEWED_CERTIFICATES} from "../constants";
+import * as PropTypes from "prop-types";
 
 const titleStyle = {
     fontWeight: 600,
@@ -16,6 +17,13 @@ const titleStyle = {
 };
 
 const CertificateModal = (props) => {
+
+    CertificateModal.propTypes = {
+        locale: PropTypes.string.isRequired,
+        certificate: PropTypes.object.isRequired,
+        tags: PropTypes.array.isRequired,
+    };
+
     const {
         certificate,
         tags,
