@@ -23,16 +23,19 @@ class CertificatesList extends React.Component {
     }
 
     render() {
-        const certificates = this.state.certificates.map((giftCertificate) =>
+        const certificates = this.state.certificates.map((giftCertificate, index) =>
 
             <Certificate
-                key={giftCertificate.giftCertificate.id}
+                key={index}
                 certificate={giftCertificate}
                 locale={this.props.locale}
                 reloadHandler={this.props.reloadHandler}
                 tagSearchHandler={this.props.tagSearchHandler}
+                tagSearchPlusHandler={this.props.tagSearchPlusHandler}
                 onAddToBasket={this.props.onAddToBasket}
                 showButtons={true}
+                priceGt={this.props.priceGt}
+                availabilityChecker={this.props.availabilityChecker}
             />
         );
         return (

@@ -17,7 +17,7 @@ const AlertHint = (props) => {
             <Collapse isOpen={isOpen}>
                 <Card>
                     <CardBody>
-                        <p className="text-primary">{getMessage(props, 'searchViolation')}</p>
+                        <p className="text-primary">{props.hint === 'ordersSearch' ? getMessage(props, 'ordersSearchViolation') : getMessage(props, 'searchViolation')}</p>
                     </CardBody>
                 </Card>
             </Collapse>

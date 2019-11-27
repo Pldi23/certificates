@@ -89,6 +89,9 @@ class LoginForm extends Component {
                     this.props.loginHandler();
                     this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL);
 
+                } else if (response.status === 401) {
+                    Alert.error(getMessageByLocale(this.props.locale, 'badCredentials'));
+                    this.props.history.push("/login");
                 } else {
                     response.json().then(json => {
                         let message = JSON.stringify(json.messages);

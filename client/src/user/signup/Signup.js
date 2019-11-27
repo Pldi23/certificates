@@ -182,6 +182,7 @@ class SignupForm extends Component {
                                  value={this.state.email.value}
                                  onChange={this.handleInputEmail}
                                  pattern={EMAIL_REGEX_PATTERN}
+
                         />
                         <AvFeedback>
                             {getMessage(this.props, 'emailViolation')}
@@ -195,6 +196,7 @@ class SignupForm extends Component {
                                value={this.state.password.value}
                                onChange={this.handleInputPassword}
                                pattern={PASSWORD_REGEX_PATTERN}
+
                         />
                         <AvFeedback>
                             {getMessage(this.props, 'passwordViolation')}

@@ -13,13 +13,15 @@ const CertificateModal = (props) => {
         locale: PropTypes.string.isRequired,
         certificate: PropTypes.object.isRequired,
         tags: PropTypes.array.isRequired,
+        // certificateNamePlusHandler: PropTypes.func
     };
 
     const {
         certificate,
         tags,
         locale,
-        cookies
+        cookies,
+        // certificateNamePlusHandler
     } = props;
 
     const [modal, setModal] = useState(false);
@@ -32,9 +34,14 @@ const CertificateModal = (props) => {
         toggle()
     };
 
+    const onDrag = (e) => e.dataTransfer.setData('text/plain', certificate.name);
+
     return (
         <div>
-            <button className={'titleStyle'} onClick={onClick}>{certificate.name}</button>
+            <button className={'titleStyle'} draggable="true" onClick={onClick} onDragStart={onDrag}
+                    // onContextMenu={() => this.props.certificateNamePlusHandler()}
+            >
+                {certificate.name}</button>
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>{certificate.name}</ModalHeader>
                 <ModalBody>

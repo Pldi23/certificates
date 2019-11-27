@@ -1,6 +1,16 @@
 import React from "react";
 import Tag from "./Tag";
-import {Badge, ButtonGroup, Card, CardBody, CardFooter, CardHeader, CardText, Col, Row} from "reactstrap";
+import {
+    ButtonGroup,
+    Card,
+    CardBody,
+    CardFooter,
+    CardHeader,
+    CardText,
+    Col, PopoverBody,
+    Row,
+    UncontrolledPopover
+} from "reactstrap";
 import CertificateModal from "./CertificateModal";
 import {getMessageByLocale} from "../app/Message";
 import EditLink from "./EditLink";
@@ -10,6 +20,8 @@ import BuyButtonNotAuthorizedModal from "./BuyButtonNotAuthorizedModal";
 import BuyButtonModal from "./BuyButtonModal";
 import {ACCESS_TOKEN} from "../constants";
 import * as PropTypes from "prop-types";
+import PricePopover from "./PricePopover";
+import Badge from "reactstrap/es/Badge";
 
 
 class Certificate extends React.Component {
@@ -19,12 +31,12 @@ class Certificate extends React.Component {
         certificate: PropTypes.object.isRequired,
         locale: PropTypes.string.isRequired,
         reloadHandler: PropTypes.func.isRequired,
+        availabilityChecker: PropTypes.func,
         tagSearchHandler: PropTypes.func.isRequired,
         onAddToBasket: PropTypes.func.isRequired,
         showButtons: PropTypes.bool.isRequired,
 
     };
-
 
 
     getParsedDate(date) {
@@ -43,12 +55,14 @@ class Certificate extends React.Component {
                 key={index}
                 tag={tag}
                 tagSearchHandler={this.props.tagSearchHandler}
+                tagSearchPlusHandler={this.props.tagSearchPlusHandler}
             />
         );
         const editLink = this.props.certificate._links.update;
         const deleteLink = this.props.certificate._links.delete;
         const buyLink = this.props.certificate._links.self;
         const description = this.props.certificate.giftCertificate.description;
+        const amount = this.props.certificate.giftCertificate.price;
         return (
             <Card body className="text-center">
                 <CardHeader>
@@ -74,11 +88,14 @@ class Certificate extends React.Component {
                 </CardBody>
                 <CardFooter>
                     {this.props.showButtons ? (
+                        <ButtonGroup size="sm">
 
-                    <ButtonGroup size="sm">
                             <EditLink
                                 locale={this.props.locale}
                                 link={editLink}
+                                id={this.props.certificate.giftCertificate.id}
+                                reloadHandler={this.props.reloadHandler}
+                                availabilityChecker={this.props.availabilityChecker}
                                 name={this.props.certificate.giftCertificate.name}
                                 description={this.props.certificate.giftCertificate.description}
                                 price={this.props.certificate.giftCertificate.price}
@@ -90,25 +107,32 @@ class Certificate extends React.Component {
                                     }
                                 })}/>{' '}
                             <DeleteLink
+                                id={this.props.certificate.giftCertificate.id}
                                 reloadHandler={this.props.reloadHandler}
+                                availabilityChecker={this.props.availabilityChecker}
                                 link={deleteLink}
                                 props={this.props}/>
                             {localStorage.getItem(ACCESS_TOKEN) ? (
                                 <BuyButtonModal
                                     link={buyLink}
+                                    availabilityChecker={this.props.availabilityChecker}
+                                    reloadHandler={this.props.reloadHandler}
                                     certificate={this.props.certificate.giftCertificate}
                                     onAddToBasket={this.props.onAddToBasket}
                                     locale={this.props.locale}/>
+
                             ) : (
                                 <BuyButtonNotAuthorizedModal
                                     locale={this.props.locale}
                                 />
                             )}
-                    </ButtonGroup>
-                    ) : (null)}
-                            <Badge color="success">
-                                {this.props.certificate.giftCertificate.price}$
-                            </Badge>
+                            <PricePopover amount={amount} priceGt={this.props.priceGt}/>
+                        </ButtonGroup>
+                    ) : (
+                        <Badge color="success" size="sm">
+                            {amount}
+                        </Badge>
+                    )}
                 </CardFooter>
             </Card>
         )

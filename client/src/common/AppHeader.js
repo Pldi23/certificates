@@ -55,8 +55,10 @@ class AppHeader extends Component {
                                             to={{
                                                 pathname: '/certificates',
                                                 search: '?sort=creationdate',
+                                                from: 'link',
                                             }}
-
+                                            from={'link'}
+                                            url={'/certificates?sort=creationdate'}
                                         >{strings.certificates}</NavLink>
                                     </li>
                                     <li>
@@ -86,7 +88,9 @@ class AppHeader extends Component {
                                             to={{
                                                 pathname: '/certificates',
                                                 search: '?sort=creationdate',
+                                                from: 'link',
                                             }}
+                                            url={'/certificates?sort=creationdate'}
                                         >{strings.certificates}</NavLink>
                                     </li>
                                     <li>

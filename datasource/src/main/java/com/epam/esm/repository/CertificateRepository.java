@@ -4,6 +4,7 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.page.Pageable;
 import com.epam.esm.repository.predicate.Specification;
 import com.epam.esm.repository.sort.Sortable;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +21,7 @@ import java.util.Optional;
 import static com.epam.esm.repository.constant.JpaConstant.ACTIVE_STATUS;
 import static com.epam.esm.repository.constant.JpaConstant.ID;
 import static com.epam.esm.repository.constant.JpaConstant.NAME;
-
+@Log4j2
 @Repository
 public class CertificateRepository implements AbstractCertificateRepository {
 
@@ -90,7 +91,7 @@ public class CertificateRepository implements AbstractCertificateRepository {
         CriteriaQuery<GiftCertificate> criteriaQuery = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> rootQuery = criteriaQuery.from(GiftCertificate.class);
         if (sortable != null) {
-            criteriaQuery.orderBy(sortable.setOrder(rootQuery, criteriaQuery, criteriaBuilder));
+            criteriaQuery.orderBy(sortable.setOrder(rootQuery, criteriaQuery, criteriaBuilder), criteriaBuilder.desc(rootQuery.get(ID)));
         }
         if (specifications != null) {
             List<Predicate> predicates = new ArrayList<>();

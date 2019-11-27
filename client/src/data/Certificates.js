@@ -3,7 +3,7 @@ import {
     Container, Jumbotron, Col, Row
 } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {getCertificatesByHref, getOrdersSelf} from '../service/APIService';
+import {getCertificateById, getCertificatesByHref, getOrdersSelf} from '../service/APIService';
 import {withCookies} from 'react-cookie';
 import LoadingIndicator from "../common/LoadingIndicator";
 import {getMessage} from "../app/Message";
@@ -23,6 +23,7 @@ import OrdersCertificatesList from "./OrdersCertificatesList";
 import CertificatesList from "./CertificatesList";
 import Alert from "react-s-alert";
 import * as PropTypes from "prop-types";
+import SearchOrders from "./SearchOrders";
 
 class Certificates extends Component {
 
@@ -72,8 +73,19 @@ class Certificates extends Component {
                         showOrders: true,
                         links: json._links,
                         loading: false,
+                        certificates: [],
                         url: href
-                    })
+                    });
+                    if (json._links.length > 0) {
+                        json._links.pages.forEach(page => {
+                            if (page.current) {
+                                this.props.history.push(page.href);
+                            }
+                        })
+                    } else
+                    if (json._links.pages.current) {
+                        this.props.history.push(json._links.pages.href);
+                    }
                 })
                 .catch(error => {
                     this.setState({
@@ -88,14 +100,19 @@ class Certificates extends Component {
                         certificates: json.certificates,
                         links: json._links,
                         loading: false,
+                        showOrders: false,
+                        orders: [],
                         url: href
                     });
-                    if (this.state.links.length > 0) {
-                        this.state.links.pages.forEach(page => {
+                    if (json._links.pages.length > 0) {
+                        json._links.pages.forEach(page => {
                             if (page.current) {
-                                localStorage.setItem(CERTIFICATES_HREF, page.href)
+                                this.props.history.push(page.href);
                             }
-                        });
+                        })
+                    } else
+                    if (json._links.pages.current) {
+                        this.props.history.push(json._links.pages.href);
                     }
                 })
                 .catch(error => {
@@ -121,6 +138,7 @@ class Certificates extends Component {
                         orders: json.orders,
                         showOrders: true,
                         links: json._links,
+                        certificates: [],
                         loading: false,
                     })
                 })
@@ -137,7 +155,9 @@ class Certificates extends Component {
                     this.setState({
                         certificates: json.certificates,
                         links: json._links,
+                        orders: [],
                         loading: false,
+                        showOrders: false
                     });
                 })
                 .catch(error => {
@@ -167,6 +187,7 @@ class Certificates extends Component {
                         orders: json.orders,
                         showOrders: true,
                         links: json._links,
+                        certificates: [],
                         url: href
                     })
                 })
@@ -183,6 +204,7 @@ class Certificates extends Component {
                         certificates: json.certificates,
                         links: json._links,
                         loading: false,
+                        orders: [],
                         url: href
                     });
                 })
@@ -209,6 +231,7 @@ class Certificates extends Component {
                     showOrders: true,
                     links: json._links,
                     loading: false,
+                    certificates: [],
                     url: href
                 })
             } else {
@@ -216,6 +239,7 @@ class Certificates extends Component {
                     certificates: json.certificates ? json.certificates : [],
                     links: json._links,
                     loading: false,
+                    orders: [],
                     url: href
                 });
 
@@ -239,6 +263,11 @@ class Certificates extends Component {
         return href;
     }
 
+    getSelectedSortParameter = () => {
+        let url = new URL(window.location);
+        return url.searchParams.get('sort') || 'creationdate';
+    };
+
     reloadHandler = () => {
         this.setState({
             loading: true
@@ -252,8 +281,19 @@ class Certificates extends Component {
                     certificates: json.certificates,
                     links: json._links,
                     loading: false,
+                    orders: [],
                     url: href
                 });
+                if (json._links.pages.length > 0) {
+                    json._links.pages.forEach(page => {
+                        if (page.current) {
+                            this.props.history.push(page.href);
+                        }
+                    })
+                } else
+                if (json._links.pages.current) {
+                    this.props.history.push(json._links.pages.href);
+                }
             })
             .catch(error => {
                 this.setState({
@@ -261,7 +301,10 @@ class Certificates extends Component {
                 });
                 console.log(error)
             });
-        this.props.history.push(href)
+    };
+
+    availabilityChecker = (id) => {
+        return getCertificateById(id, this.props)
 
     };
 
@@ -278,6 +321,7 @@ class Certificates extends Component {
                     links: json._links,
                     loading: false,
                     showOrders: false,
+                    orders: [],
                     url: href
                 });
             })
@@ -304,6 +348,7 @@ class Certificates extends Component {
                     orders: json.orders,
                     showOrders: true,
                     links: json._links,
+                    certificates: [],
                     url: href
                 })
             })
@@ -331,6 +376,7 @@ class Certificates extends Component {
                 links: json._links,
                 loading: false,
                 showOrders: false,
+                orders: [],
                 url: href
             });
         })
@@ -344,12 +390,89 @@ class Certificates extends Component {
 
     };
 
+    tagSearchPlusHandler = (tagName) => {
+        this.setState({
+            loading: true,
+        });
+        let url = new URL(window.location);
+        url.searchParams.delete('page');
+        url.searchParams.delete('size');
+        let tagNameParams = url.searchParams.get('tag_name');
+        if (tagNameParams && tagNameParams.includes(",")) {
+            let array = tagNameParams.split(",");
+            url.searchParams.delete('tag_name');
+            let tagsString = '';
+            array.forEach(value => tagsString = tagsString.concat(value + ","));
+            tagsString = tagsString.concat(tagName);
+            url.searchParams.append('tag_name', tagsString);
+        } else if (tagNameParams) {
+            url.searchParams.delete('tag_name');
+            let tagsString = tagNameParams.concat("," + tagName);
+            url.searchParams.append('tag_name', tagsString);
+        } else {
+            url.searchParams.append('tag_name', tagName)
+        }
+        let href = url.pathname + url.search + '&page=1&size=' + this.getCurrentPageSize();
+        getCertificatesByHref(this.props, href).then(json => {
+            this.setState({
+                certificates: json.certificates ? json.certificates : [],
+                links: json._links,
+                loading: false,
+                showOrders: false,
+                orders: [],
+                url: href
+            });
+        })
+            .catch(error => {
+                this.setState({
+                    loading: false
+                });
+                console.log(error)
+            });
+        this.props.history.push(href)
+    };
+
+    priceGt = (value, rangeParam) => {
+        this.setState({
+            loading: true,
+        });
+        let url = new URL(window.location);
+        url.searchParams.delete('page');
+        url.searchParams.delete('size');
+        url.searchParams.delete('price');
+        if (rangeParam === 'gt') {
+            url.searchParams.append('price', 'bw:' + value + ',' + Number.MAX_SAFE_INTEGER.toString())
+        } else if (rangeParam === 'lw') {
+            url.searchParams.append('price', 'bw:' + 0 + ',' + value)
+        } else if (rangeParam === 'is') {
+            url.searchParams.append('price', value)
+        }
+        let href = url.pathname + url.search + '&page=1&size=' + this.getCurrentPageSize();
+        getCertificatesByHref(this.props, href).then(json => {
+            this.setState({
+                certificates: json.certificates ? json.certificates : [],
+                links: json._links,
+                loading: false,
+                showOrders: false,
+                orders: [],
+                url: href
+            });
+        })
+            .catch(error => {
+                this.setState({
+                    loading: false
+                });
+                console.log(error)
+            });
+        this.props.history.push(href)
+    };
+
     getSearchValue = () => {
         const queryString = require('query-string');
         const parsed = queryString.parse(window.location.search);
         let query = '';
         if (parsed.name && parsed.description) {
-            if (!parsed.name.startsWith('l:') || parsed.description !== parsed.name ) {
+            if (!parsed.name.startsWith('l:') || parsed.description !== parsed.name) {
                 Alert.error(getMessage(this.props, 'invalidQuery'));
                 return '';
             }
@@ -363,16 +486,20 @@ class Certificates extends Component {
             let price = parsed.price;
             if (price.startsWith('bw:')) {
                 price = price.replace('bw:', '');
-                price = price.replace(',','-');
+                price = price.replace(',', '-');
                 price = price.startsWith('0-') ? price.replace('0-', '<') : price;
-                if ( price.endsWith('-9007199254740991')) {
+                if (price.endsWith('-9007199254740991')) {
                     price = '>' + price.replace('-9007199254740991', '')
                 }
             }
             query = query + ' $(' + price + ')'
         }
         return query
+    };
 
+    getOrderSearchValue = () => {
+        let url = new URL(window.location);
+        return url.searchParams.get('c_name');
     };
 
     render() {
@@ -380,10 +507,12 @@ class Certificates extends Component {
             return <LoadingIndicator/>
         }
         const query = this.getSearchValue();
+        const selected = this.getSelectedSortParameter();
+        const ordersQuery = this.getOrderSearchValue();
 
         return <div>
             <Jumbotron fluid>
-                <Container fluid>
+                <Container fluid >
                     <h1 className="display-6 text-center">{getMessage(this.props, 'certificatesLabel')}</h1>
                     <Col sm={{size: 9, offset: 3}}>
                         <Row>
@@ -395,20 +524,23 @@ class Certificates extends Component {
                                 />
                             ) : (null)}
                             {this.state.showOrders ? (
-                                null
+                                <SearchOrders
+                                    searchValue={ordersQuery}
+                                    pageHandler={this.pageHandler}
+                                    selected={selected}
+                                    size={this.getCurrentPageSize()}/>
                             ) : (
                                 <Search
                                     searchValue={query}
                                     pageHandler={this.pageHandler}
+                                    selected={selected}
                                     size={this.getCurrentPageSize()}/>
-
                             )}
                         </Row>
                     </Col>
-
                 </Container>
             </Jumbotron>
-            {this.state.certificates.length > 0 || this.state.orders.length ? (
+            {this.state.certificates.length > 0 || this.state.orders.length > 0 ? (
                 <Container>
                     <div>
                         {this.state.showOrders ? (
@@ -417,7 +549,9 @@ class Certificates extends Component {
                                 locale={this.props.cookies.cookies.locale}
                                 reloadHandler={this.reloadHandler}
                                 tagSearchHandler={this.tagSearchHandler}
+                                tagSearchPlusHandler={this.tagSearchPlusHandler}
                                 onAddToBasket={this.props.onAddToBasket}
+                                priceGt={this.priceGt}
                             />
                         ) : (
                             < CertificatesList
@@ -425,16 +559,26 @@ class Certificates extends Component {
                                 locale={this.props.cookies.cookies.locale}
                                 reloadHandler={this.reloadHandler}
                                 tagSearchHandler={this.tagSearchHandler}
+                                tagSearchPlusHandler={this.tagSearchPlusHandler}
                                 onAddToBasket={this.props.onAddToBasket}
+                                priceGt={this.priceGt}
+                                availabilityChecker={this.availabilityChecker}
                             />
                         )
                         }
                     </div>
                     <Col sm="12" md={{size: 10, offset: 3}}>
                         <Row>
-                            <Col sm={{size: 'auto', offset: 1}}>
-                                <PageSize pageSizeHandler={this.pageSizeHandler} size={this.getCurrentPageSize()}/>
-                            </Col>
+                            {this.state.certificates.length >= this.getCurrentPageSize() ?
+                                (
+                                    <Col sm={{size: 'auto', offset: 1}}>
+                                        <PageSize pageSizeHandler={this.pageSizeHandler}
+                                                  size={this.getCurrentPageSize()}/>
+                                    </Col>
+
+                                ) : (
+                                    null
+                                )}
                             <Col sm={{size: 'auto'}}>
                                 <Pages pageHandler={this.pageHandler} links={this.state.links}
                                        locale={this.props.cookies.cookies.locale}/>

@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -149,6 +150,14 @@ public class UserController {
         OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder()
                 .userId(id)
                 .build();
+
+        Map<String, String> criteriaMap = new HashMap<>();
+        params.forEach((k, v) -> {
+            if (!k.equals("page") && !k.equals("size")) {
+                criteriaMap.put(k, v);
+            }
+        });
+
         PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
         return ResponseEntity.ok(new OrderListResource(pageableList.getList().stream()
                 .map(orderDTO -> new OrderResource(orderDTO, orderDTO.getGiftCertificates().stream()
@@ -156,7 +165,7 @@ public class UserController {
                                 .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
                 pageAndSortDTO.getPage(),
                 pageableList.getLastPage(),
-                pageAndSortDTO.getSize(), false));
+                pageAndSortDTO.getSize(), false, criteriaMap));
     }
 
     @PreAuthorize("@securityChecker.check(#id) or @securityChecker.checkUser(#id)")

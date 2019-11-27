@@ -18,7 +18,7 @@ export let message = {
         //footer
         footer: "Certificates © 2019",
 
-
+        badCredentials: "Bad credentials",
         successfullLogout: "You're safely logged out!",
         notFound: "The Page you're looking for was not found.",
         areYouSure: "Do you want to delete this certificate?",
@@ -32,12 +32,27 @@ export let message = {
         buy: "Buy",
         certificatesLabel: "Certificates",
         searchParams: "Search...",
-        searchViolation: "#(tagname) to search by tag, $(200-400) to search by price, usual text to search by title or description. Punctuation in search query does not supported",
+        searchViolation:
+            "You can query by part of the name OR description, price range, tag/tags (full match). " +
+            "Valid order of query is: name then tagname then price. " +
+            "#(tagname) to search by tag, " +
+            "$(200-400) $(>200.0) $(<1.0) to search by price," +
+            "usual text to search by title or description. Punctuation in search query does not supported." +
+            "Examples: \n" +
+            "`was #(ne) #(tag name) #(new) $(>21.)` \n" +
+            "`description or name `\n" +
+            "`#(tag name) #(new)` \n" +
+            "`$(>21.)` \n" +
+            "`description $(1.99-2.99)` \n",
+        ordersSearchViolation: "Search by certificate name available",
         noCertificates: "Nothing found",
         searchCommand: "Go!",
         notReadableSearch: "Could not understand your query...sorry",
         hint: "hint",
         invalidQuery: "query could not be synchronized with search panel",
+        certificateUnavailable: "Sorry, certificate is unavailable",
+        all: "All",
+        myCertificates: 'My Certificates',
 
         //add/edit
         title: "Title",
@@ -57,6 +72,7 @@ export let message = {
         certificateDeleted: "certificate successfully deleted!",
         error: "Oops! Something went wrong. Please try again!",
         unsavedData: "You have unsaved data. Do you want to leave this page?",
+        certificateWasDeleted: "Certificate not found and could not be updated. Please confirm creation of new one",
 
         //login
         loginLabel: "Login to Gift Certificates",
@@ -101,10 +117,14 @@ export let message = {
         del: "remove",
         addToCart: "Add certificate to cart? ",
         toCart: "Confirm",
+        fullCart: "Cart max size is reached.",
 
         //pagination
         firstPage: "first",
         lastPage: "last",
+
+        badCertificatesRequest: "Certificates could not be listed",
+        badOrdersRequest: "Orders could not be listed",
     },
     ru: {
         //navbar
@@ -117,12 +137,12 @@ export let message = {
         signup: "Регистрация",
 
         //name
-        slogan: "Сервис продажи сертификатов. Насладись моментом",
+        slogan: "Сервис продажи сертификатов.",
 
         //footer
         footer: "Сертификаты © 2019",
 
-
+        badCredentials: "Неизвестные учетные данные",
         successfullLogout: "Вы успешно вышли из приложения!",
         notFound: "Страница не найдена.",
         areYouSure: "Вы действительно хотите удалить этот сертификат?",
@@ -136,12 +156,27 @@ export let message = {
         buy: "Купить",
         certificatesLabel: "Сертификаты",
         searchParams: "Поиск...",
-        searchViolation: "#(tagname) для поиска по имени тэга, $(200-400) для поиска по цене, обычный текст для поиска по имени или описанию",
+        searchViolation:
+        "Вы можете осуществлять поиск по части имени или описанию, диапазону цены и по полному совпадению имени тэга" +
+            "Валидный порядок запроса: имя/описание, потом тэгиб потом цена" +
+            "#(tagname) для поиска по тэгу, " +
+            "$(200-400) $(>200.0) $(<1.0) для поиска по цене," +
+            "обычный текст для названия или описания. Знаки пунктуации не поддерживаются. " +
+            "Примеры: \n" +
+            "`was #(ne) #(tag name) #(new) $(>21.)` \n" +
+            "`description or name `\n" +
+            "`#(tag name) #(new)` \n" +
+            "`$(>21.)` \n" +
+            "`description $(1.99-2.99)` \n",
+        ordersSearchViolation: "доступен только поиск по имени сертификата",
         noCertificates: "Ничего не найдено",
         searchCommand: "Искать!",
         notReadableSearch: "Не могу понять ваш запрос...извините",
         hint: "подсказка",
         invalidQuery: "запрос не может быть синхронизирован со строкой поиска",
+        certificateUnavailable: "Извините, сертификат недоступен",
+        all: "Все",
+        myCertificates: 'Мои сертификаты',
 
         //add/edit
         title: "Название",
@@ -161,6 +196,7 @@ export let message = {
         certificateDeleted: "сертификат удален!",
         error: "Что-то пошло не так...",
         unsavedData: "Имеются несохраненные данные. Вы уверены что хотите покинуть страницу?",
+        certificateWasDeleted: "Сертификат не найден и не может быть отредактирован. Подтвердите создание нового сертификата",
 
 
         //login
@@ -206,10 +242,14 @@ export let message = {
         del: "удалить",
         addToCart: "Добавить сертификат в корзину? ",
         toCart: "Добавить",
+        fullCart: "Корзина переполнена.",
 
         //pagination
         firstPage: "первая",
         lastPage: "последняя",
+
+        badCertificatesRequest: "сертификаты не могут быть найдены",
+        badOrdersRequest: "заказы не могут быть найдены",
     }
 };
 

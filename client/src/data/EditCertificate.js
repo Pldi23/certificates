@@ -3,7 +3,13 @@ import {withCookies} from 'react-cookie';
 import {WithContext as ReactTags} from 'react-tag-input';
 import {Button, Col, Container, Jumbotron, Label} from "reactstrap";
 import {AvFeedback, AvForm, AvGroup, AvInput} from 'availity-reactstrap-validation';
-import {deleteCertificate, getTags, loadCertificate, updateCertificate} from "../service/APIService";
+import {
+    deleteCertificate,
+    getCertificateById,
+    getTags,
+    loadCertificate,
+    updateCertificate
+} from "../service/APIService";
 import Alert from "react-s-alert";
 import './CreateCertificate.css';
 import {getMessage} from "../app/Message";
@@ -13,6 +19,7 @@ import {
     CERTIFICATE_PRICE_PATTERN,
     CERTIFICATES_DEFAULT_REQUEST_URL
 } from "../constants";
+import confirm from "reactstrap-confirm";
 
 const KeyCodes = {
     comma: 188,
@@ -47,7 +54,8 @@ class EditCertificate extends React.Component {
             suggestions: [],
             loading: false,
             link: '',
-            isBlocking: false
+            isBlocking: false,
+            id: null
         };
     }
 
@@ -157,22 +165,41 @@ class EditCertificate extends React.Component {
         this.setState({
             isBlocking: false
         });
-        const certificateJson = this.certificateToJson();
-        updateCertificate(certificateJson, this.props, this.state.link.href).then(response => {
-            if (response.ok) {
-                response.json().then(json => {
-                    Alert.success(getMessage(this.props, 'certificateUpdated'));
-                });
-                this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL);
-            } else {
-                response.json().then(json => {
-                    let message = JSON.stringify(json.messages);
-                    Alert.error(message.substring(1, message.length - 1));
-                });
+        getCertificateById(this.state.id, this.props).then(async response => {
+                if (!response.ok) {
+
+                    let result = await confirm({
+                        title: '',
+                        message: getMessage(this.props, 'certificateWasDeleted'),
+                        confirmText: getMessage(this.props, 'ok'),
+                        cancelText: getMessage(this.props, 'cancel'),
+                        confirmColor: "link text-danger",
+                        cancelColor: "primary"
+                    });
+                    result ?
+                        this.handleAdd()
+                        : this.props.history.push('/edit');
+
+                } else {
+                    const certificateJson = this.certificateToJson();
+                    updateCertificate(certificateJson, this.props, this.state.link.href).then(response => {
+                        if (response.ok) {
+                            response.json().then(json => {
+                                Alert.success(getMessage(this.props, 'certificateUpdated'));
+                            });
+                            this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL);
+                        } else {
+                            response.json().then(json => {
+                                let message = JSON.stringify(json.messages);
+                                Alert.error(message.substring(1, message.length - 1));
+                            });
+                        }
+                    }).catch(error => {
+                        Alert.error((error && error.message) || getMessage(this.props, 'error'));
+                    });
+                }
             }
-        }).catch(error => {
-            Alert.error((error && error.message) || getMessage(this.props, 'error'));
-        });
+        )
     };
 
     getParsedDate(date) {
@@ -222,23 +249,33 @@ class EditCertificate extends React.Component {
         });
     };
 
-    handleRemove = () => {
+    handleRemove = async () => {
         this.setState({
             isBlocking: false
         });
-        deleteCertificate(this.props, this.state.link.href).then(response => {
-            if (response.ok) {
-                Alert.success(getMessage(this.props, 'certificateDeleted'));
-                this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL)
-            } else {
-                response.json().then(json => {
-                    let message = JSON.stringify(json.messages);
-                    Alert.error(message.substring(1, message.length - 1));
-                });
-            }
-        }).catch(error => {
-            Alert.error((error && error.message) || getMessage(this.props, 'error'));
+        let result = await confirm({
+            title: '',
+            message: getMessage(this.props, 'areYouSure'),
+            confirmText: getMessage(this.props, 'ok'),
+            cancelText: getMessage(this.props, 'cancel'),
+            confirmColor: "link text-danger",
+            cancelColor: "primary"
         });
+        return result ?
+            deleteCertificate(this.props, this.state.link.href).then(response => {
+                if (response.ok) {
+                    Alert.success(getMessage(this.props, 'certificateDeleted'));
+                    this.props.history.push(CERTIFICATES_DEFAULT_REQUEST_URL)
+                } else {
+                    response.json().then(json => {
+                        let message = JSON.stringify(json.messages);
+                        Alert.error(message.substring(1, message.length - 1));
+                    });
+                }
+            }).catch(error => {
+                Alert.error((error && error.message) || getMessage(this.props, 'error'));
+            }) : null;
+
     };
 
 
@@ -251,10 +288,12 @@ class EditCertificate extends React.Component {
     };
 
     handleAddition = (tag) => {
+        /(^[a-z-]+(?: [a-z-]+)+$)|(^[a-z-]+$)/.test(tag.text) ?
         this.setState(state => ({
             tags: [...state.tags, tag],
             isBlocking: true
-        }));
+        })) :
+            Alert.error('invalid tag name')
     };
 
     handleDrag = (tag, currPos, newPos) => {
@@ -277,8 +316,20 @@ class EditCertificate extends React.Component {
         const isBlocking = this.state.isBlocking;
         const isFormValid = this.state.name.isValid && this.state.description.isValid && this.state.price.isValid &&
             this.state.expiration.isValid;
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth()+1; //January is 0!
+        let yyyy = today.getFullYear();
+        if(dd<10){
+            dd='0'+dd
+        }
+        if(mm<10){
+            mm='0'+mm
+        }
 
-        return (
+        today = yyyy+'-'+mm+'-'+dd;
+
+        return(
             <div>
                 <Prompt
                     when={isBlocking}
@@ -303,6 +354,7 @@ class EditCertificate extends React.Component {
                                     id="certificateName"
                                     placeholder={getMessage(this.props, 'title')}
                                     pattern={CERTIFICATE_NAME_REGEX_PATTERN}
+                                    required={true}
                                     minLength={"1"}
                                     maxLength={"30"}
                                     value={this.state.name.value}
@@ -319,6 +371,7 @@ class EditCertificate extends React.Component {
                                     placeholder={getMessage(this.props, 'description')}
                                     minLength="1"
                                     maxLength="1000"
+                                    required={true}
                                     value={this.state.description.value}
                                     onChange={this.handleInputDescription}
                                 />
@@ -334,6 +387,7 @@ class EditCertificate extends React.Component {
                                     pattern={CERTIFICATE_PRICE_PATTERN}
                                     min={"0"}
                                     step="0.01"
+                                    required={true}
                                     value={this.state.price.value}
                                     onChange={this.handleInputPrice}
                                 />
@@ -346,7 +400,8 @@ class EditCertificate extends React.Component {
                                     name="expiration"
                                     id="certificateExpiration"
                                     placeholder={getMessage(this.props, 'expiration')}
-                                    min={Date.now()}
+                                    min={today}
+                                    required={true}
                                     value={this.state.expiration.value}
                                     onChange={this.handleInputExpiration}
                                 />
@@ -364,7 +419,7 @@ class EditCertificate extends React.Component {
                                            placeholder={getMessage(this.props, 'addNewTag')}
                                            renderSuggestion={({text}, query) => <div style={{
                                                textDecoration: 'underline',
-                                               textDecorationStyle: 'wavy'
+                                               textDecorationStyle: 'wavy',
                                            }}>{text} ({query})</div>
                                            }
                                 />
@@ -377,7 +432,6 @@ class EditCertificate extends React.Component {
                                             onClick={this.handleAdd}>{getMessage(this.props, 'add')}</Button>
                                 ) : (
                                     <div>
-
                                         <Button disabled={!isFormValid} type="button" color="danger"
                                                 onClick={this.handleEdit}>{getMessage(this.props, 'edit')}</Button>{' '}
                                         <Button disabled={!isFormValid} type="button" onClick={this.handleRemove}

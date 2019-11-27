@@ -34,7 +34,7 @@ public class PageAndSizeValidator implements ConstraintValidator<PageAndSizeVali
 
     private boolean isParsable(String input) {
         try {
-            Long.parseLong(input);
+            Integer.parseInt(input);
             return false;
         } catch (NumberFormatException e) {
             return true;

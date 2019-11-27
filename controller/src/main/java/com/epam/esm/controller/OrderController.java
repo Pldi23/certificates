@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -107,6 +108,12 @@ public class OrderController {
             orderSearchCriteriaDTO.setEmail(principle.getUsername());
             orderSearchCriteriaDTO.setUserId(null);
         }
+        Map<String, String> criteriaMap = new HashMap<>();
+        params.forEach((k, v) -> {
+            if (!k.equals("page") && !k.equals("size")) {
+                criteriaMap.put(k, v);
+            }
+        });
         PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
         return !pageableList.getList().isEmpty() ? ResponseEntity.ok(
                 new OrderListResource(pageableList.getList().stream().map(orderDTO ->
@@ -115,7 +122,7 @@ public class OrderController {
                                         .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
                         pageAndSortDTO.getPage(),
                         pageableList.getLastPage(),
-                        pageAndSortDTO.getSize(), false)) :
+                        pageAndSortDTO.getSize(), false, criteriaMap)) :
                 ResponseEntity.status(404).build();
     }
 
@@ -154,17 +161,30 @@ public class OrderController {
         AppUserPrinciple principle = (AppUserPrinciple) detailsService
                 .loadUserByUsername((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         PageAndSortDTO pageAndSortDTO = dtoParser.parsePageAndSortCriteria(params);
-        OrderSearchCriteriaDTO orderSearchCriteriaDTO = OrderSearchCriteriaDTO.builder()
-                .userId(principle.getUser().getId())
-                .build();
+        OrderSearchCriteriaDTO orderSearchCriteriaDTO = dtoParser.parseOrderSearchDTO(params);
+        orderSearchCriteriaDTO.setUserId(principle.getUser().getId());
+
+        Map<String, String> criteriaMap = new HashMap<>();
+        params.forEach((k, v) -> {
+            if (!k.equals("page") && !k.equals("size")) {
+                criteriaMap.put(k, v);
+            }
+        });
+
         PageableList<OrderDTO> pageableList = orderService.findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
+        if (pageAndSortDTO.getPage() > pageableList.getLastPage()) {
+            pageAndSortDTO.setPage((int) pageableList.getLastPage());
+            pageableList = orderService
+                    .findByCriteria(orderSearchCriteriaDTO, pageAndSortDTO);
+        }
+        log.info(pageableList.getLastPage());
         return ResponseEntity.ok(new OrderListResource(pageableList.getList().stream()
                 .map(orderDTO -> new OrderResource(orderDTO, orderDTO.getGiftCertificates().stream()
                         .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
                                 .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()))).collect(Collectors.toList()),
                 pageAndSortDTO.getPage(),
                 pageableList.getLastPage(),
-                pageAndSortDTO.getSize(), true));
+                pageAndSortDTO.getSize(), true, criteriaMap));
     }
 
     @PreAuthorize("@securityChecker.checkOrderAuthorities(#id) or hasRole('ROLE_ADMIN')")

@@ -1,10 +1,13 @@
 import React from "react";
-import {Link, Redirect} from "react-router-dom";
 import {withCookies} from "react-cookie";
 import {MdModeEdit} from "react-icons/md";
 import * as PropTypes from "prop-types";
 import './Certificates.css'
 import Button from "reactstrap/es/Button";
+import {withRouter} from "react-router-dom";
+import {getCertificateById} from "../service/APIService";
+import {getMessage} from "../app/Message";
+import Alert from "react-s-alert";
 
 class EditLink extends React.Component {
 
@@ -16,42 +19,55 @@ class EditLink extends React.Component {
         price: PropTypes.number.isRequired,
         expiration: PropTypes.string.isRequired,
         tags: PropTypes.array.isRequired,
+        id: PropTypes.number.isRequired,
+        reloadHandler: PropTypes.func.isRequired,
+        availabilityChecker: PropTypes.func.isRequired
+    };
 
+    handleClick = () => {
+        getCertificateById(this.props.id, this.props).then(response => {
+            if (!response.ok) {
+                Alert.error(getMessage(this.props, 'certificateUnavailable'));
+                this.props.reloadHandler();
+            } else {
+                this.props.history.push({
+                    pathname: '/edit',
+                    state: {
+                        name: {
+                            value: this.props.name,
+                            isValid: true
+                        },
+                        description: {
+                            value: this.props.description,
+                            isValid: true
+                        },
+                        price: {
+                            value: this.props.price,
+                            isValid: true
+                        },
+                        expiration: {
+                            value: this.props.expiration,
+                            isValid: true
+                        },
+                        tags: this.props.tags,
+                        link: this.props.link,
+                        isBlocking: true,
+                        id: this.props.id
+                    }
+                });
+            }
+        })
     };
 
     render() {
         return this.props.link ?
-            <Link className={'editStyle btn btn-danger btn-sm'} to={{
-                pathname: '/edit',
-                state: {
-                    name: {
-                        value: this.props.name,
-                        isValid: true
-                    },
-                    description: {
-                        value: this.props.description,
-                        isValid: true
-                    },
-                    price: {
-                        value: this.props.price,
-                        isValid: true
-                    },
-                    expiration: {
-                        value: this.props.expiration,
-                        isValid: true
-                    },
-                    tags: this.props.tags,
-                    link: this.props.link,
-                    isBlocking: true
-                }
-            }}
-                  // className="btn btn-danger btn-sm deleteStyle"
-            >
-                <span><MdModeEdit /></span>
-            </Link>
+            <Button className={'editStyle btn btn-danger btn-sm'}
+                    onClick={() => this.handleClick()}>
+                <span><MdModeEdit/></span>
+            </Button>
             : null;
 
     }
 }
 
-export default withCookies(EditLink)
+export default withRouter(withCookies(EditLink))

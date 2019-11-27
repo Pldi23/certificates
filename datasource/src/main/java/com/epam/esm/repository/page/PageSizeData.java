@@ -1,5 +1,7 @@
 package com.epam.esm.repository.page;
 
+import lombok.extern.log4j.Log4j2;
+
 import javax.persistence.Query;
 
 /**
@@ -8,6 +10,7 @@ import javax.persistence.Query;
  * @author Dzmitry Platonov on 2019-10-24.
  * @version 0.0.1
  */
+@Log4j2
 public class PageSizeData implements Pageable {
 
     private int page;
@@ -20,6 +23,9 @@ public class PageSizeData implements Pageable {
 
     @Override
     public Query setPageAndSize(Query query) {
-        return query.setMaxResults(size).setFirstResult(page * size - size);
+        log.info(size);
+        log.info(page * size - size);
+        int firstResult = page * size - size > 0 ? page * size - size : 0;
+        return query.setMaxResults(size).setFirstResult(firstResult);
     }
 }

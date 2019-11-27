@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import static com.epam.esm.repository.constant.JpaConstant.CERTIFICATE;
 import static com.epam.esm.repository.constant.JpaConstant.ID;
+import static com.epam.esm.repository.constant.JpaConstant.NAME;
 import static com.epam.esm.repository.constant.JpaConstant.ORDER_CERTIFICATE;
 
 /**
@@ -30,7 +31,7 @@ public class OrderHasCertificateByNameSpecification implements Specification<Ord
     @Override
     public List<Predicate> toPredicates(Root<Order> root, CriteriaQuery query, CriteriaBuilder cb) {
         return names.stream()
-                .map(i -> cb.equal(root.join(ORDER_CERTIFICATE).join(CERTIFICATE).get(ID), i))
+                .map(i -> cb.equal(root.join(ORDER_CERTIFICATE).join(CERTIFICATE).get(NAME), i))
                 .collect(Collectors.toList());
     }
 }

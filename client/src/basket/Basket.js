@@ -20,14 +20,15 @@ class Basket extends React.Component {
         const certificates = this.props.basketCertificates.map((giftCertificate, index) =>
 
             <BasketCertificate
-                key={giftCertificate.id + index}
+                key={index}
                 certificate={giftCertificate}
                 onRemoveFromBasket={this.props.onRemoveFromBasket}
             />
         );
+        const quantity = certificates.length || null;
         return <div>
             <button className={'button'}  id="PopoverLegacy" type="button">
-                <span><FaCartArrowDown/></span>
+                <FaCartArrowDown/>{quantity}
             </button>
             <UncontrolledPopover trigger="legacy" placement="bottom" target="PopoverLegacy">
                 <PopoverHeader>{getMessage(this.props, 'cart')}</PopoverHeader>

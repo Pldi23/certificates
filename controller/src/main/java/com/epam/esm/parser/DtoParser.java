@@ -49,7 +49,6 @@ public class DtoParser {
                         && !entry.getValue().equals(LIMIT_PARAMETER)
                         && !entry.getKey().equals(OFFSET_PARAMETER))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        log.info("here " + searchCriteriaRequestDTO.getParameters().size());
         searchCriteriaRequestDTO.getParameters().forEach((k,v) -> log.info(k + " : " + v));
         return searchCriteriaRequestDTO;
 

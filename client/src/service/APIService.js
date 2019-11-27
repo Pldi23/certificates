@@ -41,7 +41,6 @@ const request = (options, props) => {
                         headers.append(AUTHORIZATION_HEADER, response.headers.get(AUTHORIZATION_HEADER));
                         console.log('token setted');
                         console.log(headers.get(AUTHORIZATION_HEADER));
-                        // props.loginHandler(true);
                         if (options.method !== 'GET') {
                             headers.append(XSRF_HEADER, cookies.get(COOKIES_XSRF));
 
@@ -115,38 +114,40 @@ export function getCurrentUser(props) {
 }
 
 export function getOrdersSelf(props, href) {
-
+    let url = new URL(API_BASE_URL + href);
+    if (url.searchParams.get('size') > 100) {
+        url.searchParams.set('size', '100');
+    }
     return request({
-        url: API_BASE_URL + href,
+        url: url,
         method: 'GET'
     }, props).then(response => {
             return response.json().then(json => {
-                if (response.status === 400) {
-                    let message = JSON.stringify(json.messages);
-                    Alert.error(message.substring(1, message.length - 1));
-                    return []
-                }
                 if (!response.ok) {
+                    Alert.error(getMessage(props, 'badOrdersRequest'));
                     return Promise.reject(json);
                 }
                 return json;
             });
         }
     )
-
 }
 
 export function getCertificatesByHref(props, href) {
-
+    let url = new URL(API_BASE_URL + href);
+    if (url.searchParams.get('size') > 100) {
+        url.searchParams.set('size', '100');
+    }
     return request({
-        url: API_BASE_URL + href,
+        url: url,
         method: 'GET',
     }, props).then(response => {
             return response.json().then(json => {
-                if (response.status === 400) {
-                    Alert.error(getMessage(props, 'notReadableSearch'));
-                }
                 if (!response.ok) {
+                    Alert.closeAll();
+                    Alert.error(getMessage(props, 'badCertificatesRequest'), {
+                        timeout: '0'
+                    });
                     return Promise.reject(json);
                 }
                 return json;
@@ -218,3 +219,9 @@ export function postOrder(orderJson, props) {
     }, props)
 }
 
+export function getCertificateById(id, props) {
+    return request({
+        url: API_BASE_URL + CERTIFICATES_URL + '/' + id,
+        method: 'GET',
+    }, props);
+}

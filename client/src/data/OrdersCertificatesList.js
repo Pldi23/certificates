@@ -27,8 +27,10 @@ class OrdersCertificatesList extends React.Component {
                 price={item.order.price}
                 reloadHandler={this.props.reloadHandler}
                 tagSearchHandler={this.props.tagSearchHandler}
+                tagSearchPlusHandler={this.props.tagSearchPlusHandler}
                 onAddToBasket={this.props.onAddToBasket}
                 showButtons={false}
+                priceGt={this.props.priceGt}
             />);
 
 
@@ -69,8 +71,10 @@ class OrderCertificates extends React.Component {
                 locale={this.props.locale}
                 reloadHandler={this.props.reloadHandler}
                 tagSearchHandler={this.props.tagSearchHandler}
+                tagSearchPlusHandler={this.props.tagSearchPlusHandler}
                 onAddToBasket={this.props.onAddToBasket}
                 showButtons={false}
+                priceGt={this.props.priceGt}
             />
         );
 

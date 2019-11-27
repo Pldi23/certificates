@@ -3,11 +3,14 @@ import Select from 'react-select';
 import {withCookies} from "react-cookie";
 import {SEARCH_PARAMETERS} from "../constants";
 import * as PropTypes from "prop-types";
+import {getMessage} from "../app/Message";
 
-const options = [
-    {value: 'All', label: 'All'},
-    {value: 'My Certificates', label: 'My Certificates'},
-];
+
+
+// const options = [
+//     {value: 'All', label: 'All'},
+//     {value: 'My Certificates', label: 'My Certificates'},
+// ];
 
 const colourStyles = {
     control: styles => ({
@@ -32,7 +35,7 @@ class CertificatesListSelector extends React.Component {
         this.state = {
             selectedOption: {
                 value: !this.props.selected ? 'All' : 'My Certificates',
-                label: !this.props.selected ? 'All' : 'My Certificates'
+                label: !this.props.selected ? getMessage(this.props, 'all') : getMessage(this.props, 'myCertificates')
             },
         };
     }
@@ -50,6 +53,10 @@ class CertificatesListSelector extends React.Component {
 
     render() {
         const {selectedOption} = this.state;
+        const options = [
+            {value: 'All', label: getMessage(this.props, 'all')},
+            {value: 'My Certificates', label: getMessage(this.props, 'myCertificates')},
+        ];
 
         return (
             <Select styles={colourStyles}

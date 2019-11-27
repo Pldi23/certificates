@@ -4,6 +4,7 @@ import com.epam.esm.entity.Order;
 import com.epam.esm.repository.page.Pageable;
 import com.epam.esm.repository.predicate.Specification;
 import com.epam.esm.repository.sort.Sortable;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.epam.esm.repository.constant.JpaConstant.ID;
-
+@Log4j2
 @Repository
 public class OrderRepository implements AbstractOrderRepository {
 
@@ -77,6 +78,7 @@ public class OrderRepository implements AbstractOrderRepository {
         CriteriaQuery<Long> cQuery = builder.createQuery(Long.class);
         Root<Order> from = cQuery.from(Order.class);
         CriteriaQuery<Long> select = cQuery.select(builder.count(from));
+        select.groupBy(from.get(ID));
         if (specifications != null) {
             List<Predicate> predicates = new ArrayList<>();
             for (Specification<Order> s : specifications) {
@@ -86,6 +88,8 @@ public class OrderRepository implements AbstractOrderRepository {
         }
         TypedQuery<Long> typedQuery = entityManager.createQuery(select);
         Long numOfOrders = typedQuery.getSingleResult();
-        return numOfOrders % size == 0 ? numOfOrders / size : numOfOrders / size + 1;
+        long res = numOfOrders % size == 0 ? numOfOrders / size : numOfOrders / size + 1;
+        log.info(res);
+        return res;
     }
 }

@@ -10,11 +10,11 @@ import Profile from '../user/profile/Profile';
 import OAuth2RedirectHandler from '../user/oauth2/OAuth2RedirectHandler';
 import NotFound from '../common/NotFound';
 import LoadingIndicator from '../common/LoadingIndicator';
-import {getCurrentUser} from '../service/APIService';
+import {getCertificateById, getCurrentUser} from '../service/APIService';
 import {
     ACCESS_TOKEN,
     ACCESS_TOKEN_EXPIRES_IN, APP_DEFAULT_LOCALE,
-    CERTIFICATES_HREF,
+    CERTIFICATES_HREF, COOKIES_CART,
     COOKIES_LOCALE,
     REFRESH_TOKEN, SEARCH_PARAMETERS
 } from '../constants';
@@ -26,7 +26,7 @@ import './App.css';
 import {CookiesProvider, withCookies} from 'react-cookie';
 import EditCertificate from "../data/EditCertificate";
 import LocalizedStrings from 'react-localization';
-import {message} from './Message'
+import {getMessage, getMessageByLocale, message} from './Message'
 import DeleteLink from "../data/DeleteLink";
 import {BrowserRouter as Router} from 'react-router-dom';
 
@@ -43,7 +43,6 @@ class App extends Component {
             currentRouteCertificates: false,
             locale: cookies.get(COOKIES_LOCALE) ? cookies.get(COOKIES_LOCALE) : APP_DEFAULT_LOCALE,
             basketCertificates: [],
-
         };
     }
 
@@ -64,7 +63,6 @@ class App extends Component {
                 authenticated: false,
             });
 
-            console.log(error);
         });
     };
 
@@ -88,6 +86,8 @@ class App extends Component {
         localStorage.removeItem(REFRESH_TOKEN);
         localStorage.removeItem(CERTIFICATES_HREF);
         localStorage.removeItem(SEARCH_PARAMETERS);
+        const {cookies} = this.props;
+        cookies.remove(COOKIES_CART);
         this.setState({
             authenticated: false,
             currentUser: null
@@ -122,10 +122,17 @@ class App extends Component {
     };
 
     onAddToBasket = (newCertificate) => {
-
-        this.setState(prevState => ({
-            basketCertificates: [...prevState.basketCertificates, newCertificate]
-        }));
+        if (this.state.basketCertificates.length < 10) {
+            this.setState(prevState => ({
+                basketCertificates: [...prevState.basketCertificates, newCertificate]
+            }));
+            const {cookies} = this.props;
+            cookies.get(COOKIES_CART) ?
+                cookies.set(COOKIES_CART, cookies.get(COOKIES_CART) + ',' + newCertificate.id) :
+                cookies.set(COOKIES_CART, newCertificate.id, {path: '/'});
+        } else {
+            Alert.info(getMessageByLocale(this.state.locale, 'fullCart'))
+        }
     };
 
     onRemoveFromBasket = (oldCertificate) => {
@@ -136,22 +143,45 @@ class App extends Component {
             array.splice(index, 1);
             this.setState({basketCertificates: array});
         }
+        const {cookies} = this.props;
+        let cookiesString = '';
+        array.forEach(cert => cookiesString = cookiesString.concat(cert.id + ','));
+        cookiesString = cookiesString.replace(/,$/, "");
+        cookies.set(COOKIES_CART, cookiesString)
 
     };
 
     onRefreshBasket = () => {
+        const {cookies} = this.props;
+        cookies.remove(COOKIES_CART);
         this.setState({
             basketCertificates: []
         })
     };
 
     componentDidMount() {
-        console.log('mounting app')
         this.loadCurrentlyLoggedInUser();
-    }
 
-    componentWillUnmount() {
-        console.log('unmountinfg app')
+        const {cookies} = this.props;
+        const certificates = [];
+        if (cookies.get(COOKIES_CART)) {
+            cookies.get(COOKIES_CART).split(',')
+                .forEach(id => getCertificateById(id, this.props).then(response => {
+                    if (!response.ok) {
+                        Alert.error(getMessage(props, 'certificateUnavailable'));
+                    } else {
+                        response.json().then(json => this.setState({
+                            basketCertificates: [...this.state.basketCertificates, json.giftCertificate]
+                        }))
+                    }
+                }));
+        } else  {
+            this.setState({
+                basketCertificates: certificates
+            })
+
+        }
+
     }
 
     componentWillMount() {

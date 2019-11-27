@@ -180,6 +180,11 @@ public class CertificateController {
         SearchCriteriaRequestDTO searchCriteriaRequestDTO = dtoParser.parseSearchCriteria(criteriaMap);
         PageableList<GiftCertificateDTO> pageableList = certificateServiceImpl
                 .findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
+        if (pageAndSortDTO.getPage() > pageableList.getLastPage()) {
+            pageAndSortDTO.setPage((int) pageableList.getLastPage());
+            pageableList = certificateServiceImpl
+                    .findByCriteria(searchCriteriaRequestDTO, pageAndSortDTO);
+        }
         return ResponseEntity.ok(new CertificateListResource(pageableList.getList().stream()
                 .map(giftCertificateDTO -> new CertificateResource(giftCertificateDTO, giftCertificateDTO.getTags().stream()
                         .map(TagResource::new).collect(Collectors.toList()))).collect(Collectors.toList()), pageAndSortDTO.getPage(),
