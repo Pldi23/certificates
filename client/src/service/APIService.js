@@ -124,6 +124,7 @@ export function getOrdersSelf(props, href) {
     }, props).then(response => {
             return response.json().then(json => {
                 if (!response.ok) {
+                    Alert.closeAll();
                     Alert.error(getMessage(props, 'badOrdersRequest'));
                     return Promise.reject(json);
                 }
@@ -145,9 +146,7 @@ export function getCertificatesByHref(props, href) {
             return response.json().then(json => {
                 if (!response.ok) {
                     Alert.closeAll();
-                    Alert.error(getMessage(props, 'badCertificatesRequest'), {
-                        timeout: '0'
-                    });
+                    Alert.error(getMessage(props, 'badCertificatesRequest'));
                     return Promise.reject(json);
                 }
                 return json;

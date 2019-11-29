@@ -320,6 +320,7 @@ class EditCertificate extends React.Component {
         let dd = today.getDate();
         let mm = today.getMonth()+1; //January is 0!
         let yyyy = today.getFullYear();
+        let yyyyPlusTen = today.getFullYear() + 10;
         if(dd<10){
             dd='0'+dd
         }
@@ -327,6 +328,7 @@ class EditCertificate extends React.Component {
             mm='0'+mm
         }
 
+        let todayPlusTenYears = yyyyPlusTen+'-'+mm+'-'+dd;
         today = yyyy+'-'+mm+'-'+dd;
 
         return(
@@ -401,6 +403,7 @@ class EditCertificate extends React.Component {
                                     id="certificateExpiration"
                                     placeholder={getMessage(this.props, 'expiration')}
                                     min={today}
+                                    max={todayPlusTenYears}
                                     required={true}
                                     value={this.state.expiration.value}
                                     onChange={this.handleInputExpiration}

@@ -11,9 +11,6 @@ class Tag extends React.Component {
         tagSearchHandler: PropTypes.func.isRequired
     };
 
-    co
-
-
     render() {
         return <button className={'badge badge-info'}
                        onClick={() => this.props.tagSearchHandler(this.props.tag.tag.title)}

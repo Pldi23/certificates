@@ -5,7 +5,7 @@ import {withCookies} from "react-cookie";
 import React from "react";
 import Alert from "react-s-alert";
 import AlertHint from "./AlertHint";
-import {CERTIFICATES_DEFAULT_REQUEST_URL, ORDERS_SELF_URL} from "../constants";
+import {ORDERS_SELF_URL} from "../constants";
 
 const ORDERS_SEARCH_REGEX = /^[\w\s]*$/i;
 

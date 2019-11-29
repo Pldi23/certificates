@@ -3,10 +3,11 @@ import {NavLink} from 'react-router-dom';
 import './AppHeader.css';
 import LocalizedStrings from 'react-localization';
 import {message} from '../app/Message'
-import {CERTIFICATES_HREF, ROLE_ADMIN, SEARCH_PARAMETERS} from "../constants";
+import {ACCESS_TOKEN, CERTIFICATES_HREF, ROLE_ADMIN, SEARCH_PARAMETERS} from "../constants";
 import {Button} from "reactstrap";
 import Basket from "../basket/Basket";
 import * as PropTypes from "prop-types";
+import ReactCountryFlag from "react-country-flag";
 
 
 class AppHeader extends Component {
@@ -31,7 +32,8 @@ class AppHeader extends Component {
             <header className="app-header">
                 <div className="container">
                     <div className="app-branding">
-                        {this.props.currentUser && this.props.currentUser.user.role === ROLE_ADMIN && this.props.currentRouteCertificates ?
+                        {this.props.currentUser && this.props.currentUser.user.role === ROLE_ADMIN && this.props.currentRouteCertificates
+                             && localStorage.getItem(ACCESS_TOKEN) ?
                             <NavLink to="/add" className="app-title" onClick={() => {
                                 localStorage.removeItem(CERTIFICATES_HREF);
                                 localStorage.removeItem(SEARCH_PARAMETERS);
@@ -45,10 +47,22 @@ class AppHeader extends Component {
                     </div>
                     <div className="app-options">
                         <nav className="app-nav">
-                            {this.props.authenticated ? (
+                            {this.props.authenticated && localStorage.getItem(ACCESS_TOKEN) ? (
                                 <ul>
                                     <li>
-                                        <Button color="link" onClick={this.props.onLocale}>RU/EN</Button>
+                                        <Button color="link" onClick={this.props.onLocale}>
+                                            {this.props.locale === 'en' ? (
+                                                <ReactCountryFlag  styleProps={{
+                                                    width: '23px',
+                                                    height: '23px'
+                                                }} code = "us" svg/>
+                                                ) : (
+                                                <ReactCountryFlag styleProps={{
+                                                    width: '23px',
+                                                    height: '23px'
+                                                }} code = "ru" svg/>
+                                            )}
+                                        </Button>
                                     </li>
                                     <li>
                                         <NavLink
@@ -81,7 +95,18 @@ class AppHeader extends Component {
                             ) : (
                                 <ul>
                                     <li>
-                                        <Button color="link" onClick={this.props.onLocale}>RU/EN</Button>
+                                        <Button color="link" onClick={this.props.onLocale}>
+                                            {this.props.locale === 'en' ? (
+                                            <ReactCountryFlag  styleProps={{
+                                                width: '23px',
+                                                height: '23px'
+                                            }} code = "us" svg/>
+                                        ) : (
+                                            <ReactCountryFlag styleProps={{
+                                                width: '23px',
+                                                height: '23px'
+                                            }} code = "ru" svg/>
+                                        )}</Button>
                                     </li>
                                     <li>
                                         <NavLink

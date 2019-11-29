@@ -49,6 +49,7 @@ class Certificates extends Component {
 
     componentDidMount() {
         window.addEventListener("popstate", () => this.popStateListener());
+        window.addEventListener('scroll', this.handleScroll);
         this.setState({
             loading: true,
 
@@ -62,7 +63,20 @@ class Certificates extends Component {
 
     componentWillUnmount() {
         window.removeEventListener("popstate", () => this.popStateListener());
+        window.removeEventListener('scroll', this.handleScroll);
     }
+
+    handleScroll = () => {
+        let searchBar = document.getElementById('searchBar');
+        if (searchBar) {
+            let sticky = searchBar.offsetTop;
+            if (window.pageYOffset >= sticky) {
+                searchBar.classList.add("sticky")
+            } else {
+                searchBar.classList.remove("sticky");
+            }
+        }
+    };
 
     setStateFromUrl(href) {
         if (href.includes(ORDERS_SELF_URL)) {
@@ -82,8 +96,7 @@ class Certificates extends Component {
                                 this.props.history.push(page.href);
                             }
                         })
-                    } else
-                    if (json._links.pages.current) {
+                    } else if (json._links.pages.current) {
                         this.props.history.push(json._links.pages.href);
                     }
                 })
@@ -110,8 +123,7 @@ class Certificates extends Component {
                                 this.props.history.push(page.href);
                             }
                         })
-                    } else
-                    if (json._links.pages.current) {
+                    } else if (json._links.pages.current) {
                         this.props.history.push(json._links.pages.href);
                     }
                 })
@@ -290,8 +302,7 @@ class Certificates extends Component {
                             this.props.history.push(page.href);
                         }
                     })
-                } else
-                if (json._links.pages.current) {
+                } else if (json._links.pages.current) {
                     this.props.history.push(json._links.pages.href);
                 }
             })
@@ -510,34 +521,38 @@ class Certificates extends Component {
         const selected = this.getSelectedSortParameter();
         const ordersQuery = this.getOrderSearchValue();
 
+
         return <div>
             <Jumbotron fluid>
-                <Container fluid >
+                <Container fluid>
                     <h1 className="display-6 text-center">{getMessage(this.props, 'certificatesLabel')}</h1>
+                        <div id="searchBar">
                     <Col sm={{size: 9, offset: 3}}>
-                        <Row>
-                            {localStorage.getItem(ACCESS_TOKEN) ? (
-                                <CertificatesListSelector
-                                    reloadHandler={this.selectCertificatesHandler}
-                                    ordersHandler={this.ordersHandler}
-                                    selected={this.state.showOrders}
-                                />
-                            ) : (null)}
-                            {this.state.showOrders ? (
-                                <SearchOrders
-                                    searchValue={ordersQuery}
-                                    pageHandler={this.pageHandler}
-                                    selected={selected}
-                                    size={this.getCurrentPageSize()}/>
-                            ) : (
-                                <Search
-                                    searchValue={query}
-                                    pageHandler={this.pageHandler}
-                                    selected={selected}
-                                    size={this.getCurrentPageSize()}/>
-                            )}
-                        </Row>
+                            <Row>
+                                {localStorage.getItem(ACCESS_TOKEN) ? (
+                                    <CertificatesListSelector
+                                        reloadHandler={this.selectCertificatesHandler}
+                                        ordersHandler={this.ordersHandler}
+                                        selected={this.state.showOrders}
+                                        locale={this.props.locale}
+                                    />
+                                ) : (null)}
+                                {this.state.showOrders ? (
+                                    <SearchOrders
+                                        searchValue={ordersQuery}
+                                        pageHandler={this.pageHandler}
+                                        selected={selected}
+                                        size={this.getCurrentPageSize()}/>
+                                ) : (
+                                    <Search
+                                        searchValue={query}
+                                        pageHandler={this.pageHandler}
+                                        selected={selected}
+                                        size={this.getCurrentPageSize()}/>
+                                )}
+                            </Row>
                     </Col>
+                        </div>
                 </Container>
             </Jumbotron>
             {this.state.certificates.length > 0 || this.state.orders.length > 0 ? (
@@ -569,7 +584,7 @@ class Certificates extends Component {
                     </div>
                     <Col sm="12" md={{size: 10, offset: 3}}>
                         <Row>
-                            {this.state.certificates.length >= this.getCurrentPageSize() ?
+                            {this.state.certificates.length >= 5  ?
                                 (
                                     <Col sm={{size: 'auto', offset: 1}}>
                                         <PageSize pageSizeHandler={this.pageSizeHandler}

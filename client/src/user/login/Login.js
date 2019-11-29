@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './Login.css';
 import {
     GOOGLE_AUTH_URL,
-    FACEBOOK_AUTH_URL,
+    FACEBOOK_AUTH_URL, ACCESS_TOKEN,
 } from '../../constants';
 import {Link, Redirect} from 'react-router-dom'
 import fbLogo from '../../img/fb-logo.png';
@@ -35,7 +35,7 @@ class Login extends Component {
     }
 
     render() {
-        if (this.props.authenticated) {
+        if (localStorage.getItem(ACCESS_TOKEN)) {
             return <Redirect
                 to={{
                     pathname: "/",

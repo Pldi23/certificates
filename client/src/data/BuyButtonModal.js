@@ -16,7 +16,6 @@ const BuyButtonModal = (props) => {
         certificate: PropTypes.object.isRequired,
         onAddToBasket: PropTypes.func.isRequired,
         link: PropTypes.object.isRequired,
-        availabilityChecker: PropTypes.func.isRequired,
         reloadHandler: PropTypes.func.isRequired
     };
 
@@ -24,7 +23,6 @@ const BuyButtonModal = (props) => {
         locale,
         certificate,
         onAddToBasket,
-        availabilityChecker,
         reloadHandler,
         cookies
     } = props;

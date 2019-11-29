@@ -7,9 +7,8 @@ import {
     CardFooter,
     CardHeader,
     CardText,
-    Col, PopoverBody,
+    Col,
     Row,
-    UncontrolledPopover
 } from "reactstrap";
 import CertificateModal from "./CertificateModal";
 import {getMessageByLocale} from "../app/Message";

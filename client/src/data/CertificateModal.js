@@ -13,7 +13,6 @@ const CertificateModal = (props) => {
         locale: PropTypes.string.isRequired,
         certificate: PropTypes.object.isRequired,
         tags: PropTypes.array.isRequired,
-        // certificateNamePlusHandler: PropTypes.func
     };
 
     const {
@@ -21,7 +20,6 @@ const CertificateModal = (props) => {
         tags,
         locale,
         cookies,
-        // certificateNamePlusHandler
     } = props;
 
     const [modal, setModal] = useState(false);
@@ -38,9 +36,7 @@ const CertificateModal = (props) => {
 
     return (
         <div>
-            <button className={'titleStyle'} draggable="true" onClick={onClick} onDragStart={onDrag}
-                    // onContextMenu={() => this.props.certificateNamePlusHandler()}
-            >
+            <button className={'titleStyle'} draggable="true" onClick={onClick} onDragStart={onDrag}>
                 {certificate.name}</button>
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>{certificate.name}</ModalHeader>

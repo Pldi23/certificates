@@ -1,8 +1,7 @@
 import React from 'react';
 import {withCookies} from 'react-cookie';
-import Certificate from "./Certificate";
-import {CardColumns, Col} from "reactstrap";
 import * as PropTypes from "prop-types";
+import OrderCertificates from "./OrderCertificates";
 
 class OrdersCertificatesList extends React.Component {
 
@@ -39,59 +38,3 @@ class OrdersCertificatesList extends React.Component {
 }
 
 export default withCookies(OrdersCertificatesList)
-
-class OrderCertificates extends React.Component {
-
-    static propTypes = {
-        certificates: PropTypes.array.isRequired,
-        locale: PropTypes.string.isRequired,
-        created: PropTypes.string.isRequired,
-        reloadHandler: PropTypes.func.isRequired,
-        tagSearchHandler: PropTypes.func.isRequired,
-        onAddToBasket: PropTypes.func.isRequired,
-        showButtons: PropTypes.bool.isRequired,
-
-    };
-
-
-    getParsedDate(date) {
-        date = String(date).split('-');
-        let year = String(date[0]);
-        let month = String(date[1]);
-        let day = String(date[2]).split('T');
-        return day[0] + '/' + month + '/' + year
-    }
-
-    render() {
-
-        const certificates = this.props.certificates.map((certificate, index) =>
-            <Certificate
-                key={index}
-                certificate={certificate}
-                locale={this.props.locale}
-                reloadHandler={this.props.reloadHandler}
-                tagSearchHandler={this.props.tagSearchHandler}
-                tagSearchPlusHandler={this.props.tagSearchPlusHandler}
-                onAddToBasket={this.props.onAddToBasket}
-                showButtons={false}
-                priceGt={this.props.priceGt}
-            />
-        );
-
-        return <div>
-            <hr/>
-            <Col>
-                <p className="text-info">Order date: {this.getParsedDate(this.props.created)}</p>
-            </Col>
-            <Col>
-                <p className="text-info">Total price: {this.props.price}</p>
-            </Col>
-            <CardColumns>
-                {certificates}
-            </CardColumns>
-
-        </div>
-
-    }
-
-}

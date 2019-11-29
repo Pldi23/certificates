@@ -1,5 +1,6 @@
 import LocalizedStrings from "react-localization";
 import {APP_DEFAULT_LOCALE, COOKIES_LOCALE} from "../constants";
+import React from "react";
 
 export let message = {
     en: {
@@ -53,8 +54,10 @@ export let message = {
         certificateUnavailable: "Sorry, certificate is unavailable",
         all: "All",
         myCertificates: 'My Certificates',
+        orderDate: "Order date: ",
+        totalPrice: "Total price: ",
 
-        //add/edit
+//add/edit
         title: "Title",
         description: "Description",
         price: "Price",
@@ -177,6 +180,8 @@ export let message = {
         certificateUnavailable: "Извините, сертификат недоступен",
         all: "Все",
         myCertificates: 'Мои сертификаты',
+        orderDate: "Дата заказа: ",
+        totalPrice: "Сумма заказа: ",
 
         //add/edit
         title: "Название",

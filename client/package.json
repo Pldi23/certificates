@@ -30,6 +30,7 @@
     "prop-types": "latest",
     "react": "^16.12.0",
     "react-cookie": "latest",
+    "react-country-flag": "^1.1.0",
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^3.0.2",
     "react-dom": "^16.12.0",
@@ -38,6 +39,7 @@
     "react-router-dom": "latest",
     "react-s-alert": "latest",
     "react-select": "latest",
+    "react-sticky": "^6.0.3",
     "react-tag-input": "latest",
     "reactstrap": "latest",
     "reactstrap-confirm": "latest"

@@ -159,7 +159,15 @@ class App extends Component {
         })
     };
 
+    localStorageUpdated = () => {
+        if (this.state.currentUser !== null && !localStorage.getItem(ACCESS_TOKEN)) {
+            this.handleLogout();
+            window.location.assign('/login')
+        }
+    };
+
     componentDidMount() {
+        window.addEventListener('storage', this.localStorageUpdated);
         this.loadCurrentlyLoggedInUser();
 
         const {cookies} = this.props;
@@ -184,16 +192,20 @@ class App extends Component {
 
     }
 
+    componentWillUnmount() {
+        window.removeEventListener('storage', this.localStorageUpdated);
+    }
+
     componentWillMount() {
         document.title = 'Certificates'
     }
 
     render() {
 
-
         if (this.state.loading) {
             return <LoadingIndicator/>
         }
+
         return (
             <Router>
                 <CookiesProvider>
@@ -228,6 +240,7 @@ class App extends Component {
                                                                         routeHandler={this.routeHandler}
                                                                         authenticated={this.state.authenticated}
                                                                         onAddToBasket={this.onAddToBasket}
+                                                                        locale={this.state.locale}
                                                                         {...props}
                                        />}/>
                                 <Route path="/login"

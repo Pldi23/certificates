@@ -1,6 +1,4 @@
 import React from "react";
-import * as PropTypes from "prop-types";
-import {SEARCH_PARAMETERS} from "../constants";
 import {withCookies} from "react-cookie";
 import {Select} from "react-select";
 
@@ -31,17 +29,6 @@ class SortSelector extends React.Component {
             },
         };
     }
-
-    // handleChange = selectedOption => {
-    //     this.setState({selectedOption});
-    //
-    //     if (selectedOption.value === 'All') {
-    //         this.props.reloadHandler()
-    //     } else {
-    //         localStorage.removeItem(SEARCH_PARAMETERS);
-    //         this.props.ordersHandler()
-    //     }
-    // };
 
     render() {
         const {selectedOption} = this.state;

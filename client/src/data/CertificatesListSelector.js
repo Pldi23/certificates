@@ -3,14 +3,8 @@ import Select from 'react-select';
 import {withCookies} from "react-cookie";
 import {SEARCH_PARAMETERS} from "../constants";
 import * as PropTypes from "prop-types";
-import {getMessage} from "../app/Message";
+import {getMessage, getMessageByLocale} from "../app/Message";
 
-
-
-// const options = [
-//     {value: 'All', label: 'All'},
-//     {value: 'My Certificates', label: 'My Certificates'},
-// ];
 
 const colourStyles = {
     control: styles => ({
@@ -28,16 +22,34 @@ class CertificatesListSelector extends React.Component {
         selected: PropTypes.bool.isRequired,
         reloadHandler: PropTypes.func.isRequired,
         ordersHandler: PropTypes.func.isRequired,
+        locale: PropTypes.string.isRequired
     };
 
     constructor(props) {
         super(props);
         this.state = {
+            selectedOption: null,
+        };
+    }
+
+    componentDidMount() {
+        this.setState({
             selectedOption: {
                 value: !this.props.selected ? 'All' : 'My Certificates',
-                label: !this.props.selected ? getMessage(this.props, 'all') : getMessage(this.props, 'myCertificates')
-            },
-        };
+                label: !this.props.selected ? getMessageByLocale(this.props.locale, 'all') : getMessageByLocale(this.props.locale, 'myCertificates')
+            }
+        })
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.locale !== this.props.locale) {
+            this.setState({
+                selectedOption: {
+                    value: !this.props.selected ? 'All' : 'My Certificates',
+                    label: !this.props.selected ? getMessageByLocale(this.props.locale, 'all') : getMessageByLocale(this.props.locale, 'myCertificates')
+                }
+            })
+        }
     }
 
     handleChange = selectedOption => {
@@ -52,8 +64,8 @@ class CertificatesListSelector extends React.Component {
     };
 
     render() {
-        const {selectedOption} = this.state;
-        const options = [
+        let {selectedOption} = this.state;
+        let options = [
             {value: 'All', label: getMessage(this.props, 'all')},
             {value: 'My Certificates', label: getMessage(this.props, 'myCertificates')},
         ];

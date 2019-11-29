@@ -42,26 +42,27 @@
 }
 
 .btnPopover {
-    /*line-height: 10px;*/
     height: 25px;
     text-align: center;
     width: 24px;
     font-size: 15px;
     color: #eeeeee;
     cursor: pointer;
-    /*display: flex;*/
     justify-content: center;
     align-items: center;
     background-color: #30bbb0;
 }
 
-.fixed-top-2 {
-    margin-top: 66px;
+.fixed-top2 {
+    position: fixed;
+    z-index: 1030;
 }
 
 
 .sticky {
     position: fixed;
-    top: 0;
-    width: 100%
+    top: 60px;
+    width: 100%;
+    z-index: 1030;
+    background-color: #eeeeee;
 }

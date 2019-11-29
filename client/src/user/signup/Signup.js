@@ -28,7 +28,8 @@ class Signup extends Component {
 
 
     render() {
-        if (this.props.authenticated) {
+        if (localStorage.getItem(ACCESS_TOKEN)) {
+        // if (this.props.authenticated) {
             return <Redirect
                 to={{
                     pathname: "/",
