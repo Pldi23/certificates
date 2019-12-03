@@ -32,6 +32,7 @@ target/
 build/
 out/
 app.properties
+application.properties
 
 # dependencies
 /node_modules
