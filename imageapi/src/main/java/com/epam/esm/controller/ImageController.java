@@ -34,11 +34,11 @@ import java.util.List;
 @Log4j2
 public class ImageController {
 
-    private final ImageService imageService;
+    private final ImageService imageServiceImpl;
     private final UploadValidator uploadValidator;
 
-    public ImageController(ImageService imageService, UploadValidator uploadValidator) {
-        this.imageService = imageService;
+    public ImageController(ImageService imageServiceImpl, UploadValidator uploadValidator) {
+        this.imageServiceImpl = imageServiceImpl;
         this.uploadValidator = uploadValidator;
     }
 
@@ -50,11 +50,11 @@ public class ImageController {
         String fileName;
         if (name == null || name.equals("")) {
             uploadValidator.validateFileName(file.getOriginalFilename());
-            fileName = imageService.storeFile(file, null);
+            fileName = imageServiceImpl.storeFile(file, null);
         } else {
             name = uploadValidator.replaceInvalidSymbols(name);
             uploadValidator.validateFileName(name);
-            fileName = imageService.storeFile(file, name);
+            fileName = imageServiceImpl.storeFile(file, name);
         }
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -77,7 +77,7 @@ public class ImageController {
         for (MultipartFile file : files) {
             try {
                 uploadValidator.validateSingleFile(file);
-                String fileName = imageService.storeFile(file, null);
+                String fileName = imageServiceImpl.storeFile(file, null);
                 String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                         .path("/")
                         .path(fileName)
@@ -97,13 +97,13 @@ public class ImageController {
 
     @GetMapping("/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
-        ImageResource resource = imageService.loadFileAsResource(fileName);
+        ImageResource resource = imageServiceImpl.loadFileAsResource(fileName);
         return buildResponseEntity(resource, request);
     }
 
     @GetMapping("/random")
     public ResponseEntity<Resource> downloadRandomFile(HttpServletRequest request) {
-        ImageResource resource = imageService.loadRandomAsResource();
+        ImageResource resource = imageServiceImpl.loadRandomAsResource();
         return buildResponseEntity(resource, request);
     }
 
