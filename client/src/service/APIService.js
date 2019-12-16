@@ -108,7 +108,7 @@ export function getCurrentUser(props) {
                     return Promise.reject(json);
                 }
                 return json;
-            });
+            }).then();
         }
     );
 }

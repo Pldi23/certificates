@@ -23,14 +23,14 @@ import java.util.Objects;
 import java.util.Set;
 
 @NoArgsConstructor
-@JsonIgnoreProperties(value={ "tags" }, allowSetters=true)
+@JsonIgnoreProperties(value={ "tags" }, allowSetters=true, allowGetters = true)
 public class GiftCertificateDTO {
 
     @Null(message = "{violation.input.certificate.id}")
     private Long id;
 
     @NotBlank(message = "{violation.name.not.blank}")
-    @Size(min = 1, max = 30, message = "{violation.name.size}")
+    @Size(min = 1, max = 50, message = "{violation.name.size}")
     @Pattern(regexp = "([\\w-]+(?: [\\w-]+)+)|([\\w-]+)", message = "{violation.certificate.name.pattern}")
     private String name;
 

@@ -8,6 +8,7 @@ import com.epam.esm.repository.predicate.Specification;
 import com.epam.esm.repository.sort.Sortable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -38,6 +39,7 @@ public class TagRepository implements AbstractTagRepository {
         this.entityManager = entityManager;
     }
 
+    @Transactional
     @Override
     public Tag save(Tag tag) {
         entityManager.persist(tag);

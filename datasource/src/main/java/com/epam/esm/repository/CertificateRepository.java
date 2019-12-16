@@ -7,6 +7,7 @@ import com.epam.esm.repository.sort.Sortable;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -58,6 +59,7 @@ public class CertificateRepository implements AbstractCertificateRepository {
         } else throw new EmptyResultDataAccessException(0);
     }
 
+    @Transactional
     @Override
     public GiftCertificate save(GiftCertificate giftCertificate) {
         giftCertificate.setActiveStatus(true);

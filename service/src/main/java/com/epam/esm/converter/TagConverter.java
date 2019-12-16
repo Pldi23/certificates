@@ -20,6 +20,6 @@ public class TagConverter {
     }
 
     public Tag convert(TagDTO tagDTO) {
-        return new Tag(tagDTO.getId(), tagDTO.getTitle(), new HashSet<>());
+        return new Tag(tagDTO.getId(), tagDTO.getTitle());
     }
 }
