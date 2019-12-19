@@ -16,12 +16,14 @@ import java.sql.SQLException;
  */
 public class CertificateRepository implements Repository {
 
+    private static final String COUNT_CERTIFICATES = "select count(*) from certificate";
+
     private static DatabaseConfiguration configuration = DatabaseConfiguration.getInstance();
 
 
     @Override
     public long count() {
-        try (PreparedStatement statement = getConnection().prepareStatement("select count(*) from certificate");
+        try (PreparedStatement statement = getConnection().prepareStatement(COUNT_CERTIFICATES);
              ResultSet resultSet = statement.executeQuery()) {
             resultSet.next();
             return resultSet.getLong(1);

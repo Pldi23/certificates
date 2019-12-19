@@ -9,15 +9,12 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import java.util.Set;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 
 @Entity
@@ -36,6 +33,8 @@ public class Tag{
     @Column(name = "id")
     private Long id;
 
+    @Size(min = 1, max = 200, message = "{violation.tag.title.length}")
+    @Pattern(regexp = "([\\w-]+(?: [\\w-]+)+)|([\\w-]+)", message = "{violation.tag.title.pattern}")
     @Column(unique = true, updatable = false)
     private String title;
 

@@ -1,7 +1,5 @@
 package com.epam.esm.service.processing;
 
-import com.epam.esm.converter.CertificateConverter;
-import com.epam.esm.converter.TagConverter;
 import com.epam.esm.repository.JpaCertificateRepository;
 import com.epam.esm.repository.JpaTagRepository;
 import lombok.extern.log4j.Log4j2;
@@ -11,38 +9,32 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Log4j2
 @Service
 public class CertificateFilesService {
 
-    private CertificateConverter certificateConverter;
     private JpaCertificateRepository certificateRepository;
     private JpaTagRepository tagRepository;
-    private TagConverter tagConverter;
     private LinkedTransferQueue<Path> queue;
     private AtomicBoolean isScanning;
     private ScheduledExecutorService executorService;
     private ExecutorService consumerService;
     private TaskProperties taskProperties;
 
-    public CertificateFilesService(CertificateConverter certificateConverter, JpaCertificateRepository certificateRepository,
-                                   JpaTagRepository tagRepository, TagConverter tagConverter,
+    public CertificateFilesService(JpaCertificateRepository certificateRepository,
+                                   JpaTagRepository tagRepository,
                                    TaskProperties taskProperties) {
-        this.certificateConverter = certificateConverter;
         this.certificateRepository = certificateRepository;
         this.tagRepository = tagRepository;
-        this.tagConverter = tagConverter;
         this.queue = new LinkedTransferQueue<>();
         this.isScanning = new AtomicBoolean();
         this.executorService = Executors.newSingleThreadScheduledExecutor();
@@ -51,87 +43,110 @@ public class CertificateFilesService {
     }
 
     public void listenToCertificatesData() {
-//        long scanSeconds = (long) (taskProperties.getScanDelay() * 10); //0.01 seconds
-//        log.info("scan seconds " + scanSeconds);
-        executorService.scheduleAtFixedRate(producer, 1, 100, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(producer, taskProperties.getInitialDelay(), taskProperties.getScanDelay(), TimeUnit.MILLISECONDS);
     }
 
     private Runnable producer = () -> {
-//        log.info("listen to data executed");
+        log.info("scanning for files");
         Path path = Path.of(taskProperties.getFolder());
-        if (path.toFile().exists() && path.toFile().isDirectory() && containsFiles(path)) {
-            isScanning.set(true);
-            int consumersCount = taskProperties.getThreadCount();
-//            log.info(consumersCount + "consumers starting");
-            for (int i = 0; i < consumersCount; i++) {
-                consumerService.execute(new FilesConsumer(queue, certificateRepository, tagRepository, certificateConverter,
-                        tagConverter, isScanning, taskProperties));
-            }
-//            log.info("start to produce");
-            while (true) {
-                try {
-                    List<Path> paths = Files.walk(path)
-                            .sorted(Comparator.reverseOrder())
-                            .filter(p -> p.toFile().isFile() && p.toFile().canExecute())
-                            .collect(Collectors.toList());
-                   if (paths.isEmpty()) {
-//                       log.info("paths is empty -> breaking");
-                       break;
-                   }
-                    for (Path p : paths) {
-//                        log.info(p + " producing");
-                        queue.transfer(p);
-                    }
-                } catch (IOException e) {
-                    log.warn("IO caught during producing", e);
-                } catch (InterruptedException e) {
-                    log.warn("interrupted thread caught", e);
-                    Thread.currentThread().interrupt();
+        isScanning.set(false);
+        if (path.toFile().exists() && path.toFile().isDirectory()) {
+            shouldStart(path);
+            if (isScanning.get()) {
+
+//            isScanning.set(true);
+                int consumersCount = taskProperties.getThreadCount();
+                log.info(consumersCount + "consumers starting");
+//            CyclicBarrier barrier = new CyclicBarrier(consumersCount + 1);
+//            AtomicBoolean shouldCheck = new AtomicBoolean(false);
+                for (int i = 0; i < consumersCount; i++) {
+                    consumerService.execute(new FilesConsumer(queue, certificateRepository, tagRepository,
+                            isScanning, taskProperties
+//                        barrier, shouldCheck
+                    ));
                 }
+//            log.info("start to produce");
+//            try {
+                while (containsFiles(path)) {
+//                    shouldCheck.set(false);
+//                    log.info("while true");
+                    transferPaths(path);
+                    awaitConsumers(consumersCount);
+//                    shouldCheck.set(true);
+//                    awaitAtBarrier(barrier);
+//                    TimeUnit.MILLISECONDS.sleep(100);
+                }
+                isScanning.set(false);
+//                awaitAtBarrier(barrier);
+                writeMarker();
+                log.info("producer finished");
+
+//            }
+//            catch (InterruptedException e) {
+//                log.warn("interrupted thread caught", e);
+//                Thread.currentThread().interrupt();
+//            }
             }
-//            log.info("producer finished");
-            isScanning.set(false);
-            try {
-                consumerService.awaitTermination(3, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                log.warn("interrupted thread caught", e);
-                Thread.currentThread().interrupt();
-            }
-//            consumerService.shutdown();
         }
     };
 
-//    private Runnable scanner = () -> {
-//        log.info("listen to data executed");
-//        if (Files.exists(Path.of(taskProperties.getFolder())) && checkTaskFolderForFiles()) {
-//            log.info("start to scan");
-//            isScanning.set(true);
-////            while (isScanning.get()) {
-//            executorService.execute(new FilesProducer(Path.of(taskProperties.getFolder()), queue, isScanning));
-//            int consumersCount = taskProperties.getThreadCount() - 1;
-//            for (int i = 0; i < consumersCount; i++) {
-//                executorService.execute(new FilesConsumer(queue, certificateRepository, tagRepository, certificateConverter,
-//                        tagConverter, isScanning, taskProperties));
-//            }
-////            }
-//        }
-//    };
+
+    private void transferPaths(Path path) {
+//        log.info("transferring paths");
+
+        try (Stream<Path> walk = Files.walk(path)) {
+            walk.filter(p -> p.toFile().isFile() && p.toFile().canExecute()).forEach(transfer -> {
+                try {
+
+//                    log.info(transfer + " producing");
+                    queue.transfer(transfer);
+//                    log.info("to next transfer : " + transfer);
+                } catch (InterruptedException e) {
+                    log.warn("Interrupted", e);
+                    Thread.currentThread().interrupt();
+                }
+            });
+//            log.info("finish to transfer paths");
+        } catch (IOException e) {
+            log.warn("could not process file ", e);
+        }
+        log.info(queue.getWaitingConsumerCount());
+    }
+
+    private void writeMarker() {
+        try {
+            Files.createFile(Paths.get(taskProperties.getFolder(), taskProperties.getMarkerFileName()));
+        } catch (IOException e) {
+            log.warn("could create marker file ", e);
+        }
+    }
+
+    private void awaitConsumers(int consumersAmount) {
+        while (queue.getWaitingConsumerCount() != consumersAmount) {
+            log.info("waiting for " + (consumersAmount - queue.getWaitingConsumerCount()) + " consumers");
+            try {
+                TimeUnit.MILLISECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                log.warn("Interrupted", e);
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
 
     private boolean containsFiles(Path path) {
-        try {
-            Stream<Path> stream = Files.walk(path);
-            return stream.anyMatch(p -> !Files.isDirectory(p));
+        try (Stream<Path> stream = Files.walk(path)) {
+            return stream.peek(file -> log.info("file : " + file)).anyMatch(p -> Files.isRegularFile(p) && p.toFile().canExecute() && !path.toString().contains("DS_Store"));
         } catch (IOException e) {
+            log.warn("could not detect if files exists", e);
             return false;
         }
     }
 
-    private boolean checkTaskFolderForFiles() {
-        try (Stream<Path> pathStream = Files.list(Path.of(taskProperties.getFolder()))) {
-            return pathStream.anyMatch(path -> !Files.isDirectory(path)) && !isScanning.get();
+    private void shouldStart(Path path) {
+        try {
+            Files.walkFileTree(path, new CheckRootFileVisitor(isScanning));
         } catch (IOException e) {
-            log.info("could not check folder", e);
-            return false;
+            isScanning.set(false);
         }
     }
 
@@ -140,5 +155,4 @@ public class CertificateFilesService {
         executorService.shutdown();
         consumerService.shutdown();
     }
-
 }

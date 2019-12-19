@@ -1,10 +1,6 @@
 package com.epam.esm.service.processing;
 
 
-import com.epam.esm.converter.CertificateConverter;
-import com.epam.esm.converter.TagConverter;
-import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.JpaCertificateRepository;
@@ -24,15 +20,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 @Log4j2
 public class FilesConsumer implements Runnable {
@@ -43,96 +38,74 @@ public class FilesConsumer implements Runnable {
     private LinkedTransferQueue<Path> queue;
     private JpaCertificateRepository certificateRepository;
     private JpaTagRepository tagRepository;
-    private CertificateConverter certificateConverter;
-    private TagConverter tagConverter;
-    private AtomicBoolean isScanning;
-
+    private AtomicBoolean isProducing;
     private TaskProperties taskProperties;
 
     public FilesConsumer(LinkedTransferQueue<Path> queue,
                          JpaCertificateRepository certificateRepository,
                          JpaTagRepository tagRepository,
-                         CertificateConverter certificateConverter,
-                         TagConverter tagConverter,
-                         AtomicBoolean isScanning,
+                         AtomicBoolean isProducing,
                          TaskProperties taskProperties) {
         this.queue = queue;
         this.certificateRepository = certificateRepository;
         this.tagRepository = tagRepository;
-        this.certificateConverter = certificateConverter;
-        this.tagConverter = tagConverter;
-        this.isScanning = isScanning;
+        this.isProducing = isProducing;
         this.taskProperties = taskProperties;
+
     }
 
     @Override
     public void run() {
         log.info("consumer starts");
-        while (isScanning.get()) {
-//            log.info(isScanning.get());
+        while (isProducing.get()) {
             try {
-                Path path = queue.take();
-                processFile(path);
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                processFile(queue.take());
+            } catch (IOException e) {
+                log.warn("consumer ", e);
+            } catch (InterruptedException e) {
+                log.warn("interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
         log.info("consumer finished");
-
     }
 
     private void processFile(Path path) throws IOException {
+        path.toFile().setExecutable(false);
         log.info(path + " processing");
         try {
             ObjectMapper mapper = new ObjectMapper();
-//            Gson gson = new Gson();
-            if (path.toFile().canExecute()) {
-                path.toFile().setExecutable(false);
-//                Type listOfMyClassObject = new TypeToken<List<GiftCertificateDTO>>() {
-//                }.getType();
-//                List<GiftCertificateDTO> giftCertificateDTOs;
-//                try (FileReader reader = new FileReader(path.toString())) {
-//                    giftCertificateDTOs = gson.fromJson(reader, listOfMyClassObject);
-//                }
-                List<GiftCertificateDTO> giftCertificateDTOs = mapper.readValue(path.toFile(), new TypeReference<List<GiftCertificateDTO>>() {
-                });
-                ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-                Validator validator = factory.getValidator();
-                Set<ConstraintViolation<GiftCertificateDTO>> violations
-                        = new HashSet<>();
-                giftCertificateDTOs.forEach(giftCertificateDTO -> violations.addAll(validator.validate(giftCertificateDTO)));
-                if (violations.isEmpty()) {
-                    List<GiftCertificate> list = giftCertificateDTOs.stream().map(giftCertificateDTO -> {
-                        Set<Tag> tags = saveTags(giftCertificateDTO.getTags());
-                        GiftCertificate giftCertificate = certificateConverter.convert(giftCertificateDTO);
-                        giftCertificate.setCreationDate(LocalDate.now());
-                        giftCertificate.setActiveStatus(true);
-                        giftCertificate.setTags(tags);
-                        return giftCertificate;
-                    }).collect(Collectors.toList());
-                    certificateRepository.saveAll(list);
-                    Files.deleteIfExists(path);
-                } else {
-                    moveInvalidFile(Path.of(taskProperties.getErrorValidatorViolationsFolder()), path);
-                }
+            List<GiftCertificate> giftCertificates = mapper.readValue(path.toFile(), new TypeReference<List<GiftCertificate>>() {
+            });
+            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            Validator validator = factory.getValidator();
+            Set<ConstraintViolation<GiftCertificate>> violations = new HashSet<>();
+            giftCertificates.forEach(giftCertificate -> violations.addAll(validator.validate(giftCertificate)));
+            if (violations.isEmpty()) {
+                Set<Tag> tags = new HashSet<>();
+                giftCertificates.forEach(giftCertificate -> tags.addAll(giftCertificate.getTags()));
+                tagRepository.saveAll(tags);
+                certificateRepository.saveAll(giftCertificates);
+                Files.deleteIfExists(path);
 
             } else {
-                log.info(path + " not executable");
+                moveInvalidFile(Path.of(taskProperties.getErrorValidatorViolationsFolder()), path);
             }
+
         } catch (DataIntegrityViolationException ex) {
             moveInvalidFile(Path.of(taskProperties.getErrorDataIntegrityFolder()), path);
         } catch (UnrecognizedPropertyException ex) {
-            log.info(ex);
             moveInvalidFile(Path.of(taskProperties.getErrorJsonMappingFolder()), path);
         } catch (MismatchedInputException ex) {
-            log.info(ex);
             moveInvalidFile(Path.of(taskProperties.getErrorMismatchInputFolder()), path);
         }
         log.info(path + " processing finished");
     }
 
-    private Set<Tag> saveTags(Set<TagDTO> tagDTOs) {
-        return new HashSet<>(tagRepository.saveAll(tagDTOs.stream().map(t -> tagConverter.convert(t)).collect(Collectors.toSet())));
+    private List<Tag> saveTags(Set<GiftCertificate> giftCertificates) {
+        Set<Tag> tags = new HashSet<>();
+        giftCertificates.forEach(giftCertificate -> tags.addAll(giftCertificate.getTags()));
+        return tagRepository.saveAll(tags);
     }
 
     private void moveInvalidFile(Path targetFolder, Path path) throws IOException {
@@ -156,7 +129,7 @@ public class FilesConsumer implements Runnable {
                 lockInnerFolderCreation.unlock();
             }
         }
-        File file = new File(String.format("%s/%s-%s", targetFolder, path.getFileName(), UUID.randomUUID()));
+        File file = new File(String.format("%s/%s-%s", targetFolder, path.getFileName(), System.currentTimeMillis()));
         Files.move(path, file.toPath());
         Files.deleteIfExists(path);
     }

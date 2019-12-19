@@ -1,10 +1,16 @@
 package com.epam.esm.service;
 
 import com.epam.esm.exception.FolderException;
+import com.epam.esm.listener.DataProcessingListener;
+import com.epam.esm.listener.DataProcessingResult;
+import com.epam.esm.process.Processor;
+import com.epam.esm.process.ProcessorCharger;
+import com.epam.esm.properties.UtilityConfiguration;
 import com.epam.esm.repository.Repository;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -15,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -27,93 +32,104 @@ import java.util.stream.Stream;
 @Slf4j
 public class FileService {
 
-    private static final Path ROOT = Path.of("root");
-    private static final Path ERRORS_PATH = Path.of("../errors");
-    private static final int SUB_FOLDERS_COUNT = 9;
-
     private Repository repository;
     private ExecutorService executorService;
+    private UtilityConfiguration utilityConfiguration;
 
     public FileService(Repository repository) {
+        this.utilityConfiguration = UtilityConfiguration.getInstance();
         this.repository = repository;
-        executorService = Executors.newFixedThreadPool(SUB_FOLDERS_COUNT + 1);
+        this.executorService = Executors.newSingleThreadScheduledExecutor();
     }
 
-    public PoolExecutionResult generateData() throws IOException, InterruptedException {
+    public PoolExecutionResult generateData() {
+
         deleteRootDir();
         createDirs();
-        List<Path> paths = new ArrayList<>();
-        try (Stream<Path> pathStream = Files.walk(ROOT)) {
-            pathStream
-                    .sorted(Comparator.reverseOrder())
-                    .filter(path -> path.toFile().isDirectory())
-                    .forEach(paths::add);
-        }
+        List<Path> rootAndSubPaths = getRootAndSubPaths();
 
         long certificatesCount = repository.count();
-        long errorsCount = 0;
-        if (Files.exists(ERRORS_PATH)) {
-            try (Stream<Path> pathStream = Files.walk(ERRORS_PATH)) {
-                errorsCount = pathStream.filter(path -> !Files.isDirectory(path)).count();
-            }
-        }
-        long finish = System.currentTimeMillis() + 1000;
+        long errorsCount = countErrors();
+        DataStatistic statistic = new DataStatistic();
 
-        List<Future<ThreadExecutionResult>> futures = executorService.invokeAll(
-                paths.stream()
-                        .map(path -> new FilesCreator(path, finish))
-                        .collect(Collectors.toList()));
+        long finish = System.currentTimeMillis() + utilityConfiguration.getTestTime();
+        Processor processor = new Processor(finish);
 
-//        return new PoolExecutionResult(VALID_CERTIFICATES_COUNTER.get() / 3 , INVALID_FILES_COUNTER.get(),
-//                count + VALID_CERTIFICATES_COUNTER.get());
+        processor.addContainer(rootAndSubPaths, statistic);
+        new Thread(new ProcessorCharger(finish, processor, rootAndSubPaths, statistic)).start();
+        processor.startNext();
 
-        return new PoolExecutionResult(futures.stream().map(future -> {
-            try {
-                return future.get();
-            } catch (InterruptedException e) {
-                return new ThreadExecutionResult();
-            } catch (ExecutionException e) {
-                return new ThreadExecutionResult();
-            }
-        }).collect(Collectors.toList()), certificatesCount, errorsCount);
+        return new PoolExecutionResult(statistic, certificatesCount, errorsCount);
     }
 
     public DataProcessingResult listenToFinishProcessing() {
-        //        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-//        Future<DataProcessingResult> submit = scheduledExecutorService.schedule(new DataProcessingListener(ROOT, repository), 1000, TimeUnit.MILLISECONDS);
-
-        Future<DataProcessingResult> submit = executorService.submit(new DataProcessingListener(ROOT, repository));
+        Future<DataProcessingResult> submit = executorService.submit(
+                new DataProcessingListener(utilityConfiguration.getRoot(), utilityConfiguration.getErrors(), repository));
         try {
 
             return submit.get();
         } catch (InterruptedException e) {
+            log.warn("interrupted", e);
+            Thread.currentThread().interrupt();
             return new DataProcessingResult();
         } catch (ExecutionException e) {
+            log.warn("exception during execution", e);
             return new DataProcessingResult();
         }
     }
 
     public void destroy() {
-        deleteRootDir();
         executorService.shutdown();
+    }
+
+    private List<Path> getRootAndSubPaths() {
+        List<Path> paths = new ArrayList<>();
+        try (Stream<Path> pathStream = Files.walk(utilityConfiguration.getRoot())) {
+            pathStream
+                    .sorted(Comparator.reverseOrder())
+                    .filter(path -> path.toFile().isDirectory())
+                    .forEach(paths::add);
+        } catch (IOException e) {
+            log.warn("could not get root or sub-paths ", e);
+            throw new UncheckedIOException(e);
+        }
+        return paths;
+    }
+
+    private long countErrors() {
+        if (Files.exists(utilityConfiguration.getErrors())) {
+            try (Stream<Path> pathStream = Files.walk(utilityConfiguration.getErrors())) {
+                return pathStream.filter(path -> !Files.isDirectory(path)).count();
+            } catch (IOException e) {
+                log.warn("could not count error files ", e);
+                return -1;
+            }
+        }
+        return 0;
     }
 
     private void createDirs() {
         generatePath().forEach(l -> {
             try {
-                Files.createDirectories(getPath(l));
+                if (!Files.exists(getPath(l))) {
+                    Files.createDirectories(getPath(l));
+                }
             } catch (IOException e) {
                 throw new FolderException("Folder could not be created", e);
             }
         });
+//        try {
+//            Files.setAttribute(utilityConfiguration.getRoot(), "processed", false);
+//        } catch (IOException e) {
+//            throw new FolderException("Attribute could not be setted", e);
+//        }
     }
 
     private void deleteRootDir() {
-        if (Files.exists(ROOT)) {
-            try (Stream<Path> pathStream = Files.walk(ROOT)) {
+        if (Files.exists(utilityConfiguration.getRoot())) {
+            try (Stream<Path> pathStream = Files.walk(utilityConfiguration.getRoot())) {
                 pathStream
                         .sorted(Comparator.reverseOrder())
-//                        .map(Path::toFile)
                         .forEach(path -> {
                             try {
                                 Files.deleteIfExists(path);
@@ -130,7 +146,7 @@ public class FileService {
 
     private List<String> folderNames() {
         List<String> strings = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < utilityConfiguration.getSubFoldersCount(); i++) {
             strings.add("sub_folder_" + i);
         }
         return strings;
@@ -156,6 +172,6 @@ public class FileService {
         for (int i = 0; i < folders.size(); i++) {
             strings[i] = folders.get(i);
         }
-        return Path.of("root", strings);
+        return Path.of(utilityConfiguration.getRoot().toString(), strings);
     }
 }

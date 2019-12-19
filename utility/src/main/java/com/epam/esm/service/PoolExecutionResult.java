@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * utility
  *
@@ -21,9 +19,10 @@ public class PoolExecutionResult {
     private long invalidFilesCount;
     private long expectedCertificatesCount;
 
-    public PoolExecutionResult(List<ThreadExecutionResult> executionResults, long currentDatabaseRows, long currentErrorFiles) {
-        this.validFilesCount = executionResults.stream().mapToInt(ThreadExecutionResult::getValidFilesCount).sum();
-        this.invalidFilesCount = executionResults.stream().mapToInt(ThreadExecutionResult::getInvalidFilesCount).sum() + currentErrorFiles;
-        this.expectedCertificatesCount = executionResults.stream().mapToInt(ThreadExecutionResult::getValidCertificatesCount).sum() + currentDatabaseRows;
+    public PoolExecutionResult(DataStatistic dataStatistic, long currentDatabaseRows, long currentErrorFiles) {
+        this.validFilesCount = dataStatistic.getValidFilesCount().get();
+        this.invalidFilesCount = currentErrorFiles + dataStatistic.getInvalidFilesCount().get();
+        this.expectedCertificatesCount = currentDatabaseRows + dataStatistic.getValidFilesCount().get() * 3;
+
     }
 }
