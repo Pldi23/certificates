@@ -36,4 +36,6 @@ public interface TagService extends FindOneService<TagDTO>, FindAllService<TagDT
     PageableList<TagDetailsDTO> findTagsWithDetails(PageAndSortDTO pageAndSortDTO);
 
     TagDetailsDTO findTagDetails(long id);
+
+    List<TagDTO> deleteUnlinkedTags();
 }

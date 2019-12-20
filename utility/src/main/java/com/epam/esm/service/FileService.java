@@ -118,11 +118,6 @@ public class FileService {
                 throw new FolderException("Folder could not be created", e);
             }
         });
-//        try {
-//            Files.setAttribute(utilityConfiguration.getRoot(), "processed", false);
-//        } catch (IOException e) {
-//            throw new FolderException("Attribute could not be setted", e);
-//        }
     }
 
     private void deleteRootDir() {
@@ -158,6 +153,10 @@ public class FileService {
         while (!folders.isEmpty()) {
             List<String> path = new ArrayList<>();
             int nextInt = ThreadLocalRandom.current().nextInt(folders.size() + 1);
+            while (nextInt > 50) {
+                nextInt = ThreadLocalRandom.current().nextInt(folders.size() + 1);
+            }
+            log.info("" + nextInt);
             for (int i = 0; i < nextInt; i++) {
                 path.add(folders.get(i));
             }

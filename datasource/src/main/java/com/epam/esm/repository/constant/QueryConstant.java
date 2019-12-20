@@ -21,6 +21,9 @@ public class QueryConstant {
             "order by sum(s.fixed_price) desc "+
             "limit 1))";
 
+    public static final String DELETE_UNLINKED_TAGS =
+            "delete from tag where tag.id not in (select tag_id from certificate_tag where certificate_id is not null)";
+
 
     public static final String CALCULATE_ORDER_FIXED_PRICE =
             "select sum(fixed_price) from order_certificate where order_id = ?";

@@ -47,7 +47,7 @@ public class CertificateFilesService {
     }
 
     private Runnable producer = () -> {
-        log.info("scanning for files");
+//        log.info("scanning for files");
         Path path = Path.of(taskProperties.getFolder());
         isScanning.set(false);
         if (path.toFile().exists() && path.toFile().isDirectory()) {
@@ -123,7 +123,7 @@ public class CertificateFilesService {
 
     private void awaitConsumers(int consumersAmount) {
         while (queue.getWaitingConsumerCount() != consumersAmount) {
-            log.info("waiting for " + (consumersAmount - queue.getWaitingConsumerCount()) + " consumers");
+//            log.info("waiting for " + (consumersAmount - queue.getWaitingConsumerCount()) + " consumers");
             try {
                 TimeUnit.MILLISECONDS.sleep(1);
             } catch (InterruptedException e) {

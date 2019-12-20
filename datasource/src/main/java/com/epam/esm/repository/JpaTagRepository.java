@@ -3,6 +3,10 @@ package com.epam.esm.repository;
 import com.epam.esm.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * gift-certificates
  *
@@ -10,4 +14,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @version 0.0.1
  */
 public interface JpaTagRepository extends JpaRepository<Tag, Long> {
+
+    Tag findTagByTitle(String title);
+
+    default Set<Tag> saveOrMergeAll(Set<Tag> tags) {
+        return tags.stream().map(tag -> {
+            Tag tagByTitle = findTagByTitle(tag.getTitle());
+            return Objects.requireNonNullElseGet(tagByTitle, () -> save(tag));
+        }).collect(Collectors.toSet());
+
+    }
 }

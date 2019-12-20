@@ -18,4 +18,5 @@ public interface AbstractTagRepository extends FindAllSpecifiedRepository<Tag>, 
     long getTagOrdersAmount(long id);
     long getTagOrdersAmount(long tagId, long userId);
     long countLastPage(List<Specification<Tag>> specifications, int size);
+    List<Tag> deleteUnlinkedTags();
 }

@@ -82,9 +82,10 @@ public class FilesConsumer implements Runnable {
             Set<ConstraintViolation<GiftCertificate>> violations = new HashSet<>();
             giftCertificates.forEach(giftCertificate -> violations.addAll(validator.validate(giftCertificate)));
             if (violations.isEmpty()) {
-                Set<Tag> tags = new HashSet<>();
-                giftCertificates.forEach(giftCertificate -> tags.addAll(giftCertificate.getTags()));
-                tagRepository.saveAll(tags);
+//                Set<Tag> tags = new HashSet<>();
+//                giftCertificates.forEach(giftCertificate -> tags.addAll(giftCertificate.getTags()));
+//                tagRepository.saveAll(tags);
+                saveTags(giftCertificates);
                 certificateRepository.saveAll(giftCertificates);
                 Files.deleteIfExists(path);
 
@@ -102,10 +103,10 @@ public class FilesConsumer implements Runnable {
         log.info(path + " processing finished");
     }
 
-    private List<Tag> saveTags(Set<GiftCertificate> giftCertificates) {
-        Set<Tag> tags = new HashSet<>();
-        giftCertificates.forEach(giftCertificate -> tags.addAll(giftCertificate.getTags()));
-        return tagRepository.saveAll(tags);
+    private void saveTags(List<GiftCertificate> giftCertificates) {
+//        Set<Tag> tags = new HashSet<>();
+        giftCertificates.forEach(giftCertificate -> giftCertificate.setTags(tagRepository.saveOrMergeAll(giftCertificate.getTags())));
+//        return tagRepository.saveAll(tags);
     }
 
     private void moveInvalidFile(Path targetFolder, Path path) throws IOException {

@@ -89,38 +89,67 @@ public class FilesCreator implements Runnable {
     }
 
     private String generateValidJson() {
+
+        //{
+        //
+        //            "title": "t"
+        //        },
+        //        {
+        //        	"id": 2001
+        //        }
         return
                 "[{\"id\":null,\"name\":\"" +
                         UUID.randomUUID().toString() +
-                        "\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
+                        "\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null," +
+                        "\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[{\"title\": \"a\"},{\"title\": \"b\"},{\"title\": \"c\"}]}," +
                         "{\"id\":null,\"name\":\"" +
                         UUID.randomUUID().toString() +
-                        "\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
+                        "\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null," +
+                        "\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[{\"title\": \"a\"},{\"title\": \"b\"}]}," +
                         "{\"id\":null,\"name\":\"" +
                         UUID.randomUUID().toString() +
-                        "\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}]";
+                        "\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null," +
+                        "\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[{\"title\": \"a\"}]}]";
     }
 
     private String generateBrokenJson() {
         return
-                "[{\"brokenid\":null,\"brokenname\":\"name\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
-                        "{\"brokenid\":null,\"brokenname\":\"name\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
-                        "{\"brokenid\":null,\"brokenname\":\"name\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}]";
+                "[{\"brokenid\":null,\"brokenname\":\"name\",\"description\":\"description\",\"price\":1,\"creationDate\"" +
+                        ":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\"" +
+                        ":[]}," +
+                        "{\"brokenid\":null,\"brokenname\":\"name\",\"description\":\"description\",\"price\":1," +
+                        "\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus" +
+                        "\":null,\"tags\":[]}," +
+                        "{\"brokenid\":null,\"brokenname\":\"name\",\"description\":\"description\",\"price\":1," +
+                        "\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus" +
+                        "\":null,\"tags\":[]}]";
 
     }
 
     private String generateConstraintViolationJson() {
         return
-                "[{\"id\":null,\"name\":\"violates db constraints name\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
-                        "{\"id\":null,\"name\":\"violates db constraints name\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
-                        "{\"id\":null,\"name\":\"violates db constraints name\",\"description\":\"description\",\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}]";
+                "[{\"id\":null,\"name\":\"violates db constraints name\",\"description\":\"description\",\"price\":1," +
+                        "\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus" +
+                        "\":null,\"tags\":[]}," +
+                        "{\"id\":null,\"name\":\"violates db constraints name\",\"description\":\"description\"," +
+                        "\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\"," +
+                        "\"activeStatus\":null,\"tags\":[]}," +
+                        "{\"id\":null,\"name\":\"violates db constraints name\",\"description\":\"description\"," +
+                        "\"price\":1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\"," +
+                        "\"activeStatus\":null,\"tags\":[]}]";
 
     }
 
     private String generateValidatorViolationJson() {
         return
-                "[{\"id\":null,\"name\":\"" + UUID.randomUUID().toString() + "\",\"description\":\"description\",\"price\":-1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
-                        "{\"id\":null,\"name\":\"" + UUID.randomUUID().toString() + "\",\"description\":\"description\",\"price\":-1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}," +
-                        "{\"id\":null,\"name\":\"" + UUID.randomUUID().toString() + "\",\"description\":\"description\",\"price\":-1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\",\"activeStatus\":null,\"tags\":[]}]";
+                "[{\"id\":null,\"name\":\"" + UUID.randomUUID().toString() + "\",\"description\":\"description\"," +
+                        "\"price\":-1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\"," +
+                        "\"activeStatus\":null,\"tags\":[]}," +
+                        "{\"id\":null,\"name\":\"" + UUID.randomUUID().toString() + "\",\"description\":\"description\"," +
+                        "\"price\":-1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\"," +
+                        "\"activeStatus\":null,\"tags\":[]}," +
+                        "{\"id\":null,\"name\":\"" + UUID.randomUUID().toString() + "\",\"description\":\"description\"," +
+                        "\"price\":-1,\"creationDate\":null,\"modificationDate\":null,\"expirationDate\":\"18/12/2020\"," +
+                        "\"activeStatus\":null,\"tags\":[]}]";
     }
 }

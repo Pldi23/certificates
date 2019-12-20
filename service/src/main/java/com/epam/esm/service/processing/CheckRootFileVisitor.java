@@ -18,12 +18,12 @@ public class CheckRootFileVisitor extends SimpleFileVisitor<Path> {
 
     private AtomicBoolean isScanning;
 
-    public CheckRootFileVisitor(AtomicBoolean isScanning) {
+    CheckRootFileVisitor(AtomicBoolean isScanning) {
         this.isScanning = isScanning;
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
         if (Files.isRegularFile(file) && file.toFile().canExecute()) {
             isScanning.set(true);
             return FileVisitResult.TERMINATE;

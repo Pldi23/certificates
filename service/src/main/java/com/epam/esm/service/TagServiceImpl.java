@@ -96,6 +96,11 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public List<TagDTO> deleteUnlinkedTags() {
+        return tagRepository.deleteUnlinkedTags().stream().map(tag -> tagConverter.convert(tag)).collect(Collectors.toList());
+    }
+
+    @Override
     public PageableList<TagDTO> getTagsByCertificate(long id, PageAndSortDTO pageAndSortDTO) {
         if (certificateRepository.findById(id, true).isPresent()) {
             List<Specification<Tag>> specifications = List.of(new TagHasCertificateByIdSpecification(id));
