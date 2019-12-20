@@ -14,12 +14,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/**
- * utility
- *
- * @author Dzmitry Platonov on 2019-12-12.
- * @version 0.0.1
- */
+
 @Slf4j
 public class FilesCreator implements Runnable {
 
@@ -30,7 +25,7 @@ public class FilesCreator implements Runnable {
     private DataStatistic dataStatistic;
     private UtilityConfiguration utilityConfiguration;
 
-    public FilesCreator(Path path, CyclicBarrier barrier, DataStatistic dataStatistic) {
+    FilesCreator(Path path, CyclicBarrier barrier, DataStatistic dataStatistic) {
         this.path = path;
         this.barrier = barrier;
         this.dataStatistic = dataStatistic;
@@ -62,7 +57,8 @@ public class FilesCreator implements Runnable {
 
 
     private Path writeJson(int counter, Path path) throws IOException {
-        return Files.write(Path.of(path.toString() + "/" + System.currentTimeMillis() + counter), getJson(counter).getBytes(), StandardOpenOption.CREATE);
+        return Files.write(Path.of(path.toString() + "/" + System.currentTimeMillis() + counter),
+                getJson(counter).getBytes(), StandardOpenOption.CREATE);
     }
 
     private String getJson(int counter) {
@@ -89,14 +85,6 @@ public class FilesCreator implements Runnable {
     }
 
     private String generateValidJson() {
-
-        //{
-        //
-        //            "title": "t"
-        //        },
-        //        {
-        //        	"id": 2001
-        //        }
         return
                 "[{\"id\":null,\"name\":\"" +
                         UUID.randomUUID().toString() +

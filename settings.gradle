@@ -7,4 +7,5 @@ include(':datasource')
 include(':service')
 include(':controller')
 include 'utility'
+include 'files-proccessing'
 

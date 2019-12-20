@@ -1,4 +1,4 @@
-package com.epam.esm.service.processing;
+package com.epam.esm.process;
 
 import lombok.Getter;
 import lombok.Setter;

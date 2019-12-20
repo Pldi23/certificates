@@ -8,12 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * utility
- *
- * @author Dzmitry Platonov on 2019-12-13.
- * @version 0.0.1
- */
+
 public class CertificateRepository implements Repository {
 
     private static final String COUNT_CERTIFICATES = "select count(*) from certificate";
@@ -22,8 +17,9 @@ public class CertificateRepository implements Repository {
 
 
     @Override
-    public long count() {
-        try (PreparedStatement statement = getConnection().prepareStatement(COUNT_CERTIFICATES);
+    public long count() throws RepositoryException {
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(COUNT_CERTIFICATES);
              ResultSet resultSet = statement.executeQuery()) {
             resultSet.next();
             return resultSet.getLong(1);
@@ -32,7 +28,7 @@ public class CertificateRepository implements Repository {
         }
     }
 
-    private Connection getConnection() {
+    private Connection getConnection() throws RepositoryException {
         try {
             Class.forName(configuration.getDbDriver());
             return DriverManager.getConnection(configuration.getJdbcUrl(), configuration.getUser(),

@@ -1,8 +1,7 @@
-package com.epam.esm.service.processing;
+package com.epam.esm.process;
 
 
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.JpaCertificateRepository;
 import com.epam.esm.repository.JpaTagRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,13 +19,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Log4j2
@@ -40,59 +40,51 @@ public class FilesConsumer implements Runnable {
     private JpaTagRepository tagRepository;
     private AtomicBoolean isProducing;
     private TaskProperties taskProperties;
+    private AtomicInteger consumersCount;
 
-    public FilesConsumer(LinkedTransferQueue<Path> queue,
+    FilesConsumer(LinkedTransferQueue<Path> queue,
                          JpaCertificateRepository certificateRepository,
                          JpaTagRepository tagRepository,
                          AtomicBoolean isProducing,
-                         TaskProperties taskProperties) {
+                         TaskProperties taskProperties, AtomicInteger consumersCount) {
         this.queue = queue;
         this.certificateRepository = certificateRepository;
         this.tagRepository = tagRepository;
         this.isProducing = isProducing;
         this.taskProperties = taskProperties;
+        this.consumersCount = consumersCount;
 
     }
 
     @Override
     public void run() {
-        log.info("consumer starts");
+        ObjectMapper mapper = new ObjectMapper();
         while (isProducing.get()) {
             try {
-                processFile(queue.take());
+                processFile(queue.take(), mapper);
             } catch (IOException e) {
-                log.warn("consumer ", e);
+                log.warn("consumer could not process file", e);
             } catch (InterruptedException e) {
                 log.warn("interrupted", e);
+                consumersCount.decrementAndGet();
                 Thread.currentThread().interrupt();
             }
         }
         log.info("consumer finished");
     }
 
-    private void processFile(Path path) throws IOException {
+    private void processFile(Path path, ObjectMapper mapper) throws IOException {
         path.toFile().setExecutable(false);
-        log.info(path + " processing");
         try {
-            ObjectMapper mapper = new ObjectMapper();
             List<GiftCertificate> giftCertificates = mapper.readValue(path.toFile(), new TypeReference<List<GiftCertificate>>() {
             });
-            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-            Validator validator = factory.getValidator();
-            Set<ConstraintViolation<GiftCertificate>> violations = new HashSet<>();
-            giftCertificates.forEach(giftCertificate -> violations.addAll(validator.validate(giftCertificate)));
-            if (violations.isEmpty()) {
-//                Set<Tag> tags = new HashSet<>();
-//                giftCertificates.forEach(giftCertificate -> tags.addAll(giftCertificate.getTags()));
-//                tagRepository.saveAll(tags);
+            if (validate(giftCertificates).isEmpty()) {
                 saveTags(giftCertificates);
                 certificateRepository.saveAll(giftCertificates);
                 Files.deleteIfExists(path);
-
             } else {
                 moveInvalidFile(Path.of(taskProperties.getErrorValidatorViolationsFolder()), path);
             }
-
         } catch (DataIntegrityViolationException ex) {
             moveInvalidFile(Path.of(taskProperties.getErrorDataIntegrityFolder()), path);
         } catch (UnrecognizedPropertyException ex) {
@@ -100,39 +92,39 @@ public class FilesConsumer implements Runnable {
         } catch (MismatchedInputException ex) {
             moveInvalidFile(Path.of(taskProperties.getErrorMismatchInputFolder()), path);
         }
-        log.info(path + " processing finished");
     }
 
     private void saveTags(List<GiftCertificate> giftCertificates) {
-//        Set<Tag> tags = new HashSet<>();
         giftCertificates.forEach(giftCertificate -> giftCertificate.setTags(tagRepository.saveOrMergeAll(giftCertificate.getTags())));
-//        return tagRepository.saveAll(tags);
     }
 
     private void moveInvalidFile(Path targetFolder, Path path) throws IOException {
-        if (!Files.exists(Path.of(taskProperties.getErrorFolder()))) {
-            try {
-                lockErrorFolderCreation.lock();
-                if (!Files.exists(Path.of(taskProperties.getErrorFolder()))) {
-                    Files.createDirectory(Path.of(taskProperties.getErrorFolder()));
-                }
-            } finally {
-                lockErrorFolderCreation.unlock();
-            }
-        }
+        createFolderIfNotExists(Path.of(taskProperties.getErrorFolder()), lockErrorFolderCreation);
+        createFolderIfNotExists(targetFolder, lockInnerFolderCreation);
+        File file = new File(String.format("%s/%s-%s", targetFolder, path.getFileName(), LocalDateTime.now()));
+        Files.move(path, file.toPath());
+        Files.deleteIfExists(path);
+    }
+
+    private Set<ConstraintViolation<GiftCertificate>> validate(List<GiftCertificate> giftCertificates) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<GiftCertificate>> violations = new HashSet<>();
+        giftCertificates.forEach(giftCertificate -> violations.addAll(validator.validate(giftCertificate)));
+        return violations;
+    }
+
+    private void createFolderIfNotExists(Path targetFolder, Lock lock) throws IOException {
         if (!Files.exists(targetFolder)) {
             try {
-                lockInnerFolderCreation.lock();
+                lock.lock();
                 if (!Files.exists(targetFolder)) {
                     Files.createDirectory(targetFolder);
                 }
             } finally {
-                lockInnerFolderCreation.unlock();
+                lock.unlock();
             }
         }
-        File file = new File(String.format("%s/%s-%s", targetFolder, path.getFileName(), System.currentTimeMillis()));
-        Files.move(path, file.toPath());
-        Files.deleteIfExists(path);
     }
 
 }

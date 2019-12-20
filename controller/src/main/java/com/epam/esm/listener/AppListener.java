@@ -1,7 +1,7 @@
 package com.epam.esm.listener;
 
 import com.epam.esm.service.TagService;
-import com.epam.esm.service.processing.CertificateFilesService;
+import com.epam.esm.process.CertificateFilesService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;

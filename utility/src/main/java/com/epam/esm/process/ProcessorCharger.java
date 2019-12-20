@@ -8,12 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * utility
- *
- * @author Dzmitry Platonov on 2019-12-17.
- * @version 0.0.1
- */
+
 @Slf4j
 public class ProcessorCharger implements Runnable {
 
@@ -42,7 +37,6 @@ public class ProcessorCharger implements Runnable {
                 log.warn("interrupted", e);
                 Thread.currentThread().interrupt();
             }
-            log.info("to next iteration");
         }
     }
 }

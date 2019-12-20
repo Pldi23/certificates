@@ -11,14 +11,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-/**
- * utility
- *
- * @author Dzmitry Platonov on 2019-12-17.
- * @version 0.0.1
- */
+
 @Slf4j
-public class ThreadContainer {
+class ThreadContainer {
 
     private static final int BARRIER_TIMEOUT = 10;
 
@@ -26,17 +21,16 @@ public class ThreadContainer {
     private Processor processor;
     private CyclicBarrier barrier;
 
-    public ThreadContainer(List<Path> paths, Processor processor, DataStatistic dataStatistic) {
+    ThreadContainer(List<Path> paths, Processor processor, DataStatistic dataStatistic) {
         this.barrier = new CyclicBarrier(paths.size() + 1);
         this.filesCreators = paths.stream().map(path -> new FilesCreator(path, barrier, dataStatistic)).collect(Collectors.toList());
         this.processor = processor;
     }
 
-    public void startContainer() {
+    void startContainer() {
             filesCreators.forEach(filesCreator -> new Thread(filesCreator).start());
         try {
             barrier.await(BARRIER_TIMEOUT, TimeUnit.SECONDS);
-            log.info("signaling");
             processor.startNext();
         } catch (InterruptedException e) {
             log.warn("Interrupted", e);

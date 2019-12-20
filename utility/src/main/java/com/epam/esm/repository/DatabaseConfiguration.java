@@ -6,16 +6,11 @@ import lombok.extern.log4j.Log4j2;
 
 import java.util.ResourceBundle;
 
-/**
- * utility
- *
- * @author Dzmitry Platonov on 2019-12-13.
- * @version 0.0.1
- */
+
 @Data
 @AllArgsConstructor
 @Log4j2
-public class DatabaseConfiguration {
+class DatabaseConfiguration {
 
     private static final String DATABASE_PROPERTIES_PATH = "database";
     private static final String DB_HOST = "db.host";
@@ -38,7 +33,7 @@ public class DatabaseConfiguration {
     private String dbDriver;
     private String jdbc;
 
-    public static DatabaseConfiguration getInstance() {
+    static DatabaseConfiguration getInstance() {
         if (instance == null) {
             instance = init();
         }
@@ -59,7 +54,7 @@ public class DatabaseConfiguration {
         return new DatabaseConfiguration(host, user, password, poolSize, port, dbName, dbDriver, dbJdbc);
     }
 
-    public String getJdbcUrl() {
+    String getJdbcUrl() {
         return jdbc + host + ":" + port + "/" + dbName;
     }
 }

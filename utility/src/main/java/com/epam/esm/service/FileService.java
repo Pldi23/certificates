@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.exception.FolderException;
+import com.epam.esm.exception.RepositoryException;
 import com.epam.esm.listener.DataProcessingListener;
 import com.epam.esm.listener.DataProcessingResult;
 import com.epam.esm.process.Processor;
@@ -23,12 +24,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
-/**
- * utility
- *
- * @author Dzmitry Platonov on 2019-12-12.
- * @version 0.0.1
- */
+
 @Slf4j
 public class FileService {
 
@@ -48,7 +44,7 @@ public class FileService {
         createDirs();
         List<Path> rootAndSubPaths = getRootAndSubPaths();
 
-        long certificatesCount = repository.count();
+        long certificatesCount = countCertificatesCurrentQuantity();
         long errorsCount = countErrors();
         DataStatistic statistic = new DataStatistic();
 
@@ -66,7 +62,6 @@ public class FileService {
         Future<DataProcessingResult> submit = executorService.submit(
                 new DataProcessingListener(utilityConfiguration.getRoot(), utilityConfiguration.getErrors(), repository));
         try {
-
             return submit.get();
         } catch (InterruptedException e) {
             log.warn("interrupted", e);
@@ -96,6 +91,15 @@ public class FileService {
         return paths;
     }
 
+    private long countCertificatesCurrentQuantity() {
+        try {
+            return repository.count();
+        } catch (RepositoryException e) {
+            log.warn("could not count certificates current quantity");
+            return -1;
+        }
+    }
+
     private long countErrors() {
         if (Files.exists(utilityConfiguration.getErrors())) {
             try (Stream<Path> pathStream = Files.walk(utilityConfiguration.getErrors())) {
@@ -105,6 +109,7 @@ public class FileService {
                 return -1;
             }
         }
+        log.warn("folder not exist, so quantity of errors is 0 ");
         return 0;
     }
 

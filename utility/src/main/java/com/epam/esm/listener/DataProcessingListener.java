@@ -1,27 +1,19 @@
 package com.epam.esm.listener;
 
+import com.epam.esm.exception.RepositoryException;
 import com.epam.esm.properties.UtilityConfiguration;
 import com.epam.esm.repository.Repository;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-/**
- * utility
- *
- * @author Dzmitry Platonov on 2019-12-13.
- * @version 0.0.1
- */
+
 @Slf4j
 public class DataProcessingListener implements Callable<DataProcessingResult> {
 
@@ -39,13 +31,17 @@ public class DataProcessingListener implements Callable<DataProcessingResult> {
 
     @Override
     public DataProcessingResult call() throws InterruptedException {
-        log.info("data processor listening");
-
         while (shouldScan(rootPath)) {
             TimeUnit.MILLISECONDS.sleep(SCANNING_INTERVAL);
         }
         long errorFilesCounter = countErrorFiles(errorsPath);
-        return new DataProcessingResult(errorFilesCounter, repository.count());
+        try {
+            long count = repository.count();
+            return new DataProcessingResult(errorFilesCounter, count);
+        } catch (RepositoryException e) {
+            log.warn("could not calculate statistic", e);
+            return new DataProcessingResult(errorFilesCounter, -1);
+        }
     }
 
     private boolean shouldScan(Path rootPath) {
@@ -59,6 +55,10 @@ public class DataProcessingListener implements Callable<DataProcessingResult> {
     }
 
     private long countErrorFiles(Path errorsPath) {
+        if (Files.notExists(errorsPath)) {
+            log.warn("error folder not found, could not calculate statistic");
+            return -1;
+        }
         try (Stream<Path> stream = Files.walk(errorsPath)) {
             return stream.filter(path -> !Files.isDirectory(path)).count();
         } catch (IOException e) {
