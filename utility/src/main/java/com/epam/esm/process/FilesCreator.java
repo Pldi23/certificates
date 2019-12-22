@@ -47,7 +47,6 @@ public class FilesCreator implements Runnable {
             while (counter < utilityConfiguration.getFilesCount()) {
                 writeJson(counter++, this.path);
             }
-            log.info(path + " : " + counter);
         } catch (IOException e) {
             log.warn("could not write file ", e);
         } finally {
@@ -58,8 +57,10 @@ public class FilesCreator implements Runnable {
 
 
     private void writeJson(int counter, Path path) throws IOException {
-        Files.write(Path.of(path.toString() + "/" + System.currentTimeMillis() + counter),
+        Path file = Path.of(path.toString() + "/" + System.currentTimeMillis() + counter);
+        Files.write(file,
                 getJson(counter).getBytes(), StandardOpenOption.CREATE);
+        file.toFile().setExecutable(true);
     }
 
     private String getJson(int counter) {

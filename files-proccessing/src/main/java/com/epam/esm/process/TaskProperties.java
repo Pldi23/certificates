@@ -34,9 +34,9 @@ public class TaskProperties {
     private String errorDataIntegrityFolder;
     @Value("${task.error-json-mapping-folder}")
     private String errorJsonMappingFolder;
-    @Value("${task.error-mismatch-input-folder}")
-    private String errorValidatorViolationsFolder;
     @Value("${task.error-validator-violations-folder}")
+    private String errorValidatorViolationsFolder;
+    @Value("${task.error-mismatch-input-folder}")
     private String errorMismatchInputFolder;
     @Value("${task.marker-file-name}")
     private String markerFileName;

@@ -61,7 +61,7 @@ public class FilesProducer implements Runnable {
 
     private void transferPaths(Path path) {
         try (Stream<Path> walk = Files.walk(path)) {
-            walk.filter(p -> p.toFile().isFile()).forEach(transfer -> {
+            walk.filter(p -> p.toFile().isFile() && p.toFile().canExecute()).forEach(transfer -> {
                 try {
                     queue.transfer(transfer);
                 } catch (InterruptedException e) {
