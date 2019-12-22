@@ -4,8 +4,7 @@ import com.epam.esm.exception.FolderException;
 import com.epam.esm.exception.RepositoryException;
 import com.epam.esm.listener.DataProcessingListener;
 import com.epam.esm.listener.DataProcessingResult;
-import com.epam.esm.process.Processor;
-import com.epam.esm.process.ProcessorCharger;
+import com.epam.esm.process.ThreadStarter;
 import com.epam.esm.properties.UtilityConfiguration;
 import com.epam.esm.repository.Repository;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +20,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 
 @Slf4j
 public class FileService {
+
+    private static final int CREATORS_AWAIT_INTERVAL = 1;
 
     private Repository repository;
     private ExecutorService executorService;
@@ -47,13 +51,13 @@ public class FileService {
         long certificatesCount = countCertificatesCurrentQuantity();
         long errorsCount = countErrors();
         DataStatistic statistic = new DataStatistic();
-
+        AtomicInteger counter = new AtomicInteger(0);
+        Semaphore semaphore = new Semaphore(rootAndSubPaths.size(), true);
         long finish = System.currentTimeMillis() + utilityConfiguration.getTestTime();
-        Processor processor = new Processor(finish);
+        ThreadStarter threadStarter = new ThreadStarter(rootAndSubPaths, finish, statistic, semaphore, counter);
 
-        processor.addContainer(rootAndSubPaths, statistic);
-        new Thread(new ProcessorCharger(finish, processor, rootAndSubPaths, statistic)).start();
-        processor.startNext();
+        threadStarter.work();
+        awaitCreators(counter, finish);
 
         return new PoolExecutionResult(statistic, certificatesCount, errorsCount);
     }
@@ -75,6 +79,20 @@ public class FileService {
 
     public void destroy() {
         executorService.shutdown();
+    }
+
+
+
+    private void awaitCreators(AtomicInteger creatorsCounter, long finish) {
+        while (System.currentTimeMillis() <= finish || creatorsCounter.get() != 0) {
+            log.info("waiting" + creatorsCounter.get());
+            try {
+                TimeUnit.MILLISECONDS.sleep(CREATORS_AWAIT_INTERVAL);
+            } catch (InterruptedException e) {
+                log.warn("interrupted", e);
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     private List<Path> getRootAndSubPaths() {
@@ -161,7 +179,6 @@ public class FileService {
             while (nextInt > 50) {
                 nextInt = ThreadLocalRandom.current().nextInt(folders.size() + 1);
             }
-            log.info("" + nextInt);
             for (int i = 0; i < nextInt; i++) {
                 path.add(folders.get(i));
             }

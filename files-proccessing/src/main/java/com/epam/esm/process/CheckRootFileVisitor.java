@@ -11,14 +11,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CheckRootFileVisitor extends SimpleFileVisitor<Path> {
 
     private AtomicBoolean isScanning;
+    private TaskProperties taskProperties;
 
-    CheckRootFileVisitor(AtomicBoolean isScanning) {
+    CheckRootFileVisitor(AtomicBoolean isScanning, TaskProperties taskProperties) {
         this.isScanning = isScanning;
+        this.taskProperties = taskProperties;
     }
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-        if (Files.isRegularFile(file) && file.toFile().canExecute()) {
+        if (Files.isRegularFile(file) && !file.toString().contains(taskProperties.getMarkerFileName())) {
             isScanning.set(true);
             return FileVisitResult.TERMINATE;
         }

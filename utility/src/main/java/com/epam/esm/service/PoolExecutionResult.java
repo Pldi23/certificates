@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PoolExecutionResult {
 
+    private static final int CERTIFICATES_PER_FILE = 3;
+
     private int validFilesCount;
     private long invalidFilesCount;
     private long expectedCertificatesCount;
@@ -19,7 +21,7 @@ public class PoolExecutionResult {
         this.invalidFilesCount = currentErrorFiles != -1 ?
                 currentErrorFiles + dataStatistic.getInvalidFilesCount().get() : -1;
         this.expectedCertificatesCount = currentDatabaseRows != -1 ?
-                currentDatabaseRows + dataStatistic.getValidFilesCount().get() * 3 : -1;
+                currentDatabaseRows + dataStatistic.getValidFilesCount().get() * CERTIFICATES_PER_FILE : -1;
 
     }
 }

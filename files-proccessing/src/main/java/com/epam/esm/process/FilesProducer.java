@@ -52,15 +52,16 @@ public class FilesProducer implements Runnable {
                     awaitConsumers(consumersCount);
                 }
                 isScanning.set(false);
-                consumersCount.set(0);
                 writeHook();
+                consumersCount.set(0);
+                log.info("hook written");
             }
         }
     }
 
     private void transferPaths(Path path) {
         try (Stream<Path> walk = Files.walk(path)) {
-            walk.filter(p -> p.toFile().isFile() && p.toFile().canExecute()).forEach(transfer -> {
+            walk.filter(p -> p.toFile().isFile()).forEach(transfer -> {
                 try {
                     queue.transfer(transfer);
                 } catch (InterruptedException e) {
@@ -94,7 +95,7 @@ public class FilesProducer implements Runnable {
 
     private boolean containsFiles(Path path) {
         try (Stream<Path> stream = Files.walk(path)) {
-            return stream.anyMatch(p -> Files.isRegularFile(p) && p.toFile().canExecute());
+            return stream.anyMatch(p -> Files.isRegularFile(p));
         } catch (IOException e) {
             log.warn("could not detect if files exists", e);
             return false;
@@ -103,7 +104,7 @@ public class FilesProducer implements Runnable {
 
     private void shouldStart(Path path) {
         try {
-            Files.walkFileTree(path, new CheckRootFileVisitor(isScanning));
+            Files.walkFileTree(path, new CheckRootFileVisitor(isScanning, taskProperties));
         } catch (IOException e) {
             isScanning.set(false);
         }

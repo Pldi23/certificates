@@ -17,17 +17,23 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class FilesConsumer implements Runnable {
@@ -74,14 +80,13 @@ public class FilesConsumer implements Runnable {
     }
 
     private void processFile(Path path, ObjectMapper mapper) throws IOException {
-        path.toFile().setExecutable(false);
         try {
             List<GiftCertificate> giftCertificates = mapper.readValue(path.toFile(), new TypeReference<List<GiftCertificate>>() {
             });
             if (validate(giftCertificates).isEmpty()) {
                 saveTags(giftCertificates);
                 certificateRepository.saveAll(giftCertificates);
-                Files.deleteIfExists(path);
+                Files.delete(path);
             } else {
                 moveInvalidFile(Path.of(taskProperties.getErrorValidatorViolationsFolder()), path);
             }
@@ -125,6 +130,38 @@ public class FilesConsumer implements Runnable {
                 lock.unlock();
             }
         }
+    }
+
+    private List<GiftCertificate> readFile(Path path) {
+        try {
+            String string = Files.readString(path);
+            String[] certificateStrings = string.split("},\\{");
+            return Arrays.stream(certificateStrings).map(this::toCertificate).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+//[{"id":null,"name":"df7fab53-f001-463b-9150-4f92f0668d02","description":"description","price":1,"creationDate":null,"modificationDate":null,"expirationDate":"18/12/2020","activeStatus":null,"tags":[{"title": "a"},{"title": "b"},{"title": "c"}]},{"id":null,"name":"d17d348e-89cf-440a-baee-721cb150f5b2","description":"description","price":1,"creationDate":null,"modificationDate":null,"expirationDate":"18/12/2020","activeStatus":null,"tags":[{"title": "a"},{"title": "b"}]},{"id":null,"name":"41868f4c-3572-40c6-bcdf-76cf632c6633","description":"description","price":1,"creationDate":null,"modificationDate":null,"expirationDate":"18/12/2020","activeStatus":null,"tags":[{"title": "a"}]}]
+    private GiftCertificate toCertificate(String certificateString) {
+        String replaced = certificateString.replaceAll("\"", "");
+        String[] elements = replaced.split(",");
+        Map<String, String > fields = new HashMap<>();
+        for (String s: elements) {
+            String[] fieldEntry = s.split(":");
+            fields.put(fieldEntry[0], fieldEntry[1]);
+        }
+        return GiftCertificate.builder()
+                .id(Long.parseLong(fields.get("id")))
+                .name(fields.get("name"))
+                .description(fields.get("description"))
+                .price(new BigDecimal(fields.get("price")))
+                .creationDate(LocalDate.parse(fields.get("creationDate")))
+                .modificationDate(LocalDate.parse(fields.get("modificationDate")))
+                .expirationDate(LocalDate.parse(fields.get("expirationDate")))
+                .activeStatus(Boolean.parseBoolean(fields.get("activeStatus")))
+                .tags()
+                .build();
     }
 
 }

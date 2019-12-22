@@ -27,7 +27,6 @@ class DatabaseConfiguration {
     private String host;
     private String user;
     private String password;
-    private int poolSize;
     private String port;
     private String dbName;
     private String dbDriver;
@@ -45,13 +44,12 @@ class DatabaseConfiguration {
         String host = resourceBundle.getString(DB_HOST);
         String user = resourceBundle.getString(DB_USER);
         String password = resourceBundle.getString(DB_PASS);
-        int poolSize = Integer.parseInt(resourceBundle.getString(DB_POOLSIZE));
         String port = resourceBundle.getString(DB_PORT);
         String dbName = resourceBundle.getString(DB_NAME);
         String dbDriver = resourceBundle.getString(DB_DRIVER);
         String dbJdbc = resourceBundle.getString(JDBC_POSTGRE);
 
-        return new DatabaseConfiguration(host, user, password, poolSize, port, dbName, dbDriver, dbJdbc);
+        return new DatabaseConfiguration(host, user, password, port, dbName, dbDriver, dbJdbc);
     }
 
     String getJdbcUrl() {
