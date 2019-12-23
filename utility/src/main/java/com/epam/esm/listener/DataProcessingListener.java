@@ -31,8 +31,14 @@ public class DataProcessingListener implements Callable<DataProcessingResult> {
 
     @Override
     public DataProcessingResult call() throws InterruptedException {
+        int counter = 0;
         while (shouldScan(rootPath)) {
             TimeUnit.MILLISECONDS.sleep(SCANNING_INTERVAL);
+            counter++;
+            if (counter >= 1000) {
+                log.info("waiting ... ");
+                counter = 0;
+            }
         }
         long errorFilesCounter = countErrorFiles(errorsPath);
         try {

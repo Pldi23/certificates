@@ -1,3 +1,31 @@
+create or replace function insert_tag_list(tag_title_list text)
+    returns table
+            (
+                id    integer,
+                title varchar(200)
+            )
+    language 'plpgsql'
+as
+$BODY$
+declare
+    title_array varchar(500)[];
+    i           text;
+begin
+    select * into title_array from string_to_array(tag_title_list, ',');
+    FOREACH i IN ARRAY title_array
+        loop
+            return query
+                select * from tag where tag.title = i;
+            if not found then
+                insert into tag (title) values (i);
+                return query select * from tag where tag.title = i;
+            end if;
+        end loop;
+end;
+$BODY$;
+
+
+
 CREATE OR REPLACE FUNCTION get_certificate_by_name_description(part_of_description varchar(200),
                                                                part_of_name varchar(200))
     RETURNS TABLE
@@ -55,17 +83,17 @@ create or replace function get_certificates_by_tag(
 )
     returns table
             (
-                id             integer,
-                name          varchar(200),
-                description         varchar(200),
-                price numeric,
-                creationdate date,
-                modificationdate date,
-                expirationdate date,
+                id                 integer,
+                name               varchar(200),
+                description        varchar(200),
+                price              numeric,
+                creationdate       date,
+                modificationdate   date,
+                expirationdate     date,
                 out_certificate_id integer,
-                out_tag_id integer,
-                t_id integer,
-                title varchar(200)
+                out_tag_id         integer,
+                t_id               integer,
+                title              varchar(200)
             )
 
     LANGUAGE 'plpgsql'
@@ -74,8 +102,10 @@ $BODY$
 begin
     return query
         select *
-        from certificate join certificate_tag on certificate.id = certificate_id
-                         left join tag as t on tag_id = t.id
-        where certificate_id in (select certificate_id from certificate_tag where public.certificate_tag.tag_id in (in_id));
+        from certificate
+                 join certificate_tag on certificate.id = certificate_id
+                 left join tag as t on tag_id = t.id
+        where certificate_id in
+              (select certificate_id from certificate_tag where public.certificate_tag.tag_id in (in_id));
 end;
 $BODY$;

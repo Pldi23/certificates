@@ -7,7 +7,6 @@ import com.epam.esm.repository.page.Pageable;
 import com.epam.esm.repository.predicate.Specification;
 import com.epam.esm.repository.sort.Sortable;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +21,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.epam.esm.repository.constant.JpaConstant.CERTIFICATE;
 import static com.epam.esm.repository.constant.JpaConstant.FIXED_PRICE;
@@ -47,14 +45,6 @@ public class TagRepository implements AbstractTagRepository {
         entityManager.persist(tag);
         return tag;
     }
-
-//    public Set<Tag> saveAll(Set<Tag> tags) {
-//        for (Tag tag: tags) {
-//            if (entityManager.find(Tag.class, tag.getTitle()) != null) {
-//
-//            }
-//        }
-//    }
 
     @Override
     public Optional<Tag> findById(long id) {

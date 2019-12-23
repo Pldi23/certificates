@@ -54,7 +54,8 @@ public class FileService {
         AtomicInteger counter = new AtomicInteger(0);
         Semaphore semaphore = new Semaphore(rootAndSubPaths.size(), true);
         long finish = System.currentTimeMillis() + utilityConfiguration.getTestTime();
-        ThreadStarter threadStarter = new ThreadStarter(rootAndSubPaths, finish, statistic, semaphore, counter);
+
+        ThreadStarter threadStarter = new ThreadStarter(rootAndSubPaths, finish, statistic, semaphore, counter, utilityConfiguration);
 
         threadStarter.work();
         awaitCreators(counter, finish);

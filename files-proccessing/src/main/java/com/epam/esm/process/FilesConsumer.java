@@ -2,6 +2,7 @@ package com.epam.esm.process;
 
 
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.JpaCertificateRepository;
 import com.epam.esm.repository.JpaTagRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class FilesConsumer implements Runnable {
@@ -72,7 +74,6 @@ public class FilesConsumer implements Runnable {
                 Thread.currentThread().interrupt();
             }
         }
-        log.info("consumer finished");
     }
 
     private void processFile(Path path, ObjectMapper mapper, Validator validator) throws IOException {
@@ -96,7 +97,12 @@ public class FilesConsumer implements Runnable {
     }
 
     private void saveTags(List<GiftCertificate> giftCertificates) {
-        giftCertificates.forEach(giftCertificate -> giftCertificate.setTags(tagRepository.saveOrMergeAll(giftCertificate.getTags())));
+        giftCertificates.forEach(giftCertificate ->
+                giftCertificate.setTags(
+                        tagRepository.saveAllTags(
+                                giftCertificate.getTags().stream()
+                                        .map(Tag::getTitle)
+                                        .collect(Collectors.joining(",")))));
     }
 
     private void moveInvalidFile(Path targetFolder, Path path) throws IOException {

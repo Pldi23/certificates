@@ -2,6 +2,7 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Objects;
 import java.util.Set;
@@ -24,4 +25,6 @@ public interface JpaTagRepository extends JpaRepository<Tag, Long> {
         }).collect(Collectors.toSet());
 
     }
+
+    Set<Tag> saveAllTags(@Param(value = "tags") String tags);
 }

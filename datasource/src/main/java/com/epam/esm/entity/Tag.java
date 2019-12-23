@@ -8,15 +8,33 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+@SqlResultSetMapping(
+        name="tagsCustomMapping",
+        classes={
+                @ConstructorResult(
+                        targetClass=Tag.class,
+                        columns={
+                                @ColumnResult(name="id", type = Long.class),
+                                @ColumnResult(name="title", type = String.class
+                                )
+                        }
+                )
+        }
+)
 
+@NamedNativeQuery(name="Tag.saveAllTags", query="select * from insert_tag_list(:tags)", resultSetMapping="tagsCustomMapping")
 @Entity
 @Table(name = "tag")
 @Getter

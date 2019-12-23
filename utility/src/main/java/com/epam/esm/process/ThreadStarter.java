@@ -18,13 +18,15 @@ public class ThreadStarter {
     private DataStatistic statistic;
     private Semaphore semaphore;
     private AtomicInteger counter;
+    private UtilityConfiguration utilityConfiguration;
 
-    public ThreadStarter(List<Path> paths, long finish, DataStatistic statistic, Semaphore semaphore, AtomicInteger counter) {
+    public ThreadStarter(List<Path> paths, long finish, DataStatistic statistic, Semaphore semaphore, AtomicInteger counter, UtilityConfiguration utilityConfiguration) {
         this.paths = paths;
         this.finish = finish;
         this.statistic = statistic;
         this.semaphore = semaphore;
         this.counter = counter;
+        this.utilityConfiguration = utilityConfiguration;
     }
 
     public void work() {
@@ -34,7 +36,7 @@ public class ThreadStarter {
                 new Thread(new FilesCreator(path, statistic, semaphore, counter)).start();
             });
             try {
-                TimeUnit.MILLISECONDS.sleep(UtilityConfiguration.getInstance().getPeriodTime());
+                TimeUnit.MILLISECONDS.sleep(utilityConfiguration.getPeriodTime());
             } catch (InterruptedException e) {
                 log.warn("interrupted", e);
                 Thread.currentThread().interrupt();
