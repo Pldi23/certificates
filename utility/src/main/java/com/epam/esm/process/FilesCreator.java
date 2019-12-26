@@ -57,7 +57,7 @@ public class FilesCreator implements Runnable {
 
 
     private void writeJson(int counter, Path path) throws IOException {
-        Path file = Path.of(path.toString() + "/" + System.currentTimeMillis() + counter);
+        Path file = Path.of(path.toString() + "/" + UUID.randomUUID());
         Files.write(file,
                 getJson(counter).getBytes(), StandardOpenOption.CREATE);
         file.toFile().setExecutable(true);
