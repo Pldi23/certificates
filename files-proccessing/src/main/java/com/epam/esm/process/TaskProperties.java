@@ -12,14 +12,7 @@ import org.springframework.stereotype.Component;
 @PropertySource("task.properties")
 public class TaskProperties {
 
-    @Value("${task.test-time}")
-    private int testTime;
-    @Value("${task.files-count}")
-    private int filesCount;
-    @Value("${task.period-time}")
-    private int periodTime;
-    @Value("${task.subfolders-count}")
-    private int subfoldersCount;
+
     @Value("${task.scan-delay}")
     private int scanDelay;
     @Value("${task.initial-delay}")

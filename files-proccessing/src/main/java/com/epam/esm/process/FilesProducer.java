@@ -95,7 +95,7 @@ public class FilesProducer implements Runnable {
 
     private boolean containsFiles(Path path) {
         try (Stream<Path> stream = Files.walk(path)) {
-            return stream.anyMatch(p -> Files.isRegularFile(p));
+            return stream.anyMatch(p -> p.toFile().isFile() && !p.toString().contains(".DS_Store"));
         } catch (IOException e) {
             log.warn("could not detect if files exists", e);
             return false;

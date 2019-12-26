@@ -2,9 +2,7 @@ package com.epam.esm.process;
 
 
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
-import com.epam.esm.repository.JpaCertificateRepository;
-import com.epam.esm.repository.JpaTagRepository;
+import com.epam.esm.repository.AbstractCertificateRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -29,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 @Log4j2
 public class FilesConsumer implements Runnable {
@@ -38,20 +35,17 @@ public class FilesConsumer implements Runnable {
     private static final ReentrantLock lockInnerFolderCreation = new ReentrantLock();
 
     private LinkedTransferQueue<Path> queue;
-    private JpaCertificateRepository certificateRepository;
-    private JpaTagRepository tagRepository;
+    private AbstractCertificateRepository certificateRepository;
     private AtomicBoolean isProducing;
     private TaskProperties taskProperties;
     private AtomicInteger consumersCount;
 
     FilesConsumer(LinkedTransferQueue<Path> queue,
-                         JpaCertificateRepository certificateRepository,
-                         JpaTagRepository tagRepository,
-                         AtomicBoolean isProducing,
-                         TaskProperties taskProperties, AtomicInteger consumersCount) {
+                  AbstractCertificateRepository certificateRepository,
+                  AtomicBoolean isProducing,
+                  TaskProperties taskProperties, AtomicInteger consumersCount) {
         this.queue = queue;
         this.certificateRepository = certificateRepository;
-        this.tagRepository = tagRepository;
         this.isProducing = isProducing;
         this.taskProperties = taskProperties;
         this.consumersCount = consumersCount;
@@ -81,9 +75,7 @@ public class FilesConsumer implements Runnable {
             List<GiftCertificate> giftCertificates = mapper.readValue(path.toFile(), new TypeReference<List<GiftCertificate>>() {
             });
             if (validate(giftCertificates, validator).isEmpty()) {
-                saveTags(giftCertificates);
-                certificateRepository.saveAll(giftCertificates);
-                Files.delete(path);
+                saveCertificatesList(giftCertificates, path);
             } else {
                 moveInvalidFile(Path.of(taskProperties.getErrorValidatorViolationsFolder()), path);
             }
@@ -96,14 +88,15 @@ public class FilesConsumer implements Runnable {
         }
     }
 
-    private void saveTags(List<GiftCertificate> giftCertificates) {
-        giftCertificates.forEach(giftCertificate ->
-                giftCertificate.setTags(
-                        tagRepository.saveAllTags(
-                                giftCertificate.getTags().stream()
-                                        .map(Tag::getTitle)
-                                        .collect(Collectors.joining(",")))));
+
+    private void saveCertificatesList(List<GiftCertificate> giftCertificates, Path path) throws IOException {
+        if (certificateRepository.saveMany(giftCertificates)) {
+            Files.delete(path);
+        } else {
+            moveInvalidFile(Path.of(taskProperties.getErrorDataIntegrityFolder()), path);
+        }
     }
+
 
     private void moveInvalidFile(Path targetFolder, Path path) throws IOException {
         createFolderIfNotExists(Path.of(taskProperties.getErrorFolder()), lockErrorFolderCreation);

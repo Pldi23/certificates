@@ -66,7 +66,7 @@ public class DataProcessingListener implements Callable<DataProcessingResult> {
             return -1;
         }
         try (Stream<Path> stream = Files.walk(errorsPath)) {
-            return stream.filter(path -> !Files.isDirectory(path)).count();
+            return stream.parallel().filter(path -> path.toFile().isFile()).count();
         } catch (IOException e) {
             log.warn("could not count files correctly", e);
             return -1;

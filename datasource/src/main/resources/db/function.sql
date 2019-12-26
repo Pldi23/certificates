@@ -1,3 +1,97 @@
+create type tag_data as (t_title text);
+
+create or replace function insert_certificates_list_and_return_boolean(name_in varchar(200),
+                                                                       description_in varchar(1000),
+                                                                       price_in numeric,
+                                                                       creation_date_in date,
+                                                                       modification_date_in date,
+                                                                       expiration_date_in date,
+                                                                       active_status_in boolean,
+                                                                       tag_title_list tag_data[])
+    returns BOOLEAN
+    language 'plpgsql'
+as
+$BODY$
+declare
+    i            tag_data;
+    temp_cert_id integer;
+    temp_tag_id  integer;
+begin
+    insert into certificate(active_status, creation_date, description, expiration_date, modification_date, name, price)
+    values (active_status_in, creation_date_in, description_in, expiration_date_in, modification_date_in, name_in,
+            price_in) returning certificate.id
+               into temp_cert_id;
+    foreach i in array tag_title_list
+        loop
+            begin
+                select tag.id from tag where title = i.t_title into temp_tag_id;
+                if not FOUND then
+                    insert into tag(title)
+                    values (i.t_title) returning tag.id
+                        into temp_tag_id;
+
+                end if;
+            exception when unique_violation then select tag.id from tag where title = i.t_title into temp_tag_id;
+            end;
+            insert into certificate_tag(certificate_id, tag_id) VALUES (temp_cert_id, temp_tag_id);
+        end loop;
+    return true;
+exception
+    WHEN unique_violation THEN
+        return false;
+end;
+$BODY$;
+
+
+
+create or replace function insert_certificates_list(name_in varchar(200),
+                                                    description_in varchar(1000),
+                                                    price_in numeric,
+                                                    creation_date_in date,
+                                                    modification_date_in date,
+                                                    expiration_date_in date,
+                                                    active_status_in boolean,
+                                                    tag_title_list text)
+    returns table
+            (
+                id                integer,
+                name              varchar(200),
+                description       varchar(1000),
+                price             numeric,
+                creation_date     date,
+                modification_date date,
+                expiration_date   date,
+                active_status boolean
+            )
+    language 'plpgsql'
+as
+$BODY$
+declare
+    title_array  varchar(200)[];
+    i            text;
+    temp_cert_id integer;
+    temp_tag_id  integer;
+begin
+    insert into certificate(active_status, creation_date, description, expiration_date, modification_date, name, price)
+    values (active_status_in, creation_date_in, description_in, expiration_date_in, modification_date_in, name_in,
+            price_in) returning certificate.id
+               into temp_cert_id;
+    select * into title_array from string_to_array(tag_title_list, ',');
+    foreach i in array title_array
+        loop
+            select tag.id from tag where title = i into temp_tag_id;
+            if not FOUND then
+                insert into tag(title)
+                values (i) returning tag.id
+                    into temp_tag_id;
+            end if;
+            insert into certificate_tag(certificate_id, tag_id) VALUES (temp_cert_id, temp_tag_id);
+        end loop;
+    return query
+        select * from certificate where certificate.id = temp_cert_id;
+end;
+$BODY$;
+
 create or replace function insert_tag_list(tag_title_list text)
     returns table
             (

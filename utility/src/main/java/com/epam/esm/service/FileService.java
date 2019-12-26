@@ -48,6 +48,7 @@ public class FileService {
         createDirs();
         List<Path> rootAndSubPaths = getRootAndSubPaths();
 
+        insertDbConstraintObject();
         long certificatesCount = countCertificatesCurrentQuantity();
         long errorsCount = countErrors();
         DataStatistic statistic = new DataStatistic();
@@ -81,7 +82,6 @@ public class FileService {
     public void destroy() {
         executorService.shutdown();
     }
-
 
 
     private void awaitCreators(AtomicInteger creatorsCounter, long finish) {
@@ -130,6 +130,14 @@ public class FileService {
         }
         log.warn("folder not exist, so quantity of errors is 0 ");
         return 0;
+    }
+
+    private void insertDbConstraintObject() {
+        try {
+            repository.insertDbConstraintObject();
+        } catch (RepositoryException e) {
+            log.warn("could not insert initial certificate");
+        }
     }
 
     private void createDirs() {

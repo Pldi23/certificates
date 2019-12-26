@@ -22,17 +22,11 @@ import javax.validation.constraints.Size;
 
 @SqlResultSetMapping(
         name="tagsCustomMapping",
-        classes={
-                @ConstructorResult(
+        classes={@ConstructorResult(
                         targetClass=Tag.class,
                         columns={
                                 @ColumnResult(name="id", type = Long.class),
-                                @ColumnResult(name="title", type = String.class
-                                )
-                        }
-                )
-        }
-)
+                                @ColumnResult(name="title", type = String.class)})})
 
 @NamedNativeQuery(name="Tag.saveAllTags", query="select * from insert_tag_list(:tags)", resultSetMapping="tagsCustomMapping")
 @Entity

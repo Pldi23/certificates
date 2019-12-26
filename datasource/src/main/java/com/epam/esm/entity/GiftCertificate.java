@@ -1,7 +1,6 @@
 package com.epam.esm.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -15,6 +14,8 @@ import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,21 +23,38 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+@SqlResultSetMapping(
+        name = "certificatesCustomMapping",
+        classes = {@ConstructorResult(
+                targetClass = GiftCertificate.class,
+                columns = {
+                        @ColumnResult(name = "id", type = Long.class),
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "description", type = String.class),
+                @ColumnResult(name = "price", type = BigDecimal.class),
+                @ColumnResult(name = "creationDate", type = LocalDate.class),
+                @ColumnResult(name = "modificationDate", type = LocalDate.class),
+                @ColumnResult(name = "expirationDate", type = LocalDate.class),
+                @ColumnResult(name = "activeStatus", type = Boolean.class)})})
 
+@NamedNativeQuery(
+        name = "GiftCertificate.saveCertificate",
+        query = "select * from insert_certificates_list(:name_in, :description_in, :price_in, :creation_date_in, :modification_date_in, :expiration_date_in, :active_status_in, :tags)",
+        resultSetMapping = "certificatesCustomMapping")
 @Entity
 @Table(name = "certificate")
 @Getter
@@ -48,7 +66,7 @@ import java.util.Set;
 public class GiftCertificate {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
     @NotBlank(message = "{violation.name.not.blank}")
@@ -74,9 +92,9 @@ public class GiftCertificate {
     private Boolean activeStatus;
 
     @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(name="certificate_tag",
-            joinColumns=@JoinColumn(name="certificate_id"),
-            inverseJoinColumns=@JoinColumn(name="tag_id"))
+    @JoinTable(name = "certificate_tag",
+            joinColumns = @JoinColumn(name = "certificate_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags;
 
 

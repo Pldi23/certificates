@@ -1,7 +1,6 @@
 package com.epam.esm.process;
 
-import com.epam.esm.repository.JpaCertificateRepository;
-import com.epam.esm.repository.JpaTagRepository;
+import com.epam.esm.repository.AbstractCertificateRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -21,20 +20,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class CertificateFilesService {
 
-    private JpaCertificateRepository certificateRepository;
-    private JpaTagRepository tagRepository;
+    private AbstractCertificateRepository certificateRepository;
     private LinkedTransferQueue<Path> queue;
     private AtomicBoolean isScanning;
     private ScheduledExecutorService executorService;
     private ExecutorService consumerService;
     private TaskProperties taskProperties;
 
-    public CertificateFilesService(JpaCertificateRepository certificateRepository,
-                                   JpaTagRepository tagRepository,
+    public CertificateFilesService(AbstractCertificateRepository certificateRepository,
                                    TaskProperties taskProperties) {
         this.queue = new LinkedTransferQueue<>();
         this.certificateRepository = certificateRepository;
-        this.tagRepository = tagRepository;
         this.isScanning = new AtomicBoolean();
         this.executorService = Executors.newSingleThreadScheduledExecutor();
         this.consumerService = Executors.newScheduledThreadPool(taskProperties.getThreadCount());
@@ -46,7 +42,7 @@ public class CertificateFilesService {
         List<FilesConsumer> consumers = new ArrayList<>(taskProperties.getThreadCount());
         for (int i = 0; i < taskProperties.getThreadCount(); i++) {
             consumers.add(
-                    new FilesConsumer(queue, certificateRepository, tagRepository,
+                    new FilesConsumer(queue, certificateRepository,
                             isScanning, taskProperties, consumersCount));
         }
         executorService.scheduleAtFixedRate(

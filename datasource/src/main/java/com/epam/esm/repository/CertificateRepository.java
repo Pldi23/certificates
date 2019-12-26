@@ -1,6 +1,7 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.page.Pageable;
 import com.epam.esm.repository.predicate.Specification;
 import com.epam.esm.repository.sort.Sortable;
@@ -10,18 +11,26 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.epam.esm.repository.constant.JpaConstant.ACTIVE_STATUS;
 import static com.epam.esm.repository.constant.JpaConstant.ID;
 import static com.epam.esm.repository.constant.JpaConstant.NAME;
+
 @Log4j2
 @Repository
 public class CertificateRepository implements AbstractCertificateRepository {
@@ -69,6 +78,57 @@ public class CertificateRepository implements AbstractCertificateRepository {
         } else {
             return entityManager.merge(giftCertificate);
         }
+    }
+
+    private boolean saveFunctionally(GiftCertificate giftCertificate) {
+        StoredProcedureQuery storedProcedureQuery = entityManager.createStoredProcedureQuery("insert_certificates_list_and_return_boolean");
+        storedProcedureQuery.registerStoredProcedureParameter("name_in", String.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("description_in", String.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("price_in", BigDecimal.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("creation_date_in", Date.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("modification_date_in", Date.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("expiration_date_in", Date.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("active_status_in", Boolean.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("tag_title_list", String.class, ParameterMode.IN);
+        storedProcedureQuery.registerStoredProcedureParameter("insert_certificates_list_and_return_boolean", Boolean.class, ParameterMode.OUT);
+
+        storedProcedureQuery.setParameter("name_in", giftCertificate.getName());
+        storedProcedureQuery.setParameter("description_in", giftCertificate.getDescription());
+        storedProcedureQuery.setParameter("price_in", giftCertificate.getPrice());
+        Date from = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+        storedProcedureQuery.setParameter("creation_date_in", from);
+        storedProcedureQuery.setParameter("modification_date_in", null);
+        storedProcedureQuery.setParameter("expiration_date_in", Date.from(giftCertificate.getExpirationDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        storedProcedureQuery.setParameter("active_status_in", giftCertificate.getActiveStatus());
+        storedProcedureQuery.setParameter("tag_title_list", giftCertificate.getTags().stream().map(Tag::getTitle).collect(Collectors.joining(",")));
+
+
+        storedProcedureQuery.execute();
+        return  (boolean) storedProcedureQuery.getOutputParameterValue("insert_certificates_list_and_return_boolean");
+    }
+
+    /**
+     *
+     * @param giftCertificates list of certificates to save
+     * @return true if all certificates saved successfully, and false if at least one of them already exists
+     */
+    @Override
+    public boolean saveMany(List<GiftCertificate> giftCertificates) {
+        return giftCertificates.stream().allMatch(this::saveFunctionally);
+    }
+
+    public boolean existsByNames(List<GiftCertificate> giftCertificates) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cQuery = builder.createQuery(Long.class);
+        Root<GiftCertificate> from = cQuery.from(GiftCertificate.class);
+        CriteriaQuery<Long> select = cQuery.select(builder.count(from));
+        List<Predicate> predicates = new ArrayList<>();
+        giftCertificates.forEach(giftCertificate ->
+            predicates.add(builder.equal(from.get("name"), giftCertificate.getName())));
+        select.where(builder.or(predicates.toArray(new Predicate[predicates.size()])));
+        TypedQuery<Long> typedQuery = entityManager.createQuery(select);
+        Long nunOfCertificates = typedQuery.getSingleResult();
+        return nunOfCertificates >= 1;
     }
 
     @Override

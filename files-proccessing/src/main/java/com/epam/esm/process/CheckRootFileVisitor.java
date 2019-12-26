@@ -20,7 +20,7 @@ public class CheckRootFileVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-        if (Files.isRegularFile(file) && !file.toString().contains(taskProperties.getMarkerFileName())) {
+        if (Files.isRegularFile(file) && !file.toString().contains(taskProperties.getMarkerFileName()) && !file.toString().contains(".DS_Store")) {
             isScanning.set(true);
             return FileVisitResult.TERMINATE;
         }

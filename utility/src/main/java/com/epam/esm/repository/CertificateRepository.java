@@ -12,6 +12,8 @@ import java.sql.SQLException;
 public class CertificateRepository implements Repository {
 
     private static final String COUNT_CERTIFICATES = "select count(*) from certificate";
+    private static final String INSERT_CERTIFICATE = "insert into certificate(active_status, creation_date, description, expiration_date, modification_date, name, price)\n" +
+            "    values (true, null, 'description', null, null, 'violates db constraints name', 1)";
 
     private static DatabaseConfiguration configuration = DatabaseConfiguration.getInstance();
 
@@ -23,6 +25,16 @@ public class CertificateRepository implements Repository {
              ResultSet resultSet = statement.executeQuery()) {
             resultSet.next();
             return resultSet.getLong(1);
+        } catch (SQLException e) {
+            throw new RepositoryException("could not count rows", e);
+        }
+    }
+
+    @Override
+    public boolean insertDbConstraintObject() throws RepositoryException {
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(INSERT_CERTIFICATE)) {
+            return statement.execute();
         } catch (SQLException e) {
             throw new RepositoryException("could not count rows", e);
         }

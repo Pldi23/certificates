@@ -13,4 +13,6 @@ public interface AbstractCertificateRepository extends SaveRepository<GiftCertif
     Optional<GiftCertificate> findById(long id, Boolean isActive);
     Optional<GiftCertificate> findByName(String name, Boolean isActive);
     long countLastPage(List<Specification<GiftCertificate>> specifications, int size);
+    boolean saveMany(List<GiftCertificate> giftCertificates);
+    boolean existsByNames(List<GiftCertificate> giftCertificates);
 }
