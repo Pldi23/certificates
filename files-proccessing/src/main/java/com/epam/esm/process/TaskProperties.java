@@ -19,8 +19,10 @@ public class TaskProperties {
     private int initialDelay;
     @Value("${task.folder}")
     private String folder;
-    @Value("${task.thread-count}")
-    private int threadCount;
+    @Value("${task.consumer-count}")
+    private int consumerCount;
+    @Value("${task.producer-count}")
+    private int producerCount;
     @Value("${task.error-folder}")
     private String errorFolder;
     @Value("${task.error-data-integrity-folder}")
@@ -33,4 +35,6 @@ public class TaskProperties {
     private String errorMismatchInputFolder;
     @Value("${task.marker-file-name}")
     private String markerFileName;
+    @Value("${task.poison-pill-marker}")
+    private String poisonPillMarker;
 }

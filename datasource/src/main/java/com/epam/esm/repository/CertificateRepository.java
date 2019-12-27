@@ -80,6 +80,16 @@ public class CertificateRepository implements AbstractCertificateRepository {
         }
     }
 
+    /**
+     *
+     * @param giftCertificates list of certificates to save
+     * @return true if all certificates saved successfully, and false if at least one of them already exists
+     */
+    @Override
+    public boolean saveMany(List<GiftCertificate> giftCertificates) {
+        return giftCertificates.stream().allMatch(this::saveFunctionally);
+    }
+
     private boolean saveFunctionally(GiftCertificate giftCertificate) {
         StoredProcedureQuery storedProcedureQuery = entityManager.createStoredProcedureQuery("insert_certificates_list_and_return_boolean");
         storedProcedureQuery.registerStoredProcedureParameter("name_in", String.class, ParameterMode.IN);
@@ -107,25 +117,14 @@ public class CertificateRepository implements AbstractCertificateRepository {
         return  (boolean) storedProcedureQuery.getOutputParameterValue("insert_certificates_list_and_return_boolean");
     }
 
-    /**
-     *
-     * @param giftCertificates list of certificates to save
-     * @return true if all certificates saved successfully, and false if at least one of them already exists
-     */
-    @Override
-    public boolean saveMany(List<GiftCertificate> giftCertificates) {
-        return giftCertificates.stream().allMatch(this::saveFunctionally);
-    }
 
     public boolean existsByNames(List<GiftCertificate> giftCertificates) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cQuery = builder.createQuery(Long.class);
         Root<GiftCertificate> from = cQuery.from(GiftCertificate.class);
         CriteriaQuery<Long> select = cQuery.select(builder.count(from));
-        List<Predicate> predicates = new ArrayList<>();
-        giftCertificates.forEach(giftCertificate ->
-            predicates.add(builder.equal(from.get("name"), giftCertificate.getName())));
-        select.where(builder.or(predicates.toArray(new Predicate[predicates.size()])));
+        select.where(builder.or(giftCertificates.stream().map(giftCertificate ->
+                builder.equal(from.get("name"), giftCertificate.getName())).toArray(Predicate[]::new)));
         TypedQuery<Long> typedQuery = entityManager.createQuery(select);
         Long nunOfCertificates = typedQuery.getSingleResult();
         return nunOfCertificates >= 1;

@@ -17,18 +17,8 @@ import javax.persistence.Id;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
-@SqlResultSetMapping(
-        name="tagsCustomMapping",
-        classes={@ConstructorResult(
-                        targetClass=Tag.class,
-                        columns={
-                                @ColumnResult(name="id", type = Long.class),
-                                @ColumnResult(name="title", type = String.class)})})
 
-@NamedNativeQuery(name="Tag.saveAllTags", query="select * from insert_tag_list(:tags)", resultSetMapping="tagsCustomMapping")
 @Entity
 @Table(name = "tag")
 @Getter
@@ -36,7 +26,6 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-//@ToString(exclude = "giftCertificates")
 @EqualsAndHashCode
 public class Tag{
 
@@ -45,15 +34,7 @@ public class Tag{
     @Column(name = "id")
     private Long id;
 
-    @Size(min = 1, max = 200, message = "{violation.tag.title.length}")
-    @Pattern(regexp = "([\\w-]+(?: [\\w-]+)+)|([\\w-]+)", message = "{violation.tag.title.pattern}")
-    @Column(unique = true, updatable = false)
     private String title;
 
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(name="certificate_tag",
-//            joinColumns=@JoinColumn(name="tag_id"),
-//            inverseJoinColumns=@JoinColumn(name="certificate_id"))
-//    private Set<GiftCertificate> giftCertificates;
 
 }

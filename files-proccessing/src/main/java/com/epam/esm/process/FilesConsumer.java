@@ -3,6 +3,8 @@ package com.epam.esm.process;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.AbstractCertificateRepository;
+import com.epam.esm.validate.ValidationException;
+import com.epam.esm.validate.Validator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -10,21 +12,13 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.LinkedTransferQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,49 +30,51 @@ public class FilesConsumer implements Runnable {
 
     private LinkedTransferQueue<Path> queue;
     private AbstractCertificateRepository certificateRepository;
-    private AtomicBoolean isProducing;
+    private SystemMonitor systemMonitor;
     private TaskProperties taskProperties;
-    private AtomicInteger consumersCount;
+    private Validator validator;
+    private ObjectMapper mapper;
 
     FilesConsumer(LinkedTransferQueue<Path> queue,
                   AbstractCertificateRepository certificateRepository,
-                  AtomicBoolean isProducing,
-                  TaskProperties taskProperties, AtomicInteger consumersCount) {
+                  SystemMonitor systemMonitor,
+                  TaskProperties taskProperties, Validator validator, ObjectMapper mapper) {
         this.queue = queue;
         this.certificateRepository = certificateRepository;
-        this.isProducing = isProducing;
+        this.systemMonitor = systemMonitor;
         this.taskProperties = taskProperties;
-        this.consumersCount = consumersCount;
+        this.validator = validator;
+        this.mapper = mapper;
 
     }
 
     @Override
     public void run() {
-        ObjectMapper mapper = new ObjectMapper();
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        while (isProducing.get()) {
+        while (systemMonitor.getStatus()) {
             try {
-                processFile(queue.take(), mapper, validator);
+                Path path = queue.take();
+                if (path.toString().contains(taskProperties.getPoisonPillMarker())) {
+                    return;
+                }
+                processFile(path);
             } catch (IOException e) {
                 log.warn("consumer could not process file", e);
             } catch (InterruptedException e) {
                 log.warn("interrupted", e);
-                consumersCount.decrementAndGet();
+                systemMonitor.decrementActiveConsumersCounter();
                 Thread.currentThread().interrupt();
             }
         }
     }
 
-    private void processFile(Path path, ObjectMapper mapper, Validator validator) throws IOException {
+    private void processFile(Path path) throws IOException {
         try {
             List<GiftCertificate> giftCertificates = mapper.readValue(path.toFile(), new TypeReference<List<GiftCertificate>>() {
             });
-            if (validate(giftCertificates, validator).isEmpty()) {
-                saveCertificatesList(giftCertificates, path);
-            } else {
-                moveInvalidFile(Path.of(taskProperties.getErrorValidatorViolationsFolder()), path);
-            }
+            validator.validate(giftCertificates);
+            saveCertificatesList(giftCertificates, path);
+        } catch (ValidationException ex) {
+            moveInvalidFile(Path.of(taskProperties.getErrorValidatorViolationsFolder()), path);
         } catch (DataIntegrityViolationException ex) {
             moveInvalidFile(Path.of(taskProperties.getErrorDataIntegrityFolder()), path);
         } catch (UnrecognizedPropertyException ex) {
@@ -104,12 +100,6 @@ public class FilesConsumer implements Runnable {
         File file = new File(String.format("%s/%s-%s", targetFolder, path.getFileName(), LocalDateTime.now()));
         Files.move(path, file.toPath());
         Files.deleteIfExists(path);
-    }
-
-    private Set<ConstraintViolation<GiftCertificate>> validate(List<GiftCertificate> giftCertificates, Validator validator) {
-        Set<ConstraintViolation<GiftCertificate>> violations = new HashSet<>();
-        giftCertificates.forEach(giftCertificate -> violations.addAll(validator.validate(giftCertificate)));
-        return violations;
     }
 
     private void createFolderIfNotExists(Path targetFolder, Lock lock) throws IOException {
