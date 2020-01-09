@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class ThreadStarter {
 
+    private static final int MAX_THREADS_LIMIT = 1000;
+
     private List<Path> paths;
     private long finish;
     private DataStatistic statistic;
@@ -31,16 +33,37 @@ public class ThreadStarter {
 
     public void work() {
         while (System.currentTimeMillis() <= finish) {
-            paths.forEach(path -> {
-                counter.incrementAndGet();
-                new Thread(new FilesCreator(path, statistic, semaphore, counter)).start();
-            });
+            long startedAt = System.currentTimeMillis();
+            startThreadBatch();
             try {
-                TimeUnit.MILLISECONDS.sleep(utilityConfiguration.getPeriodTime());
+                TimeUnit.MILLISECONDS.sleep(getDelayInMillis(startedAt));
             } catch (InterruptedException e) {
                 log.warn("interrupted", e);
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    private void startThreadBatch() {
+        paths.forEach(this::startThread);
+    }
+
+    private void startThread(Path path) {
+        while (counter.get() > MAX_THREADS_LIMIT) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                log.warn("interrupted", e);
+                Thread.currentThread().interrupt();
+            }
+        }
+        counter.incrementAndGet();
+        new Thread(new FilesCreator(path, statistic, semaphore, counter)).start();
+
+    }
+
+    private long getDelayInMillis(long startedAt) {
+        long restartAt = startedAt + utilityConfiguration.getPeriodTime() - System.currentTimeMillis();
+        return restartAt >= 0 ? restartAt : 0;
     }
 }

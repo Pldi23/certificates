@@ -40,13 +40,15 @@ public class DataProcessingListener implements Callable<DataProcessingResult> {
                 counter = 0;
             }
         }
+        long processingFinishTime = System.currentTimeMillis();
+        log.info("calculating results...");
         long errorFilesCounter = countErrorFiles(errorsPath);
         try {
             long count = repository.count();
-            return new DataProcessingResult(errorFilesCounter, count);
+            return new DataProcessingResult(errorFilesCounter, count, processingFinishTime);
         } catch (RepositoryException e) {
             log.warn("could not calculate statistic", e);
-            return new DataProcessingResult(errorFilesCounter, -1);
+            return new DataProcessingResult(errorFilesCounter, -1, processingFinishTime);
         }
     }
 

@@ -53,7 +53,7 @@ public class FilesConsumer implements Runnable {
         while (systemMonitor.getStatus()) {
             try {
                 Path path = queue.take();
-                if (path.toString().contains(taskProperties.getPoisonPillMarker())) {
+                if (path.toString().contains(taskProperties.getStopConsumerMarker())) {
                     return;
                 }
                 processFile(path);

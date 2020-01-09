@@ -12,5 +12,6 @@ public class DataProcessingResult {
 
     private long invalidFilesCount;
     private long validCertificatesCount;
+    private long processingFinishTime;
 
 }

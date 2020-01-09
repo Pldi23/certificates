@@ -8,14 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.Column;
-import javax.persistence.ColumnResult;
-import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
 

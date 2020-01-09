@@ -86,7 +86,6 @@ public class FileService {
 
     private void awaitCreators(AtomicInteger creatorsCounter, long finish) {
         while (System.currentTimeMillis() <= finish || creatorsCounter.get() != 0) {
-            log.info("waiting" + creatorsCounter.get());
             try {
                 TimeUnit.MILLISECONDS.sleep(CREATORS_AWAIT_INTERVAL);
             } catch (InterruptedException e) {
@@ -128,7 +127,7 @@ public class FileService {
                 return -1;
             }
         }
-        log.warn("folder not exist, so quantity of errors is 0 ");
+        log.warn("error folder doesn't exist, so quantity of errors is 0 ");
         return 0;
     }
 

@@ -44,29 +44,22 @@ public class CertificateFilesService {
         this.fileVisitor = fileVisitor;
     }
 
-    /**
-     * One thread contains scanner and producer functions to increase performance by saving number of threads.
-     * Also there is no room for situations where application needs more than one producer,
-     * if we wanted to increase the number of producers, we would have to lock every transfer of each file  or use additional queue/list,
-     * which would drastically reduce the processing speed, because of losing profit of LinkedTransferQueue in my opinion.
-     * Also we manage consumers pool from here to start it only after detecting files in root folder.
-     */
     public void scanAndProduceIfNeeded() {
         mapper.registerModule(new JavaTimeModule());
         Path path = Path.of(taskProperties.getFolder());
-
         if (path.toFile().exists() && path.toFile().isDirectory()) {
             monitorSystemStatus(path);
             if (systemMonitor.getStatus()) {
                 startConsumers();
                 while (containsFiles(path)) {
+                    log.info("transferring from root");
                     transferPaths(path);
                     awaitConsumers();
                 }
                 systemMonitor.deActivateProducer();
                 writeHookToUtility();
                 stopConsumers();
-                log.info("producing stopped, hook written");
+                log.info("consumers shut down");
             }
         }
 
@@ -82,7 +75,7 @@ public class CertificateFilesService {
     private void stopConsumers() {
         for (int i = 0; i < systemMonitor.getActiveConsumersCount(); i++) {
             try {
-                queue.transfer(Paths.get(taskProperties.getPoisonPillMarker()));
+                queue.transfer(Paths.get(taskProperties.getStopConsumerMarker()));
             } catch (InterruptedException e) {
                 log.warn("interrupted", e);
                 Thread.currentThread().interrupt();

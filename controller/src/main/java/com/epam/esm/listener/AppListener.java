@@ -34,10 +34,10 @@ public class AppListener implements ApplicationListener<ContextRefreshedEvent> {
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        filesService.scanAndProduceIfNeeded();
         dataProcessingScheduledExecutorService.scheduleWithFixedDelay(() -> filesService.scanAndProduceIfNeeded(), taskProperties.getInitialDelay(), taskProperties.getScanDelay(), TimeUnit.MILLISECONDS);
         unUsedTagsScheduledExecutorService.scheduleAtFixedRate(() -> tagService.deleteUnlinkedTags(), 1, 1, TimeUnit.DAYS);
     }
+
 
     @PreDestroy
     public void close() {
