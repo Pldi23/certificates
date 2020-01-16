@@ -5,14 +5,17 @@
 -- Note: empty values and their column names must be omitted.
 -- Add required changes to your DB Schema to populate current table columns each time
 -- when new record was inserted to any db table (in a scope of your schema).
-DROP TABLE log_table;
 
 CREATE TABLE log_table (
-                           created_at    DATE,
-                           table_name    NVARCHAR2(200),
-                           description   NCLOB
+                           log_id            NUMBER
+                               GENERATED AS IDENTITY
+                               CONSTRAINT log_table_pk PRIMARY KEY,
+                           created_at        DATE,
+                           table_name        NVARCHAR2(200),
+                           object_id         NUMBER,
+                           field_name        NVARCHAR2(30),
+                           new_field_value   NCLOB
 );
-
 
 CREATE OR REPLACE TRIGGER log_on_insert_to_tags_trigger AFTER
 INSERT ON tags
@@ -21,12 +24,17 @@ BEGIN
 INSERT INTO log_table (
     created_at,
     table_name,
-    description
+    object_id,
+    field_name,
+    new_field_value
 ) VALUES (
              sysdate,
              'tags',
-             't_title - ' || :new.t_title
+             :new.t_id,
+             't_title',
+             :new.t_title
          );
+
 END;
 
 CREATE OR REPLACE TRIGGER log_on_insert_to_authors_trigger AFTER
@@ -36,55 +44,136 @@ BEGIN
 INSERT INTO log_table (
     created_at,
     table_name,
-    description
+    object_id,
+    field_name,
+    new_field_value
 ) VALUES (
              sysdate,
              'authors',
-             'a_name - ' || :new.a_name
+             :new.a_id,
+             'a_name',
+             :new.a_name
          );
+
 END;
 
 CREATE OR REPLACE TRIGGER log_on_insert_to_comments_trigger AFTER
 INSERT ON comments
     FOR EACH ROW
-DECLARE
-    des NCLOB;
 BEGIN
-des := 'news_id - ' || :new.news_id;
-des := des || ',c_content - ' || :new.c_content;
-des := des || ',c_author - ' || :new.c_author;
 INSERT INTO log_table (
     created_at,
     table_name,
-    description
+    object_id,
+    field_name,
+    new_field_value
 ) VALUES (
              sysdate,
              'comments',
-             des
+             :new.c_id,
+             'news_id',
+             to_clob(:new.news_id)
          );
-END;
 
+INSERT INTO log_table (
+    created_at,
+    table_name,
+    object_id,
+    field_name,
+    new_field_value
+) VALUES (
+             sysdate,
+             'comments',
+             :new.c_id,
+             'c_content',
+             :new.c_content
+         );
+
+IF :new.c_author IS NOT NULL THEN
+INSERT INTO log_table (
+    created_at,
+    table_name,
+    object_id,
+    field_name,
+    new_field_value
+) VALUES (
+             sysdate,
+             'comments',
+             :new.c_id,
+             'c_author',
+             :new.c_author
+         );
+
+END IF;
+
+END;
 
 CREATE OR REPLACE TRIGGER log_on_insert_to_news_trigger AFTER
 INSERT ON news
     FOR EACH ROW
-DECLARE
-    des NCLOB;
 BEGIN
-des := 'author_id - ' || :new.author_id;
-IF :new.n_title is not NULL THEN
-        des := des || ',n_title - ' || :new.n_title;
-END IF;
-IF :new.n_content is not NULL THEN
-        des := des || ',n_content - ' || :new.n_content;
-END IF;
 INSERT INTO log_table (
     created_at,
     table_name,
-    description
+    object_id,
+    field_name,
+    new_field_value
 ) VALUES (
              sysdate,
              'news',
-             des
+             :new.n_id,
+             'author_id',
+             to_clob(:new.author_id)
          );
+
+IF :new.n_title IS NOT NULL THEN
+INSERT INTO log_table (
+    created_at,
+    table_name,
+    object_id,
+    field_name,
+    new_field_value
+) VALUES (
+             sysdate,
+             'news',
+             :new.n_id,
+             'n_title',
+             :new.n_title
+         );
+
+END IF;
+
+IF :new.n_content IS NOT NULL THEN
+INSERT INTO log_table (
+    created_at,
+    table_name,
+    object_id,
+    field_name,
+    new_field_value
+) VALUES (
+             sysdate,
+             'news',
+             :new.n_id,
+             'n_content',
+             :new.n_content
+         );
+
+END IF;
+
 END;
+
+
+CREATE OR REPLACE VIEW get_insertion_logs (
+                                           created,
+                                           tab_name,
+                                           description
+    ) as
+SELECT
+    created_at,
+    table_name,
+    LISTAGG(field_name || ' : ' || substr(new_field_value, 4000), '; ')
+FROM
+    log_table
+GROUP BY
+    created_at,
+    table_name;

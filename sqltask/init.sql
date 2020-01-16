@@ -19,11 +19,10 @@ CREATE TABLE news
         CONSTRAINT news_pk
             PRIMARY KEY,
     n_title   NVARCHAR2(150),
-    n_content NCLOB,
+    n_content NCLOB NOT NULL,
     author_id NUMBER(10) NOT NULL
         CONSTRAINT news_authors_id_fk
-            REFERENCES authors,
-    CHECK (n_title IS NOT NULL OR n_content IS NOT NULL)
+            REFERENCES authors
 )
     tablespace task_ts;
 
