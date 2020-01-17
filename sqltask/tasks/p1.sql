@@ -12,8 +12,8 @@ CREATE OR REPLACE VIEW authors_news_number_and_avg_comments_view (
     ) AS
 SELECT
     news.author_id,
-    COUNT(n_id) AS q,
-    COUNT(c_id) / COUNT(n_id) AS av
+    COUNT(DISTINCT n_id) AS q,
+    COUNT(c_id) / COUNT(DISTINCT n_id) AS av
 FROM
     news
         LEFT OUTER JOIN comments ON news.n_id = comments.news_id
