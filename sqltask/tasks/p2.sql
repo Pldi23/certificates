@@ -14,7 +14,6 @@ WHERE
             news
         GROUP BY
             author_id
-        HAVING
-                SUM(length(n_content)) > 3000
-           AND SUM(length(n_content)) / COUNT(n_id) > 500
+        HAVING SUM(length(n_content)) > 3000
+           AND AVG(length(n_content)) > 500
     );

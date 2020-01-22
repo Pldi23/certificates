@@ -12,10 +12,11 @@ CREATE TABLE log_table (
                                CONSTRAINT log_table_pk PRIMARY KEY,
                            created_at        DATE,
                            table_name        NVARCHAR2(200),
-                           object_id         NUMBER,
+                           object_id         NVARCHAR2(50),
                            field_name        NVARCHAR2(30),
                            new_field_value   NCLOB
-);
+)
+    tablespace task_ts;
 
 CREATE OR REPLACE TRIGGER log_on_insert_to_tags_trigger AFTER
 INSERT ON tags
@@ -53,6 +54,39 @@ INSERT INTO log_table (
              :new.a_id,
              'a_name',
              :new.a_name
+         );
+
+END;
+
+CREATE OR REPLACE TRIGGER log_on_insert_to_m2m_news_tags_trigger AFTER
+INSERT ON m2m_news_tags
+    FOR EACH ROW
+BEGIN
+INSERT INTO log_table (
+    created_at,
+    table_name,
+    object_id,
+    field_name,
+    new_field_value
+) VALUES (
+             sysdate,
+             'm2m_news_tags',
+             :new.news_id || ',' || :new.tags_id,
+             'news_id',
+             to_char(:new.news_id)
+         );
+INSERT INTO log_table (
+    created_at,
+    table_name,
+    object_id,
+    field_name,
+    new_field_value
+) VALUES (
+             sysdate,
+             'm2m_news_tags',
+             :new.news_id || ',' || :new.tags_id,
+             'tags_id',
+             to_char(:new.tags_id)
          );
 
 END;
@@ -166,14 +200,17 @@ END;
 CREATE OR REPLACE VIEW get_insertion_logs (
                                            created,
                                            tab_name,
+                                           object_id,
                                            description
     ) as
 SELECT
     created_at,
     table_name,
-    LISTAGG(field_name || ' : ' || substr(new_field_value, 4000), '; ')
+    object_id,
+    LISTAGG(field_name || ' : ' || to_clob(DBMS_LOB.SUBSTR(new_field_value, 2000)), ';')
 FROM
     log_table
 GROUP BY
     created_at,
-    table_name;
+    table_name,
+    object_id;
