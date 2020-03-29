@@ -59,7 +59,7 @@ class TagServiceImplTest {
 
     @Test
     void getTag() {
-        Tag tag = new Tag(1L, "expected", new HashSet<>());
+        Tag tag = new Tag(1L, "expected");
         Mockito.when(tagRepository.findById(1))
                 .thenReturn(Optional.of(tag));
 
@@ -74,7 +74,7 @@ class TagServiceImplTest {
     @Test
     void findAll() {
         List<TagDTO> tagDTOS = List.of(new TagDTO(1L, "expected1"), new TagDTO(2L, "expected2"));
-        List<Tag> tags = List.of(new Tag(1L, "expected1", new HashSet<>()), new Tag(2L, "expected2", new HashSet<>()));
+        List<Tag> tags = List.of(new Tag(1L, "expected1"), new Tag(2L, "expected2"));
         PageAndSortDTO pageAndSortDTO = PageAndSortDTO.builder().sortParameter(null).page(1).size(Integer.MAX_VALUE).build();
 
         Mockito.when(tagRepository.findAllSpecified(any(), any(), any())).thenReturn(tags);
@@ -88,15 +88,15 @@ class TagServiceImplTest {
     void save() {
         TagDTO tagDTO = new TagDTO(1L, "expected");
 
-        Mockito.when(tagRepository.save(any())).thenReturn(new Tag(8L, tagDTO.getTitle(), new HashSet<>()));
+        Mockito.when(tagRepository.save(any())).thenReturn(new Tag(8L, tagDTO.getTitle()));
         TagDTO actual = tagServiceImpl.save(tagDTO);
-        Mockito.verify(tagRepository, times(1)).save(new Tag(1L, "expected", new HashSet<>()));
+        Mockito.verify(tagRepository, times(1)).save(new Tag(1L, "expected"));
         assertEquals(new TagDTO(8L, tagDTO.getTitle()), actual);
     }
 
     @Test
     void deleteSuccessful() {
-        List<Tag> tags = List.of(new Tag(1L, "expected", new HashSet<>()));
+        List<Tag> tags = List.of(new Tag(1L, "expected"));
 
         tagServiceImpl.delete(tags.get(0).getId());
         Mockito.verify(tagRepository, times(1)).deleteById(tags.get(0).getId());
@@ -105,7 +105,7 @@ class TagServiceImplTest {
 
     @Test
     void deleteUnsuccessful() {
-        Tag tag = new Tag(1L, "expected", new HashSet<>());
+        Tag tag = new Tag(1L, "expected");
 
         tagServiceImpl.delete(tag.getId());
         Mockito.verify(tagRepository, times(1)).deleteById(tag.getId());
